@@ -205,7 +205,7 @@ function getDateRange($filter) {
                         <img src="../assets/images/Icons/Chart 1.png" alt="Overview Icon">Overview</a></li>
                 <li class="active"><a href="record.php">
                         <img src="../assets/images/Icons/Record 3.png" alt="Record Icon">Record</a></li>
-                <li><a href="staff_view.php">
+                <li><a href="staff.php">
                         <img src="../assets/images/Icons/Staff 1.png" alt="Contacts Icon">Staff</a></li>
                 <li><a href="appointment.php">
                         <img src="../assets/images/Icons/Schedule 1.png" alt="Schedule Icon">Schedule</a></li>

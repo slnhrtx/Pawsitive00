@@ -211,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </a>
                 </li>
                 <li>
-                    <a href="staff_view.php">
+                    <a href="staff.php">
                         <img src="../assets/images/Icons/Staff 1.png" alt="Contacts Icon">Staff
                     </a>
                 </li>

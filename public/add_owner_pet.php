@@ -143,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
             $_SESSION['form_data'] = $_POST;
-            header('Location: register_owner.php');
+            header('Location: add_owner_pet.php');
             exit;
         }
 
@@ -319,7 +319,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <img src="../assets/images/Icons/Chart 1.png" alt="Overview Icon">Overview</a></li>
                 <li class="active"><a href="record.php">
                         <img src="../assets/images/Icons/Record 3.png" alt="Record Icon">Record</a></li>
-                <li><a href="staff_view.php">
+                <li><a href="staff.php">
                         <img src="../assets/images/Icons/Staff 1.png" alt="Contacts Icon">Staff</a></li>
                 <li><a href="appointment.php">
                         <img src="../assets/images/Icons/Schedule 1.png" alt="Schedule Icon">Schedule</a></li>
@@ -339,7 +339,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <div class="main-content">
         <h1>Register Pet Owner</h1>
-        <form class="staff-form" action="register_owner.php" method="POST" novalidate>
+        <form class="staff-form" action="add_owner_pet.php" method="POST" novalidate>
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <?php if ($success): ?>
                 <div class="success-message">
@@ -511,13 +511,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         text: "Are you sure you want to add this owner and pet?",
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonColor: '#198754', // Green color for confirm button
+                        confirmButtonColor: '#198754',
                         cancelButtonColor: '#d33',
                         confirmButtonText: 'Yes, register',
                         cancelButtonText: 'Cancel'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // Submit the form after confirmation
                             document.querySelector('.staff-form').submit();
                         }
                     });
@@ -527,19 +526,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 document.addEventListener("DOMContentLoaded", function () {
                     const phoneInput = document.getElementById("Phone");
 
-                    // Ensure +63 is always present
                     if (!phoneInput.value.startsWith("+63")) {
                         phoneInput.value = "+63";
                     }
 
                     phoneInput.addEventListener("input", function () {
                         if (!this.value.startsWith("+63")) {
-                            this.value = "+63";  // Restore +63 if deleted
+                            this.value = "+63";
                         }
                     });
 
                     phoneInput.addEventListener("keydown", function (event) {
-                        // Prevent backspace/delete for the first 3 characters (+63)
                         if ((this.selectionStart <= 3) &&
                             (event.key === "Backspace" || event.key === "Delete")) {
                             event.preventDefault();
