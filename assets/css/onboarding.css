@@ -1,0 +1,314 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+}
+  
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+  
+body {
+    background-color: #ffffff;
+}
+  
+header {
+    background-color: var(--color-1);
+    padding: 20px 10%;
+    border-radius: 0 0 20px 20px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+  
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+  
+.logo img {
+    width: 250px;
+    margin-right: 10px;
+}
+  
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 50px;
+    align-items: center;
+}
+  
+.nav-links li a {
+    color: #156f77; /* Initial text color to match theme */
+    background-color: #FFFFFF; /* Initial background color white */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 50px; /* Rounded button */
+    border: 2px solid #156f77; /* Border with theme color */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+  
+.nav-links li a:hover {
+    background-color: #156f77; /* Background changes to theme color on hover */
+    color: #FFFFFF; /* Text changes to white on hover */
+    border: 2px solid #156f77; /* Border stays the same */
+}
+  .nav-links a:hover {
+    color: #FFFFFF;
+    transition: color 0.3s;
+}
+  
+main {
+    padding: 120px 80px 15px; /* Reduced padding to minimize white space below the hero section */
+    background-color: #ffffff;
+    border-radius: 10px;
+}
+  
+.hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 0;
+    text-align: left;
+}
+  
+.hero-text {
+    margin-right: 150px;
+}
+  
+.hero h1, .hero h2 {
+    font-size: 420%;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+  
+.hero h1 {
+    color: #000;
+}
+  
+.hero h2 {
+    color: var(--color-1);
+}
+  
+.hero p {
+    font-size: 120%;
+    color: #000;
+    margin-top: 10px;
+}
+  
+.hero img {
+    width: 350px;
+}
+  
+@media (max-width: 768px) {
+    .hero {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .hero img {
+      margin-top: 20%;
+    }
+  
+    .hero-text {
+      margin-right: 0;
+    }
+}
+  
+/* Profile dropdown */
+/* End of Header */
+  
+footer {
+    background-color: #000;
+    color: white;
+    padding: 40px 20px;
+}
+  
+.footer-content {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 40px;
+}
+  
+.footer-logo img {
+    width: 200px;
+}
+  
+.footer-section {
+    width: 200px;
+}
+  
+.footer-section h4 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+  
+.footer-section ul {
+    list-style: none;
+}
+  
+.footer-section ul li {
+    margin-bottom: 8px;
+}
+  
+.footer-section ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+}
+  
+.footer-section ul li a:hover {
+    text-decoration: underline;
+}
+  
+.footer-section.address {
+    margin-top: -31px; /* Adjust this value to align the Address with the other sections */
+}
+  
+.footer-bottom {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+}
+  
+.social-media {
+    list-style: none;
+    padding: 0;
+}
+  
+.social-media li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+  
+.social-media li a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+}
+  
+.social-media li a img {
+    width: 24px;
+    margin-right: 15px;
+}
+  
+.social-media li a:hover {
+    text-decoration: underline;
+}
+
+/* Onboarding Page Styles */
+.onboarding-container {
+    max-width: 700px;
+    margin: 150px auto 50px; /* Increase this value from 100px to 150px or more to move it down */
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.onboarding-container h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.onboarding-container form {
+    display: flex;
+    flex-direction: column;
+}
+
+.onboarding-container input[type="text"],
+.onboarding-container input[type="email"],
+.onboarding-container input[type="number"] {
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.onboarding-container button {
+    padding: 12px;
+    background-color: var(--color-1);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.onboarding-container button:hover {
+    background-color: #0a4b52;
+}
+
+/* Progress Indicator Styles */
+.progress-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.progress-indicator .step {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    background: #ddd;
+    color: #555;
+    border-radius: 5px;
+    margin: 0 5px;
+}
+
+.progress-indicator .step.active {
+    background: var(--color-1);
+    color: white;
+}
+
+/* Error Messages */
+.error-messages {
+    background-color: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+input:invalid {
+    border-color: red;
+    outline-color: red;
+}
+
+input:valid {
+    border-color: green;
+    outline-color: green;
+}
+
+/* Time Range Picker */
+.time-range-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.time-range-picker select {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 45%;
+}

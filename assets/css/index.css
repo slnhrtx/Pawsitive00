@@ -1,0 +1,553 @@
+:root {
+  --color-1: #156f77;
+  --color-2: #a8ebf0;
+  --color-3: #efefef;
+  --color-4: #f5f5f5;
+  --color-5: #F4F6F8;
+  --color-6: #6F787C;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Remove unwanted horizontal scrolling and make sure the content fits */
+body, html {
+  background-color: #ffffff;
+  overflow-x: hidden; /* Disable horizontal scrolling */
+  width: 100%; /* Ensure body and html width are 100% */
+}
+
+header {
+  background-color: var(--color-1);
+  padding: 20px 10%;
+  border-radius: 0 0 20px 20px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo img {
+  width: 250px;
+  margin-right: 10px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 50px;
+  align-items: center;
+}
+
+.nav-links li a {
+  color: #156f77; /* Initial text color to match theme */
+  background-color: #FFFFFF; /* Initial background color white */
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 50px; /* Rounded button */
+  border: 2px solid #156f77; /* Border with theme color */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-links li a:hover {
+  background-color: #156f77; /* Background changes to theme color on hover */
+  color: #FFFFFF; /* Text changes to white on hover */
+  border: 2px solid #156f77; /* Border stays the same */
+}
+.nav-links a:hover {
+  color: #FFFFFF;
+  transition: color 0.3s;
+}
+
+main {
+  padding: 100px 80px 15px; /* Adjusted top padding */
+  background-color: #ffffff;
+  border-radius: 10px;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.hero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -40px;
+  padding: 60px 0; /* Reduced top and bottom padding */
+  text-align: left;
+}
+
+.hero-text {
+  margin-right: 150px;
+}
+
+.hero h1, .hero h2 {
+  font-size: 420%;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.hero h1 {
+  color: #000;
+}
+
+.hero h2 {
+  color: var(--color-1);
+}
+
+.hero p {
+  font-size: 120%;
+  color: #000;
+  margin-top: 10px;
+}
+
+.hero img {
+  width: 500px;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    flex-direction: column; 
+    text-align: center;
+  }
+
+  .hero img {
+    margin-top: 20%;
+  }
+
+  .hero-text {
+    margin-right: 0;
+  }
+}
+
+/* Profile dropdown */
+/* End of Header */
+
+footer {
+  background-color: #000; /* Black background color */
+  color: white;
+  padding: 40px 20px;
+  width: 100%; /* Ensure it stretches full width */
+  position: relative; /* Add positioning to avoid overlap or misalignment */
+}
+
+.footer-content {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 40px;
+}
+
+.footer-logo img {
+  width: 200px;
+}
+
+.footer-section {
+  width: 200px;
+}
+
+.footer-section h4 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.footer-section ul {
+  list-style: none;
+}
+
+.footer-section ul li {
+  margin-bottom: 8px;
+}
+
+.footer-section ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.footer-section ul li a:hover {
+  text-decoration: underline;
+}
+
+.footer-section.address {
+  margin-top: -31px; /* Adjust this value to align the Address with the other sections */
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.social-media {
+  list-style: none;
+  padding: 0;
+}
+
+.social-media li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.social-media li a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.social-media li a img {
+  width: 24px;
+  margin-right: 15px;
+}
+
+.social-media li a:hover {
+  text-decoration: underline;
+}
+
+/* Hero Section CTA */
+.appointment-form {
+  margin-top: 20px;
+}
+
+.appointment-form label {
+  font-size: 16px;
+  color: #000;
+  display: block;
+}
+
+.form-group {
+  display: flex;
+  align-items: center; /* Aligns input and button vertically */
+}
+
+.form-group input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.form-group input,
+.form-group button {
+    height: 50px; /* Set the same height for both input and button */
+    padding: 0 10px; /* Adjust padding to center text vertically */
+    font-size: 16px; /* Ensure consistent font size */
+    border-radius: 5px; /* Keep the corners rounded */
+}
+
+.form-group button {
+  padding: 10px 20px;
+  background-color: #156f77; /* Apply the correct color */
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+
+.form-group button:hover {
+background-color: #004d4f;
+}
+
+/* Mission & Vision */
+.mission-vision {
+  display: flex;
+  gap: 20px;
+  padding: 50px 10%;
+  text-align: center;
+}
+
+.card {
+  flex: 1;
+  padding: 20px;
+  background: var(--color-1);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card h2 {
+  color: #ffffff;
+  margin-bottom: 15px;
+}
+
+.card p {
+  color: #ffffff;
+  margin-bottom: 15px;
+}
+
+/* Hover effect */
+.card:hover {
+  transform: translateY(-10px); /* Adds a subtle lift effect */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Creates a stronger shadow on hover */
+  background: var(--color-2); /* Changes background color on hover */
+}
+
+.card:hover h2, 
+.card:hover p {
+  color: var(--color-1); /* Change text color to match the theme */
+}
+
+.about-us {
+background-color: var(--color-5); /* Light gray */
+padding: 20px 0; /* Remove side padding */
+width: 100vw; /* Make it full viewport width */
+margin-left: calc(-50vw + 50%); /* Fix alignment to center */
+}
+
+.about-content, .mission-vision {
+max-width: 1200px; /* Limit inner content width */
+margin: 0 auto; /* Center the content */
+padding: 0 20px; /* Add side padding for spacing */
+}
+
+.about-partnership {
+background-color: #ffffff; /* Dark blue background */
+color: #fff; /* White text for contrast */
+padding: 20px 20px;
+text-align: center;
+}
+
+.about-partnership .partnership-content h1 {
+font-size: 2.5rem;
+margin-bottom: 20px;
+color: var(--color-1);
+}
+
+.about-partnership .partnership-content p {
+font-size: 1.2rem;
+margin-bottom: 30px;
+color: var(--color-1);
+max-width: 1200px; /* Limit inner content width */
+margin: 0 auto;
+}
+
+.dogcat-pic {
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.dogcat-pic img {
+max-width: 65%;
+height: auto;
+}
+
+.emergency-banner {
+margin-top: 30px;
+color: #000000;
+text-align: center;
+padding: 10px 0;
+font-size: 16px;
+font-weight: bold;
+}
+
+.emergency-banner a {
+color: #000000; /* Highlight links in the secondary color */
+text-decoration: none;
+font-weight: 500;
+margin: 0 5px; /* Add spacing between links */
+}
+
+.emergency-banner a:hover {
+text-decoration: underline;
+}
+
+.emergency-banner i {
+margin-right: 5px; /* Space between icon and text */
+}
+
+.emergency-banner .icon {
+width: 20px; /* Adjust size of the icon */
+height: 20px;
+margin-right: 10px; /* Space between icon and text */
+vertical-align: middle; /* Align the icon with text */
+}
+
+/* Button for 'Register Now' */
+.register-btn {
+  background-color: #156f77 !important;
+  width: 30%;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  color: white;
+}
+
+.register-btn:hover {
+  background-color: #004d4f !important; /* Darker shade of the primary color */
+  transition: background-color 0.3s ease;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.6); /* Slightly darker background for focus */
+  padding-top: 50px; /* Slightly higher padding */
+}
+
+.modal-content {
+  position: relative; /* Required for the close button positioning */
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 40px;
+  border-radius: 15px;
+  width: 35%;
+  text-align: center;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+}
+
+.modal-content h2 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #000000; /* Using primary color */
+  margin-bottom: 20px;
+}
+
+.close-btn {
+  position: absolute; /* Position relative to the modal content */
+  top: 1px; /* Distance from the top of the modal content */
+  right: 20px; /* Distance from the right edge of the modal content */
+  color: #000;
+  font-size: 50px; /* Adjust font size */
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+  color: #156f77; /* Optional hover effect */
+}
+
+button {
+  margin: 10px 0;
+  padding: 15px 30px;
+  font-size: 20px;
+  cursor: pointer;
+  border: none;
+  border-radius: 10px; /* Rounded corners */
+  background-color: var(--color-1);
+  color: white;
+  width: 80%;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+  background-color: #004d4f; /* Darker shade on hover */
+  transform: scale(1.05); /* Slightly enlarge the button */
+}
+
+/* Button specific for each login type */
+button:nth-child(1) {
+  background-color: var(--color-2); /* Pet Owner Login specific color */
+}
+
+button:nth-child(2) {
+  background-color: #6F787C; /* Clinic Staff Login specific color */
+}
+
+@media (min-width: 1536px){
+  container{
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+@media (min-width: 1024px){
+  container{
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+@media (min-width: 640px){
+  container{
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+@media (min-width: 962px){
+  container{
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+@media (min-width: 414px){
+  container{
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+@media (min-width: 896px){
+  container{
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+@media (min-width: 1536px){
+    container{
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+  }
+}
+
+@media (min-width: 375px){
+  container{
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+

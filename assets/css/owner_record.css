@@ -1,0 +1,281 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins";
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  header {
+    background-color: #156f77;
+    padding: 20px 10%;
+    border-radius: 0 0 20px 20px;
+    position: fixed; /* Make the header stick to the top */
+    top: 0; /* Align it to the top */
+    width: 100%; /* Make sure it stretches across the screen */
+    z-index: 1000; /* Ensure it stays on top of other elements */
+  }
+  
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+  }
+  
+  .logo img {
+    width: 250px;
+    margin-right: 10px;
+  }
+  
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 50px; /* Adjust the gap between the navigation items */
+    align-items: center;
+    margin-left: auto; /* Push the nav-links to the left */
+  }
+  
+  .profile-icon {
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-links li a {
+    color: #BDBDBD;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 10px 15px; /* Add padding to the links */
+  }
+  
+  .nav-links a:hover {
+    color: #FFFFFF;
+    transition: color 0.3s;
+  }
+  
+  .profile-icon img {
+    width: 30px;
+  }
+  
+  main {
+    padding-top: 120px; /* Adjust this value to match the height of your fixed header */
+    padding-left: 80px; /* Add left padding */
+    padding-right: 80px; /* Add right padding */
+    padding-bottom: 80px; /* Add bottom padding */
+    background-color: #ffffff; /* Optional background to highlight content */
+    box-sizing: border-box; /* Ensures padding doesn't affect the width calculation */
+    border-radius: 10px; /* Optional for rounded edges */
+  }
+  
+  /* Profile dropdown */
+  .profile-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .profile-icon {
+    width: 30px;
+    cursor: pointer;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 210px; /* Increase the width to accommodate longer text */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 10px 0;
+    z-index: 1;
+    top: 150%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .dropdown-content a {
+    display: flex; /* Use flexbox to align the icon and text */
+    align-items: center; /* Vertically center icon and text */
+    padding: 10px 16px; /* Adjust padding */
+    color: black;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .dropdown-content a img {
+    width: 20px; /* Set a fixed width for icons */
+    height: 20px; /* Set a fixed height for icons */
+    margin-right: 10px; /* Add spacing between icon and text */
+  }
+  
+  .dropdown-content a:hover {
+    background-color: #f1f1f1; /* Background color on hover */
+  }
+  
+  /* Profile dropdown */
+  /* End of Header */
+  
+  .pet-profile {
+    display: flex;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+  
+  .pet-photo img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-right: 20px;
+  }
+  
+  .pet-details h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #156f77;
+    font-size: 24px;
+  }
+  
+  .pet-details h2 select {
+    padding: 5px;
+    font-size: 20px;
+  }
+  
+  .pet-details p {
+    display: flex;
+    gap: 20px; /* Adds space between the label-value pairs (Age:, Pet Type:, Gender:) */
+    color: #000;
+    font-size: 24px;
+  }
+  
+  .pet-details p strong {
+    color: #156f77; /* Set label color */
+  }
+  
+  .pet-details p strong::after {
+    content: ""; /* Ensure no additional space after labels */
+    margin-right: 0; /* No space between label and value */
+  }
+  
+  .pet-details p {
+    margin-bottom: 5px; /* Space between the rows */
+  }
+  
+  /* Appointment and Consultation Section */
+  .appointment-section {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    margin-bottom: 20px;
+    gap: 20px; /* Adds a small gap between sections */
+  }
+  
+  .appointment-section p {
+    margin-bottom: 10px;
+  }
+  
+  .appointment-section .previous-appointment,
+  .appointment-section .previous-consultation {
+      background-color: #efefef; /* A slightly darker gray */
+      padding: 15px;
+      border-radius: 10px;
+      flex: 1 1 calc(50% - 20px);
+      min-width: 300px;
+  }
+  
+  .appointment-section .previous-consultation {
+    margin-left: 0;
+  }
+  
+  .previous-appointment h3, .previous-consultation h3 {
+    color: #156f77;
+    margin-bottom: 10px;
+  }
+  
+  .previous-consultation {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Space between content and link */
+    background-color: #EFEFEF;
+    padding: 20px; /* Adjust the padding for a bit more space */
+    border-radius: 10px;
+    height: 250px; /* Set a fixed height for consistent box size */
+    width: 100%; /* Set the width */
+    box-sizing: border-box; /* Ensure padding doesn't affect the width */
+  }
+  
+  .previous-consultation p {
+    margin-bottom: 10px;
+    flex-grow: 1; /* Ensure text grows and takes available space */
+  }
+  
+  .previous-consultation a {
+    color: #3796FD; /* Link color */
+    text-decoration: none; /* Remove underline */
+    align-self: flex-end; /* Align the link to the bottom-right */
+    margin-top: auto; /* Push the link to the bottom */
+    transition: color 0.3s ease; /* Smooth transition on hover */
+  }
+  
+  .previous-consultation a:hover {
+    font-weight: bold;
+    text-decoration: underline; /* Underline on hover */
+  }
+  
+  /* Prescription Section */
+  .prescription-section table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    overflow-x: auto;
+  }
+  
+  .prescription-section h3 {
+    color: #156f77;
+    margin-bottom: 10px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  table th, table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  table th {
+    background-color: #156f77;
+    color: white;
+  }
+  
+  @media (max-width: 768px) {
+    .appointment-section {
+        flex-direction: column; /* Stacks the sections vertically */
+    }
+  }

@@ -1,0 +1,308 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins";
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #156f77; /* Background color for sidebar */
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 0 20px 20px 0; /* Rounded right corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    height: 100vh; /* Full height */
+    position: fixed; /* Fixes the sidebar to the left */
+    top: 0; /* Ensures the sidebar stays at the top */
+    left: 0; /* Anchors the sidebar to the left of the viewport */
+    z-index: 10; /* Keeps the sidebar above other content */
+}
+
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    margin-bottom: 50px; /* Adjust this as necessary */
+} 
+
+.logo img {
+    width: 210px;
+    margin-right: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+nav ul li {
+    padding: 10px 0;
+    margin-bottom: 15px; /* Spacing between items */
+    margin-left: 15px; /* Move the items to the right */
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center; /* Align text and icon horizontally */
+}
+
+nav ul li:last-child {
+    margin-bottom: 0; /* Remove margin after the last item */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+nav ul li.active {
+    font-weight: bold;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+nav ul li.active {
+    background-color: #ffffff; /* White background for the active item */
+    color: #156f77; /* Text color for active item */
+    border-radius: 8px; /* Rounded corners for the active item */
+    padding: 10px; /* Padding inside the white box */
+}
+
+nav ul li.active a {
+    color: #156f77; /* Ensuring link text inside active item is dark teal */
+}
+
+nav ul li a:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+.sidebar-bottom {
+    margin-top: auto; /* Moves this section to the bottom of the sidebar */
+    display: flex;
+    margin-left: 15px; /* Move the items to the right */
+    flex-direction: column;
+}
+
+.sidebar-bottom button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 10px;
+    font-size: 20px;
+    display: flex;
+    align-items: center; /* Align icon and text horizontally */
+}
+
+.sidebar-bottom button img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+    vertical-align: middle; /* Align icon with text */
+}
+
+.sidebar-bottom button:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease-in-out; /* Smooth transition */
+}
+
+nav ul li:focus, .sidebar-bottom button:focus, .schedule-item button:focus {
+    outline: 3px solid var(--color-2);
+}
+
+/* Smooth transitions for interactive elements */
+nav ul li, .sidebar-bottom button, .schedule-item button {
+    transition: all 0.3s ease-in-out;
+}
+
+nav ul li:hover, .sidebar-bottom button:hover, .schedule-item button:hover {
+    transform: translateX(5px); /* Adds a smooth hover effect */
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #ffffff;
+    margin-left: 250px; /* Adds space to the left for the sidebar */
+    min-height: 100vh; /* Ensures the main content covers the full height */
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* End of Header/Sidebar */
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding-top: 0; /* Add this line to reduce the padding at the top */
+}
+
+h1 {
+    margin-bottom: 20px;
+    margin-top: 0; /* Add this line to remove the top margin */
+    padding-top: 0; /* Add this line if there's any padding */
+}
+
+.form-section {
+    margin-bottom: 20px;
+}
+
+.form-section h2 {
+    background-color: #f8f8f8;
+    padding: 10px;
+    color: #156f77; /* Change the text color to #156f77 */
+    border-left: 4px solid #156f77;
+    margin-bottom: 15px;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adjusts the space between elements */
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.form-row input[type="checkbox"] {
+    margin-right: 10px; /* Adds space between checkbox and labels */
+}
+
+.small-input {
+    flex: 1; /* Allows the input boxes to stretch and fill available space */
+    border: 1px solid #767676;
+    padding: 8px; /* Make padding consistent with other input fields */
+    margin-right: 10px;
+    width: 100%; /* Make the input boxes take up the full available space */
+    box-sizing: border-box; /* Ensures padding does not affect width */
+}
+
+.form-row label {
+    margin-right: 5px; /* Reduces space between label and input */
+}
+
+.form-row input[type="text"],
+.form-row input[type="number"],
+.form-row input[type="date"],
+.form-row select,
+.form-row textarea {
+    flex: 1;
+    padding: 8px;
+    margin-right: 10px;
+}
+
+textarea {
+    width: 100%;
+}
+
+select {
+    width: auto;
+    padding: 8px;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+input[type="submit"] {
+    background-color: #156f77; /* Original background color */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+}
+
+.fecal-score-options {
+    align-items: center;
+    gap: 10px; /* Adjust the gap between each radio button/label pair */
+}
+
+.fecal-score-options label {
+    margin-right: 2px;
+}
+
+.test-options {
+    align-items: center;
+    gap: 10px; /* Adjust this value to control spacing between checkboxes */
+}
+
+.test-options input[type="checkbox"] {
+    margin-right: 2px; /* Adds a small gap between checkbox and label */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+table th, table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+table th {
+  background-color: #156f77;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .appointment-section {
+      flex-direction: column; /* Stacks the sections vertically */
+  }
+}
+
+.submit-btn {
+  background-color: var(--color-1); /* Use the primary color */
+  color: white; /* White text */
+  padding: 10px 20px; /* Adjust padding */
+  font-size: 16px; /* Adjust font size */
+  border: none; /* Remove borders */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Show pointer on hover */
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.submit-btn:hover {
+    background-color: #104d56; /* Lighter color on hover */
+}

@@ -1,0 +1,424 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins";
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #156f77; /* Background color for sidebar */
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 0 20px 20px 0; /* Rounded right corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    height: 100vh; /* Full height */
+    position: fixed; /* Fixes the sidebar to the left */
+    top: 0; /* Ensures the sidebar stays at the top */
+    left: 0; /* Anchors the sidebar to the left of the viewport */
+    z-index: 10; /* Keeps the sidebar above other content */
+}
+
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    margin-bottom: 50px; /* Adjust this as necessary */
+} 
+
+.logo img {
+    width: 210px;
+    margin-right: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+nav ul li {
+    padding: 10px 0;
+    margin-bottom: 15px; /* Spacing between items */
+    margin-left: 15px; /* Move the items to the right */
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center; /* Align text and icon horizontally */
+}
+
+nav ul li:last-child {
+    margin-bottom: 0; /* Remove margin after the last item */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+nav ul li.active {
+    font-weight: bold;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+nav ul li.active {
+    background-color: #ffffff; /* White background for the active item */
+    color: #156f77; /* Text color for active item */
+    border-radius: 8px; /* Rounded corners for the active item */
+    padding: 10px; /* Padding inside the white box */
+}
+
+nav ul li.active a {
+    color: #156f77; /* Ensuring link text inside active item is dark teal */
+}
+
+nav ul li a:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+.sidebar-bottom {
+    margin-top: auto; /* Moves this section to the bottom of the sidebar */
+    display: flex;
+    margin-left: 15px; /* Move the items to the right */
+    flex-direction: column;
+}
+
+.sidebar-bottom button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 10px;
+    font-size: 20px;
+    display: flex;
+    align-items: center; /* Align icon and text horizontally */
+}
+
+.sidebar-bottom button img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+    vertical-align: middle; /* Align icon with text */
+}
+
+.sidebar-bottom button:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease-in-out; /* Smooth transition */
+}
+
+nav ul li:focus, .sidebar-bottom button:focus, .schedule-item button:focus {
+    outline: 3px solid var(--color-2);
+}
+
+/* Smooth transitions for interactive elements */
+nav ul li, .sidebar-bottom button, .schedule-item button {
+    transition: all 0.3s ease-in-out;
+}
+
+nav ul li:hover, .sidebar-bottom button:hover, .schedule-item button:hover {
+    transform: translateX(5px); /* Adds a smooth hover effect */
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #ffffff;
+    margin-left: 250px; /* Adds space to the left for the sidebar */
+    min-height: 100vh; /* Ensures the main content covers the full height */
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* End of Header/Sidebar */
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.actions input {
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.actions .filter-btn, .add-btn {
+    padding: 10px 15px;
+    background-color: var(--color-1);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.actions .add-btn {
+    margin-left: auto;
+}
+
+.staff-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.staff-table th, .staff-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.staff-table th {
+    background-color: var(--color-2);
+}
+
+/* Add Staff Form Styling */
+.staff-form {
+    background-color: #ffffff;
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.staff-form h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-1);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.input-container {
+    flex: 1; /* Make all input fields equally wide */
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Adds spacing between fields */
+    margin-bottom: 20px;
+}
+
+.form-row label {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-6);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.form-row input[type="text"],
+.form-row input[type="time"],
+.form-row input[type="email"],
+.form-row input[type="file"],
+.form-row input[type="date"],
+.form-row input[type="number"],
+.form-row select {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: var(--color-4);
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.form-row input[type="text"]:focus,
+.form-row input[type="time"]:focus,
+.form-row input[type="email"]:focus,
+.form-row input[type="file"]:focus,
+.form-row input[type="date"]:focus,
+.form-row input[type="number"]:focus,
+.form-row select:focus {
+    border-color: var(--color-1);
+    background-color: #fff;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-6);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="time"],
+.form-group input[type="email"],
+.form-group input[type="file"],
+.form-group input[type="date"],
+.form-group input[type="number"],
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: var(--color-4);
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="time"]:focus,
+.form-group input[type="email"]:focus,
+.form-group input[type="file"]:focus,
+.form-group input[type="date"]:focus,
+.form-group input[type="number"]:focus,
+.form-group select:focus {
+    border-color: var(--color-1);
+    background-color: #fff;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-buttons button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-group.terms a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.cancel-btn {
+    background-color: #efefef;
+    color: var(--color-6);
+}
+
+.cancel-btn:hover {
+    background-color: #ddd;
+}
+
+.confirm-btn {
+    background-color: var(--color-1);
+    color: white;
+}
+
+.confirm-btn:hover {
+    background-color: #13595f;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .staff-form {
+        padding: 15px 20px;
+        max-width: 100%;
+    }
+}
+
+.regowner-btn {
+    background-color: var(--color-1);
+    color: white;
+}
+
+.regowner-btn:hover {
+    background-color: #004d4f;
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    background-color: var(--color-1);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #004d4f;
+}
+
+.btn-danger {
+    margin-bottom: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    background-color: #efefef;
+    color: var(--color-6);
+}
+
+.btn-danger:hover {
+    background-color: #ddd;
+}
+
+.form-row textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: var(--color-4);
+    color: #333;
+    transition: all 0.3s ease;
+    resize: none; /* Optional: disables resizing to match input fields */
+}
+
+.form-row textarea:focus {
+    border-color: var(--color-1);
+    background-color: #fff;
+    outline: none;
+}
+
+
+

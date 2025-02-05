@@ -1,0 +1,435 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins";
+}
+
+body, html {
+    display: flex;
+    min-height: 100vh;
+    background-color: #ffffff;
+    font-family: "Poppins" !important;
+}
+
+.sidebar {
+    position: fixed; /* Fixes the sidebar to the left */
+    width: 250px;
+    background-color: #156f77; /* Background color for sidebar */
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 0 20px 20px 0; /* Rounded right corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    height: 100vh; /* Full height */
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    margin-bottom: 50px; /* Adjust this as necessary */
+} 
+
+.logo img {
+    width: 210px;
+    margin-right: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+nav ul li {
+    padding: 10px 0;
+    margin-bottom: 15px; /* Spacing between items */
+    margin-left: 15px; /* Move the items to the right */
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center; /* Align text and icon horizontally */
+}
+
+nav ul li:last-child {
+    margin-bottom: 0; /* Remove margin after the last item */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+nav ul li.active {
+    font-weight: bold;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+nav ul li.active {
+    background-color: #ffffff; /* White background for the active item */
+    color: #156f77; /* Text color for active item */
+    border-radius: 8px; /* Rounded corners for the active item */
+    padding: 10px; /* Padding inside the white box */
+}
+
+nav ul li.active a {
+    color: #156f77; /* Ensuring link text inside active item is dark teal */
+}
+
+nav ul li a:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+.sidebar-bottom {
+    margin-top: auto; /* Moves this section to the bottom of the sidebar */
+    display: flex;
+    margin-left: 15px; /* Move the items to the right */
+    flex-direction: column;
+}
+
+.sidebar-bottom button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 10px;
+    font-size: 20px;
+    display: flex;
+    align-items: center; /* Align icon and text horizontally */
+}
+
+.sidebar-bottom button img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+    vertical-align: middle; /* Align icon with text */
+}
+
+.sidebar-bottom button:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li:focus, .sidebar-bottom button:focus {
+    outline: 3px solid var(--color-2);
+}
+
+/* Smooth transitions for interactive elements */
+nav ul li, .sidebar-bottom button {
+    transition: all 0.3s ease-in-out;
+}
+
+nav ul li:hover, .sidebar-bottom button:hover {
+    transform: translateX(5px); /* Adds a smooth hover effect */
+}
+
+.main-content {
+    margin-left: 250px; /* Adds space to the left for the sidebar */
+    min-height: 100vh; /* Ensures the main content covers the full height */
+    flex: 1;
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* End of Header/Sidebar */
+
+/* Individual sections */
+.section-container {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px; /* Add spacing between sections */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Title of each section */
+.section-container h2 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.overview-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.total-record h2 {
+    font-size: 18px;
+    color: #666666;
+}
+
+.total-record p {
+    font-size: 32px;
+    font-weight: bold;
+    color: #333333;
+}
+
+.pet-records {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px; /* Space between pet items */
+}
+
+.pet-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background-color: #f9f9f9; /* Light background */
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* Enhanced shadow for depth */
+    padding: 15px;
+    width: 120px; /* Adjusted width for uniformity */
+}
+
+.pet-item img.pet-icon {
+    width: 40px; /* Adjusted size of the icon */
+    height: 40px;
+    margin-bottom: 10px; /* Space between icon and text */
+}
+
+.pet-item p {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333; /* Darker text color */
+    margin-bottom: 5px; /* Space below the label */
+}
+
+.pet-item span {
+    font-size: 20px; /* Adjusted font size for count */
+    font-weight: bold;
+    color: #156f77; /* Themed color for counts */
+}
+
+.statistics-section {
+    margin-bottom: 20px;
+}
+
+.statistics-section h2 {
+    font-size: 18px;
+    color: #666666;
+    margin-bottom: 10px;
+}
+
+.chart-placeholder {
+    background-color: #e0e0e0;
+    height: 200px;
+    border-radius: 8px;
+}
+
+.schedule-section {
+    margin-bottom: 20px;
+}
+
+.schedule-section h2 {
+    font-size: 18px;
+    color: #666666;
+    margin-bottom: 10px;
+}
+
+/* Upcoming Appointments and Confirm Appointment Cards */
+.schedule-item {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* Enhanced shadow for depth */
+    margin-bottom: 15px;
+}
+
+.schedule-item h3 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.schedule-item p {
+    font-size: 14px;
+    color: #777;
+}
+
+.schedule-item button {
+    background-color: #156f77;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    border: none;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.schedule-item button:hover {
+    background-color: #004d4f;
+}
+
+.create-account {
+    background-color: #156f77;
+    color: #ffffff;
+    padding: 15px 20px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    border-radius: 8px;
+    font-size: 18px;
+}
+
+.create-account a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* Activities Section */
+.activity-item {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* Enhanced shadow for depth */
+    margin-bottom: 10px;
+}
+
+.activity-item p {
+    font-size: 14px;
+    color: #777;
+}
+
+/* Content Wrapper */
+.content-wrapper {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Adds spacing between the main content and the right section */
+    width: 100%; /* Ensures the wrapper spans the full width */
+    padding: 0; /* Remove any padding that prevents reaching the edge */
+}
+
+/* Right-section container */
+.right-section {
+    position: absolute; /* Position the section to the right */
+    right: 20px; /* Distance from the right edge */
+    top: 20px; /* Adjusted to be closer to the top */
+    width: 300px; /* Width of the right section */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align content to the left */
+    gap: 20px; /* Add spacing between cards and buttons */
+    max-height: calc(100vh - 40px); /* Allow the section to fill the height of the viewport minus some padding */
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+
+/* Styling for cards (Confirm Appointment and Recent Activities) */
+.right-section .card {
+    background-color: #ffffff; /* White background like Canvas */
+    border-radius: 8px; /* Rounded corners */
+    padding: 15px; /* Padding inside the card */
+    width: 100%; /* Full width of the right section */
+    font-family: 'Poppins', sans-serif; /* Clean font */
+}
+
+.right-section .card h2 {
+    font-size: 16px; /* Smaller, clean heading */
+    font-weight: 600; /* Bold heading */
+    margin-bottom: 10px;
+    color: #333; /* Dark text */
+}
+
+.right-section .card p {
+    font-size: 14px; /* Slightly smaller text */
+    color: #555; /* Subtle gray text */
+}
+
+/* Buttons (Add Pet and Export Data) */
+.right-section .add-pet,
+.right-section .export-button,
+.right-section .walk-in,
+.right-section .add-record {
+    width: 100%; /* Buttons span the full width */
+    padding: 12px;
+    font-size: 14px; /* Clean, smaller font */
+    font-weight: bold;
+    text-align: center;
+    border-radius: 4px; /* Rounded buttons */
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-pet,
+.export-button,
+.walk-in,
+.add-record {
+    background-color: #156f77; /* Unified background color */
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+}
+
+.add-pet a,
+.export-button a,
+.walk-in a,
+.add-record a {
+    color: white;
+    text-decoration: none;
+}
+
+.add-pet:hover,
+.walk-in,
+.add-record:hover {
+    background-color: #004d4f; /* Slightly darker shade for hover */
+    color: white; /* Keep the text color consistent */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+}
+
+.chart-container {
+    width: 100%;
+    height: 400px; /* Increase height for better visibility */
+    margin: 20px 0; /* Add spacing around the chart */
+}
+
+.export-button:hover {
+    background-color: #004d4f; /* Slightly darker shade for hover */
+    color: white; /* Keep the text color consistent */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+} 

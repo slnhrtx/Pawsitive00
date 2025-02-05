@@ -1,0 +1,425 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+}
+
+/* Main container layout */
+.login-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100vh; /* Ensure full viewport height */
+    background-color: white;
+    overflow: hidden;
+}
+
+/* Default left-panel for larger screens */
+.left-panel {
+    width: 50%; /* Set default width */
+    background-color: var(--color-1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    border-bottom-right-radius: 50px;
+    border-top-right-radius: 50px;
+    min-height: 100vh; /* Ensure the left panel takes full height */
+}
+
+.branding {
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+}
+
+.branding .logo {
+    width: 300px; /* Adjusted */
+    margin-bottom: 50px;
+}
+
+.welcome-message {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.branding p {
+    font-size: 18px;
+}
+
+/* Right panel (form) layout */
+.right-panel {
+    width: 50%; /* Set default width */
+    padding-bottom: 50px; /* Removes only the bottom padding */
+    padding-top: 50px; /* Keep this or adjust as needed */
+    padding-left: 80px; /* Adjust side padding if needed */
+    padding-right: 80px; /* Adjust side padding if needed */
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-top-left-radius: 150px;
+    border-bottom-left-radius: 150px;
+    position: relative; /* Required for absolute positioning of the image */
+    height: 100vh; /* Make sure it stretches the full viewport height */
+}
+
+/* Form container */
+.form-container {
+    background-color: transparent;
+    padding: 0;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+
+/* Form title */
+.form-title {
+    font-size: 24px;
+    color: var(--color-1);
+    margin-bottom: 30px;
+}
+
+/* Form Group */
+.form-group {
+    position: relative;
+    margin-bottom: 25px;
+    transition: margin-bottom 0.3s ease;
+}
+
+.form-group label {
+    display: block;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    resize: none; /* Prevent resizing for consistent design */
+}
+
+.form-group textarea:focus,
+.form-group input:focus {
+    outline: none;
+    border-color: #156f77; /* Highlight border color on focus */
+    box-shadow: 0 0 5px rgba(21, 111, 119, 0.5); /* Subtle shadow effect */
+}
+
+/* Placeholder Text Styling */
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    font-family: "Poppins"; /* Inherit font family */
+}
+
+/* Password requirements list */
+#password-requirements {
+    list-style-type: none;
+    padding: 0;
+}
+
+.eye-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%; /* Center the icon vertically */
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: #333;
+}
+
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-container input {
+    flex: 1; /* Ensures the input field takes up available space */
+    padding-right: 40px; /* Adds space for the eye icon */
+}
+
+.password-container .eye-icon {
+    position: absolute;
+    right: 12px; /* Aligns the icon to the right inside the container */
+    top: 50%; /* Centers the icon vertically */
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #333;
+    font-size: 18px;
+}
+
+.requirement {
+    display: flex;
+    align-items: center;
+}
+
+.requirement i {
+    margin-right: 5px;
+    color: red;
+}
+
+form input[type="submit"] {
+    padding: 12px;
+    background-color: var(--color-1);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+form input[type="submit"]:hover {
+    background-color: #004d4f; /* Darker shade on hover */
+}
+
+/* Terms and conditions */
+.form-group.terms {
+    display: flex;
+    align-items: center; /* Align checkbox to the vertical center of text */
+    font-size: 14px;
+    color: var(--color-6);
+    line-height: 1.5;
+    margin-top: 10px;
+}
+
+.form-group.terms input {
+    margin-right: 10px; /* Space between the checkbox and the text */
+    transform: translateY(-5px); /* Adjust alignment slightly */
+    width: auto;
+}
+
+.form-group.terms label {
+    display: block;
+    font-size: inherit;
+}
+
+.form-group.terms a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.form-group.terms a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive layout for screens 1200px and below */
+@media screen and (max-width: 1200px) {
+    .login-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .left-panel, .right-panel {
+        width: 100%;
+        padding: 40px;
+    }
+
+    .right-panel {
+        border-radius: 0;
+    }
+
+    .branding h2 {
+        font-size: 24px;
+    }
+
+    .branding p {
+        font-size: 14px;
+    }
+
+    .form-title {
+        font-size: 20px;
+    }
+
+    .form-group input {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    .login-btn {
+        font-size: 16px;
+        padding: 12px;
+    }
+}
+
+/* Responsive layout for screens 768px and below */
+@media screen and (max-width: 768px) {
+    .login-container {
+        width: 100%;
+        flex-direction: column;
+        border-radius: 0;
+    }
+
+    .left-panel {
+        display: none;
+    }
+
+    .right-panel {
+        width: 100%;
+        padding: 20px;
+        border-radius: 0;
+    }
+
+    .welcome-message {
+        font-size: 24px;
+    }
+
+    .form-title {
+        font-size: 18px;
+    }
+
+    .form-group input {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .login-btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .form-group.terms {
+        font-size: 12px; /* Reduced font size for tablets */
+    }
+
+    .form-group.terms label {
+        max-width: 100%; /* Make label full width for mobile */
+    }
+}
+
+/* Very small screens 480px and below */
+@media screen and (max-width: 480px) {
+    .right-panel {
+        padding: 15px;
+    }
+
+    .form-title {
+        font-size: 16px;
+    }
+
+    .form-group input {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .eye-icon {
+        right: 10px;
+    }
+
+    .login-btn {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .form-group.terms {
+        font-size: 11px; /* Smaller font size for mobile devices */
+    }
+
+    .form-group.terms input {
+        margin-right: 8px; /* Reduce checkbox spacing */
+    }
+}
+
+.required-asterisk {
+    color: red;
+}
+
+.error-message {
+    color: #842029; /* Darker red for better contrast */
+    background-color: #f8d7da; /* Subtle red background */
+    padding: 12px 15px; /* Slightly larger padding for better readability */
+    margin-bottom: 15px;
+    border: 1px solid #f5c6cb; /* Matching border color */
+    border-radius: 8px; /* Softer border radius */
+    font-weight: 600; /* Slightly less bold for readability */
+    font-size: 14px; /* Ensure consistent font size */
+    display: flex; /* Flexbox for icon and text alignment */
+    align-items: center;
+    gap: 10px; /* Space between icon and text */
+}
+
+/* Hover effect for interactivity */
+.error-message:hover {
+    background-color: #f5c2c7; /* Slightly darker background on hover */
+    border-color: #f1aeb5; /* Subtle hover border effect */
+}
+
+/* Password requirements list */
+#password-requirements {
+    list-style-type: none;
+    width: 100%;
+    display: block;
+    max-height: 0; /* Initially hidden */
+    opacity: 0; /* Initially invisible */
+    visibility: hidden; /* Hidden from screen readers */
+    font-size: 14px;
+    transition: max-height 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+    overflow: hidden; /* Prevents content overflow when hidden */
+}
+
+/* When the requirements list is shown */
+#password-requirements.visible {
+    max-height: 200px; /* Adjust based on content size */
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Requirement list items */
+.requirement {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.requirement i {
+    color: red;
+}
+
+.requirement.valid i {
+    color: green; /* Green check for valid requirement */
+}
+
+.requirement.invalid i {
+    color: red; /* Red cross for invalid requirement */
+}
+
+.register-btn {
+    text-align: right; /* Aligns the link to the right */
+    color: #007bff; /* Link color */
+    text-decoration: none;
+}
+
+.register-btn:hover {
+    text-decoration: underline;
+    color: #0056b3; /* Darker color on hover */
+}

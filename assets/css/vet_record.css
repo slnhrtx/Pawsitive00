@@ -1,0 +1,842 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins";
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #156f77; /* Background color for sidebar */
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 0 20px 20px 0; /* Rounded right corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    height: 100vh; /* Full height */
+    
+    /* Make sidebar fixed */
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    margin-bottom: 50px; /* Adjust this as necessary */
+} 
+
+.logo img {
+    width: 210px;
+    margin-right: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+nav ul li {
+    padding: 10px 0;
+    margin-bottom: 15px; /* Spacing between items */
+    margin-left: 15px; /* Move the items to the right */
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center; /* Align text and icon horizontally */
+}
+
+nav ul li:last-child {
+    margin-bottom: 0; /* Remove margin after the last item */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+nav ul li.active {
+    font-weight: bold;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+nav ul li.active {
+    background-color: #ffffff; /* White background for the active item */
+    color: #156f77; /* Text color for active item */
+    border-radius: 8px; /* Rounded corners for the active item */
+    padding: 10px; /* Padding inside the white box */
+}
+
+nav ul li.active a {
+    color: #156f77; /* Ensuring link text inside active item is dark teal */
+}
+
+nav ul li a:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+.sidebar-bottom {
+    margin-top: auto; /* Moves this section to the bottom of the sidebar */
+    display: flex;
+    margin-left: 15px; /* Move the items to the right */
+    flex-direction: column;
+}
+
+.sidebar-bottom button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 10px;
+    font-size: 20px;
+    display: flex;
+    align-items: center; /* Align icon and text horizontally */
+}
+
+.sidebar-bottom button img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+    vertical-align: middle; /* Align icon with text */
+}
+
+.sidebar-bottom button:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li:focus, .sidebar-bottom button:focus, .schedule-item button:focus {
+    outline: 3px solid var(--color-2);
+}
+
+/* Smooth transitions for interactive elements */
+nav ul li, .sidebar-bottom button, .schedule-item button, .export-button {
+    transition: all 0.3s ease-in-out;
+}
+
+nav ul li:hover, .sidebar-bottom button:hover, .schedule-item button:hover, .export-button:hover {
+    transform: translateX(5px); /* Adds a smooth hover effect */
+}
+
+.main-content {
+    margin-left: 250px; /* Adjust this based on sidebar width */
+    flex: 1;
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* End of Header/Sidebar */
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.actions input {
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.button-group {
+    display: flex; /* Align buttons horizontally */
+    gap: 10px; /* Space between the buttons */
+    margin-left: auto; /* Push the button group to the right */
+}
+
+.actions .filter-btn, .add-btn {
+    padding: 10px 15px;
+    background-color: #156f77;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.actions .add-btn {
+    margin-left: auto; /* Move the Add Staff button to the right */
+    padding: 10px 15px;
+    background-color: #156f77;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.staff-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.staff-table th, .staff-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.staff-table th {
+    background-color: #a8ebf0;
+}
+
+.staff-table tbody tr {
+    transition: background-color 0.3s ease;
+    cursor: pointer; /* Add a pointer cursor for a better user experience */
+}
+
+/* Hover effect for the table rows */
+.staff-table tbody tr:hover {
+    background-color: #EEEEEE; /* Highlight color on hover */
+    color: #fff; /* Optional: Change text color on hover */
+}
+
+.staff-table tbody tr:hover td {
+    color: #000000; /* Change the color of text inside the row */
+}
+
+/* For Filter */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    margin-top: 5px;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    padding: 15px;
+    z-index: 100;
+    width: 200px;
+}
+
+.dropdown-content label {
+    padding: 10px;
+    display: block;
+    cursor: pointer;
+    color: #333;
+}
+
+.dropdown-content label.active {
+    font-weight: bold;
+    color: #156f77;
+}
+
+.dropdown-content hr {
+    border: 1px solid #ddd;
+    margin: 10px 0;
+}
+
+.dropdown-content label:hover {
+    background-color: #f1f1f1;
+}
+
+/* Show the dropdown content when the button is clicked */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-filter {
+    position: relative;
+    display: inline-block;
+}
+
+.filter-btn {
+    padding: 10px 15px;
+    background-color: #156f77;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.filter-btn i {
+    margin-right: 5px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    padding: 15px;
+    z-index: 100;
+    width: 200px;
+}
+
+.dropdown-content label {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.dropdown-content select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.dropdown-content hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 10px 0;
+}
+
+.apply-btn, .clear-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.apply-btn {
+    background-color: #2ba540;
+    color: white;
+}
+
+.clear-btn {
+    background-color: #dd3244;
+    color: white;
+}
+
+.apply-btn:hover {
+    background-color: #1c6a29;
+}
+
+.clear-btn:hover {
+    background-color: #a62633;
+}
+
+.dropdown-filter:hover .dropdown-content {
+    display: block;
+}
+
+/* Kebab Menu Styles */
+.kebab-menu {
+    display: inline-block;
+    position: absolute;
+    left: -10%; /* Position the kebab button at the beginning */
+    top: 0;
+}
+
+.kebab-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    visibility: hidden;
+}
+
+.kebab-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.kebab-dropdown ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.kebab-dropdown ul li {
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #333;
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.kebab-dropdown ul li:hover {
+    background-color: #f1f1f1;
+}
+
+.kebab-dropdown ul li.delete {
+    color: red;
+}
+
+/* Show the dropdown when the kebab menu is active */
+.kebab-menu.active .kebab-dropdown {
+    display: block;
+}
+
+/* When you hover over the table row, show the kebab button */
+.staff-table tbody tr:hover .kebab-btn {
+    visibility: visible;
+}
+
+.three-dot-menu {
+    position: relative;
+    display: inline-block;
+}
+
+.three-dot-btns {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+/* Initially hide the button */
+.three-dot-btn {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s ease;
+}
+
+/* Show the button when hovering over the row */
+.pet-row:hover .three-dot-btn {
+    visibility: visible;
+    opacity: 1;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 30px;
+    left: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #333;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f5f5f5;
+}
+
+.three-dot-menu.active .dropdown-menu {
+    display: block;
+}
+
+.dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.three-dot-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 25px;
+    right: 0;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    width: 150px;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown-wrapper.active .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menus {
+    display: none;
+    position: absolute;
+    top: 37px;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    width: 150px;
+}
+
+.dropdown-menus a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.dropdown-menus a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown-wrapper.active .dropdown-menus {
+    display: block;
+}
+
+/* Dropdown Row Style */
+.dropdown-row {
+    background-color: #f9f9f9; /* Subtle light background */
+    border-top: 1px solid #ddd; /* Thin separator for distinction */
+    border-bottom: 1px solid #ddd;
+    display: none; /* Hidden by default */
+    transition: all 0.3s ease; /* Smooth appearance */
+}
+
+.dropdown-row td {
+    padding: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Initially hide the three-dot button */
+.three-dot-btns {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s ease;
+}
+
+/* Show the button when hovering over the pet row */
+.pet-row:hover .three-dot-btns {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Pet Name Box Style */
+.pet-profile-link {
+    display: inline-block;
+    padding: 8px 12px; /* Smaller padding */
+    margin: 4px; /* Reduced margin for smaller spacing */
+    background-color: #156f77; /* Teal background */
+    color: #fff; /* White text */
+    border: 1px solid #004d4f; /* Darker teal border */
+    border-radius: 5px; /* Slightly rounded corners */
+    font-size: 14px; /* Smaller font size for pet names */
+    text-align: center;
+    text-decoration: none; /* Remove underline */
+    cursor: pointer;
+    transition: all 0.3s ease-in-out; /* Smooth transition */
+}
+
+/* Hover effect for pet name link */
+.pet-profile-link:hover {
+    background-color: #004d4f; /* Darker teal on hover */
+    color: #f0f0f0; /* Slightly lighter text on hover */
+    border-color: #156f77; /* Match hover background */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow for more depth */
+}
+
+/* Hover Card Container */
+.hover-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+/* Larger Hover Card */
+.hover-card {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 30px; /* Adjust the position downward */
+    left: 10px; /* Adjust the position horizontally */
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px; /* Increased padding for more spacing */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    width: 350px; /* Make the hover card wider */
+    font-size: 16px; /* Slightly larger text */
+    color: #333;
+}
+
+/* Show on hover */
+.hover-container:hover .hover-card {
+    display: block; /* Show when hovering */
+}
+
+/* Ensure hover behavior is independent of click toggle */
+.hover-card {
+    pointer-events: auto; /* Ensure the hover card can be interacted with */
+}
+
+/* Profile Image and Information */
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px; /* Add spacing after profile info */
+}
+
+.profile-img {
+    width: 80px; /* Bigger profile image */
+    height: 80px;
+    border-radius: 50%;
+}
+
+/* Text inside the hover card */
+.hover-card strong {
+    font-size: 18px; /* Larger name font */
+    color: #156f77;
+}
+
+.hover-card div {
+    margin: 5px 0; /* Add spacing between details */
+}
+
+/* Show the hover card on hover */
+.hover-container:hover .hover-card {
+    display: block;
+}
+
+/* Optional: Larger Icon */
+.hover-container i {
+    margin-left: 5px;
+    color: #156f77;
+    font-size: 18px; /* Bigger info icon */
+    transition: color 0.3s;
+}
+
+.hover-container i:hover {
+    color: #004d4f;
+}
+
+select {
+    margin-left: 5px;
+    width: 220px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    color: #000000; /* Set text color to black */
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+select option {
+    color: #000000; /* Ensure dropdown options are black */
+}
+
+select:hover {
+    border-color: #156f77;
+    background-color: #ffffff;
+    color: #000000; /* Keep hover text color black */
+}
+
+select:focus {
+    border-color: #156f77;
+    box-shadow: 0 0 5px rgba(21, 111, 119, 0.5);
+    outline: none;
+    color: #000000; /* Keep focus text color black */
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+.pagination a {
+    padding: 8px 16px;
+    margin: 0 4px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #007b8a;
+    font-weight: 500;
+}
+.pagination a.active {
+    background-color: #007b8a;
+    color: white;
+    border-color: #007b8a;
+}
+.pagination a:hover {
+    background-color: #005f6b;
+    color: white;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .pagination-link {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}
+
+/* General button styles */
+.action-btn {
+    display: inline-block;
+    padding: 8px 15px;
+    font-size: 14px;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Add Confinement Report Button */
+.add-report-btn {
+    background-color: #007bff; /* Blue */
+}
+
+.add-report-btn:hover {
+    background-color: #0056b3; /* Darker Blue */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Release Pet Button */
+.release-btn {
+    background-color: #dc3545; /* Red */
+}
+
+.release-btn:hover {
+    background-color: #a71d2a; /* Darker Red */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.confirm-btn {
+    background-color: #007bff; /* Blue for Confirm */
+    color: white;
+}
+
+.cancel-btn {
+    background-color: #dc3545; /* Red for Cancel */
+    color: white;
+}
+
+.invoice-btn {
+    background-color: #28a745; /* Green for Invoice Billing */
+    color: white;
+}
+
+.confirm-btn:hover {
+    background-color: #0056b3; /* Darker Blue on hover */
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #a71d2a; /* Darker Red on hover */
+    color: white;
+}
+
+.invoice-btn:hover {
+    background-color: #218838; /* Darker Green on hover */
+    color: white;
+}
+
+.add-pet-button {
+    display: inline-block;
+    padding: 10px 20px; /* Increase padding for a bigger button */
+    background-color: #28a745; /* Green color */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px; /* Slightly larger rounded corners */
+    font-size: 16px; /* Bigger font size */
+    font-weight: normal; /* Remove bold text */
+    text-align: center;
+    width: 50%; /* Make the button expand the full width */
+    transition: background-color 0.3s ease-in-out;
+}
+
+.add-pet-button:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+/* Restore button (matching Edit button) */
+.restore-btn {
+    background-color: #2ba540; /* Same green as Edit button */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.restore-btn:hover {
+    background-color: #1c6a29; /* Darker green */
+}

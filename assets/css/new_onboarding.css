@@ -1,0 +1,775 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+}
+
+/* Main container layout */
+.login-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100vh; /* Ensure full viewport height */
+    background-color: white;
+    overflow: hidden;
+}
+
+/* Default left-panel for larger screens */
+.left-panel {
+    width: 50%; /* Set default width */
+    background-color: var(--color-1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    border-bottom-right-radius: 50px;
+    border-top-right-radius: 50px;
+    min-height: 100vh; /* Ensure the left panel takes full height */
+}
+
+.branding {
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+}
+
+.branding .logo {
+    width: 300px; /* Adjusted */
+    margin-bottom: 50px;
+}
+
+.welcome-message {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.branding p {
+    font-size: 18px;
+}
+
+/* Right panel (form) layout */
+.right-panel {
+    width: 50%;
+    padding-bottom: 80px;
+    padding-top: 80px;
+    padding-left: 80px;
+    padding-right: 80px;
+    justify-content: flex-start; /* Center the wrapper vertically */
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+
+/* Form container */
+.form-container {
+    background-color: transparent;
+    padding: 0;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+
+/* Form title */
+.form-title {
+    font-size: 24px;
+    color: var(--color-1);
+    margin-bottom: 30px;
+}
+
+/* Form Group */
+.form-group {
+    position: relative;
+    margin-bottom: 25px;
+    transition: margin-bottom 0.3s ease;
+}
+
+.form-group label {
+    display: block;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    resize: none; /* Prevent resizing for consistent design */
+}
+
+.form-group textarea:focus,
+.form-group input:focus {
+    outline: none;
+    border-color: #156f77; /* Highlight border color on focus */
+    box-shadow: 0 0 5px rgba(21, 111, 119, 0.5); /* Subtle shadow effect */
+}
+
+/* Placeholder Text Styling */
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    font-family: "Poppins"; /* Inherit font family */
+}
+
+/* Unified style for both input and select fields */
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    color: #333;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: "Poppins", sans-serif;
+}
+
+/* Hover effect for input and select */
+.form-group input:hover,
+.form-group select:hover {
+    border-color: #156f77;
+    box-shadow: 0 0 5px rgba(21, 111, 119, 0.2);
+}
+
+/* Focus effect for input and select */
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #156f77;
+    box-shadow: 0 0 5px rgba(21, 111, 119, 0.5);
+    background-color: #fff;
+}
+
+/* Placeholder text for input fields */
+.form-group input::placeholder {
+    color: #aaa;
+}
+
+.password-container {
+    position: relative;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px; /* Space for the eye icon */
+}
+
+.forgot-password-link {
+    display: block;
+    text-align: right; /* Aligns the link to the right */
+    font-size: 12px;
+    color: #007bff; /* Link color */
+    text-decoration: none;
+    margin-top: 5px; /* Add space between input field and link */
+}
+
+.forgot-password-link:hover {
+    text-decoration: underline;
+    color: #0056b3; /* Darker color on hover */
+}
+
+.eye-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%; /* Center the icon vertically */
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: #333;
+}
+
+/* Responsive layout for screens 768px and below */
+@media screen and (max-width: 768px) {
+    .form-group input {
+        font-size: 14px;
+        padding: 10px;
+        padding-right: 35px; /* Adjust padding for smaller screens */
+    }
+
+    .eye-icon {
+        right: 10px;
+        font-size: 16px; /* Adjust icon size for smaller screens */
+    }
+
+    .password-container input {
+        font-size: 14px;
+        padding-right: 35px; /* Adjust padding for smaller screens */
+    }
+
+    .eye-icon {
+        right: 10px;
+        font-size: 16px; /* Smaller icon size for tablets */
+    }
+
+    .forgot-password-link {
+        font-size: 11px; /* Smaller font size for tablets */
+    }
+}
+
+/* Very small screens 480px and below */
+@media screen and (max-width: 480px) {
+    .right-panel {
+        padding: 15px;
+    }
+
+    .form-title {
+        font-size: 16px;
+    }
+
+    .form-group input {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .eye-icon {
+        right: 10px;
+    }
+
+    .login-btn {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .password-container input {
+        font-size: 12px;
+        padding-right: 30px; /* Further adjust padding */
+    }
+
+    .eye-icon {
+        right: 8px;
+        font-size: 14px; /* Smaller icon for mobile */
+    }
+
+    .forgot-password-link {
+        font-size: 10px; /* Small font for mobile */
+        margin-top: 3px; /* Adjust spacing */
+    }
+}
+
+.form-group input:focus {
+    border-color: var(--color-1);
+    outline: none;
+}
+
+.suggested-roles button {
+    background-color: var(--color-1); /* Teal color */
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    margin: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.suggested-roles button:hover {
+    background-color: #0a4b52; /* Darker teal on hover */
+    transform: scale(1.05); /* Slight zoom effect */
+}
+
+.suggested-roles button:active {
+    background-color: #0a4b52; /* Even darker on click */
+    transform: scale(0.98);
+}
+
+.login-btn {
+    width: 100%;
+    background-color: var(--color-1);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.login-btn:hover {
+    background-color: #0a4b52;
+}
+
+.create-continue {
+    width: 100%;
+    background-color: var(--color-1);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.create-continue:hover {
+    background-color: #0a4b52;
+}
+
+.create-add {
+    padding: 5px 10px;
+    font-size: 12px;
+    background-color: #156f77;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.create-add:hover {
+    background-color: #0a4b52;
+}
+
+.remove-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.remove-btn:hover {
+    background-color: darkred;
+}
+
+.continue_invite {
+    width: 100%;
+    background-color: var(--color-1);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+.continue_invite:hover {
+    background-color: #0a4b52;
+}
+
+.right-panel .save_changes-btn {
+    width: 100%;
+    background-color: var(--color-1);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+.right-panel .save_changes-btn:hover {
+    background-color: #0a4b52;
+}
+
+.create_add_more, .done-btn {
+    width: 100%;
+    background-color: var(--color-1);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.create_add_more:hover, .done-btn:hover {
+    background-color: #0a4b52;
+}
+
+.form-group.terms {
+    display: flex;
+    align-items: flex-start;
+    font-size: 14px; /* Default font size for desktop */
+    color: var(--color-6);
+    line-height: 1.5;
+    margin-top: 10px;
+}
+
+.form-group.terms label {
+    display: inline-block;
+    max-width: 90%;
+    font-size: inherit; /* Inherit font size from parent */
+}
+
+.form-group.terms input {
+    margin-right: 10px;
+    margin-top: 5px;
+    width: auto;
+}
+
+.form-group.terms a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: inherit; /* Inherit font size */
+}
+
+.form-group.terms a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive layout for screens 1200px and below */
+@media screen and (max-width: 1200px) {
+    .login-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .left-panel, .right-panel {
+        width: 100%;
+        padding: 40px;
+    }
+
+    .right-panel {
+        border-radius: 0;
+    }
+
+    .branding h2 {
+        font-size: 24px;
+    }
+
+    .branding p {
+        font-size: 14px;
+    }
+
+    .form-title {
+        font-size: 20px;
+    }
+
+    .form-group input {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    .login-btn {
+        font-size: 16px;
+        padding: 12px;
+    }
+}
+
+/* Responsive layout for screens 768px and below */
+@media screen and (max-width: 768px) {
+    .login-container {
+        width: 100%;
+        flex-direction: column;
+        border-radius: 0;
+    }
+
+    .left-panel {
+        display: none;
+    }
+
+    .right-panel {
+        width: 100%;
+        padding: 20px;
+        border-radius: 0;
+    }
+
+    .welcome-message {
+        font-size: 24px;
+    }
+
+    .form-title {
+        font-size: 18px;
+    }
+
+    .form-group input {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .login-btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .form-group.terms {
+        font-size: 12px; /* Reduced font size for tablets */
+    }
+
+    .form-group.terms label {
+        max-width: 100%; /* Make label full width for mobile */
+    }
+}
+
+/* Very small screens 480px and below */
+@media screen and (max-width: 480px) {
+    .right-panel {
+        padding: 15px;
+    }
+
+    .form-title {
+        font-size: 16px;
+    }
+
+    .form-group input {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .eye-icon {
+        right: 10px;
+    }
+
+    .login-btn {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .form-group.terms {
+        font-size: 11px; /* Smaller font size for mobile devices */
+    }
+
+    .form-group.terms input {
+        margin-right: 8px; /* Reduce checkbox spacing */
+    }
+}
+
+.required-asterisk {
+    color: red;
+}
+
+/* basic design for the google button*/
+.google-login-btn {
+    display: flex;
+    align-items: center;
+    background-color: #4285F4;
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-top: 20px;
+    font-size: 0.95em;
+    transition: background-color 0.3s ease;
+}
+.google-login-btn i {
+    margin-right: 8px;
+    font-size: 1.2em;
+}
+.google-login-btn:hover {
+    background-color: #357ae8;
+}
+
+/* For error notification*/
+.error-notification {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.error-notification ul {
+    list-style: none;
+    padding: 0;
+}
+
+.error-notification li {
+    margin: 5px 0;
+}
+
+.register-btn {
+    text-align: right; /* Aligns the link to the right */
+    color: #007bff; /* Link color */
+    text-decoration: none;
+}
+
+.register-btn:hover {
+    text-decoration: underline;
+    color: #0056b3; /* Darker color on hover */
+}
+
+/* Permissions Table */
+.permissions-table {
+    width: 120%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: var(--color-5);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    table-layout: fixed;
+}
+
+.permissions-table th, .permissions-table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+
+/* Sticky header */
+.permissions-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #a8ebf0; /* Matches the header background */
+    color: #156f77;
+    z-index: 2;
+    text-transform: uppercase;
+}
+
+.permissions-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.permissions-table tr:hover {
+    background-color: #e0f7fa;
+}
+
+.permissions-table input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* Container for the table to enable scrolling */
+.table-container {
+    max-height: 400px; /* Adjust height as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: auto; /* Disable horizontal scrolling */
+    display: block;
+    width: 100%;
+}
+
+/* Fix the table header */
+.permissions-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #a8ebf0;
+    z-index: 1;
+}
+
+/* Flex container for side-by-side fields */
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+/* Equal width for both dropdowns */
+.half-width {
+    width: 50%;
+}
+
+/* Ensure the dropdowns and labels look clean */
+.half-width select,
+.half-width label {
+    width: 100%;
+}
+
+/* Divider with OR text */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+}
+
+.divider:not(:empty)::before {
+    margin-right: 10px;
+}
+
+.divider:not(:empty)::after {
+    margin-left: 10px;
+}
+
+.divider span {
+    font-weight: bold;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Modal Overlay */
+#confirmationModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Modal Box */
+#modalContent {
+    background-color: #fff;
+    padding: 20px 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    width: 600px;
+}
+
+#modalContent h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+#modalContent button {
+    padding: 10px 15px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#modalContent button:first-of-type {
+    background-color: #28a745;
+    color: white;
+}
+
+#modalContent button:last-of-type {
+    background-color: #dc3545;
+    color: white;
+}
+

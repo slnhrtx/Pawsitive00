@@ -1,0 +1,614 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins";
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #156f77; /* Background color for sidebar */
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 0 20px 20px 0; /* Rounded right corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    height: 100vh; /* Full height */
+    position: fixed; /* Fixes the sidebar to the left */
+    top: 0; /* Ensures the sidebar stays at the top */
+    left: 0; /* Anchors the sidebar to the left of the viewport */
+    z-index: 10; /* Keeps the sidebar above other content */
+}
+
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    margin-bottom: 50px; /* Adjust this as necessary */
+} 
+
+.logo img {
+    width: 210px;
+    margin-right: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+nav ul li {
+    padding: 10px 0;
+    margin-bottom: 15px; /* Spacing between items */
+    margin-left: 15px; /* Move the items to the right */
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center; /* Align text and icon horizontally */
+}
+
+nav ul li:last-child {
+    margin-bottom: 0; /* Remove margin after the last item */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+nav ul li.active {
+    font-weight: bold;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+nav ul li.active {
+    background-color: #ffffff; /* White background for the active item */
+    color: #156f77; /* Text color for active item */
+    border-radius: 8px; /* Rounded corners for the active item */
+    padding: 10px; /* Padding inside the white box */
+}
+
+nav ul li.active a {
+    color: #156f77; /* Ensuring link text inside active item is dark teal */
+}
+
+nav ul li a:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+.sidebar-bottom {
+    margin-top: auto; /* Moves this section to the bottom of the sidebar */
+    display: flex;
+    margin-left: 15px; /* Move the items to the right */
+    flex-direction: column;
+}
+
+.sidebar-bottom button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 10px;
+    font-size: 20px;
+    display: flex;
+    align-items: center; /* Align icon and text horizontally */
+}
+
+.sidebar-bottom button img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+    vertical-align: middle; /* Align icon with text */
+}
+
+.sidebar-bottom button:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li:focus, .sidebar-bottom button:focus, .schedule-item button:focus {
+    outline: 3px solid var(--color-2);
+}
+
+/* Smooth transitions for interactive elements */
+nav ul li, .sidebar-bottom button, .schedule-item button {
+    transition: all 0.3s ease-in-out;
+}
+
+nav ul li:hover, .sidebar-bottom button:hover, .schedule-item button:hover {
+    transform: translateX(5px); /* Adds a smooth hover effect */
+}
+
+/* Make the main content scrollable */
+.main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #ffffff;
+    margin-left: 250px; /* Space for the sidebar */
+    margin-right: 300px; /* Space for the fixed right-section */
+    min-height: 100vh;
+    overflow-y: auto; /* Enables vertical scrolling */
+    height: 100vh; /* Full height */
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* End of Header/Sidebar */
+
+/* Calendar Header Styling */
+.fc-toolbar.fc-header-toolbar {
+    background-color: #a8ebf0;
+    border-radius: 8px;
+    padding: 10px;
+    color: #156f77;
+}
+
+.fc-toolbar .fc-button {
+    background-color: #e0f7f9;
+    color: #156f77;
+    border: none;
+    margin: 0 5px;
+    padding: 5px 10px;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.fc-toolbar .fc-button:hover {
+    background-color: #156f77;
+}
+
+.fc-toolbar .fc-button.fc-button-active {
+    background-color: #b2e2e4;
+    color: #156f77;
+}
+
+/* Title Styling */
+.fc .fc-toolbar-title {
+    font-size: 1.5em;
+    color: #156f77;
+    font-weight: bold;
+}
+
+/* Day and Date Styling */
+.fc-daygrid-day-number {
+    color: #156f77;
+    font-weight: 600;
+}
+
+/* Event Box Styling */
+.fc-event {
+    background-color: #156f77;
+    color: #156f77;
+    border: none;
+    padding: 5px;
+    font-size: 0.9em;
+    border-radius: 8px;
+}
+
+/* Tooltip for Event Details */
+.fc-event:hover {
+    cursor: pointer;
+    background-color: #0f5c64;
+}
+
+.fc-scroller {
+    overflow-y: auto !important; /* Ensure scrolling works */
+    scrollbar-width: none !important; /* Firefox */
+}
+
+.fc-scroller::-webkit-scrollbar {
+    display: none !important; /* Chrome, Edge, Safari */
+}
+
+/* Rounded Corners on Calendar Grid */
+#calendar {
+    border-radius: 15px;
+    border: 1px solid #ddd;
+    overflow: hidden;
+}
+
+/* General form styling */
+form {
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping to prevent overflow */
+    justify-content: space-between; /* Aligns items with space in between */
+    gap: 20px; /* Spacing between items */
+    background-color: var(--bg-color);
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+form .form-group {
+    flex: 1 1 48%; /* Each group takes 48% of the row width */
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Small gap between label and input */
+}
+
+form button[type="submit"] {
+    flex: 1 1 100%; /* Submit button takes full width */
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+form label {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+form select, form input[type="date"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    background-color: #ffffff;
+    color: var(--font-color);
+    transition: border-color 0.3s;
+}
+
+form select:hover, form input[type="date"]:hover {
+    border-color: var(--primary-color);
+}
+
+form button[type="submit"]:hover {
+    background-color: var(--hover-color);
+}
+
+.appointment-form-buttons {
+    display: flex; 
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 15px; /* Space between buttons */
+    margin-top: 20px; /* Space between the form and buttons */
+}
+
+.appointment-form-buttons .btn-primary {
+    background-color: #156f77 !important; /* Primary color for Add Appointment */
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 12px 20px !important;
+    font-size: 16px !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease !important;
+}
+
+.appointment-form-buttons .btn-primary:hover {
+    background-color: #0f5c64 !important; /* Darker teal on hover */
+}
+
+/* Shared styles for both buttons */
+.view-all-btn,
+.appointment-form-buttons .btn-primary {
+    background-color: #156f77 !important;  /* Primary color */
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 12px 20px !important;
+    font-size: 16px !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease !important;
+}
+
+.view-all-btn:hover,
+.appointment-form-buttons .btn-primary:hover {
+    background-color: #0f5c64 !important; /* Darker shade for hover */
+}
+
+.btn-primary {
+    background-color: #156f77;  /* Primary teal color */
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    width: 100%;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0f5c64; /* Darker shade for hover */
+    text-decoration: none;
+}
+
+/* Fix the right-section on the side */
+.right-section {
+    width: 350px;
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    padding: 20px;
+    overflow-y: auto; /* Scroll within the right-section if needed */
+}
+
+/* Custom event style in the calendar */
+.custom-event {
+    background-color: #156f77;
+    color: #ffffff;
+    padding: 5px 10px;
+    border-radius: 8px;
+    text-align: center;
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Hover effect */
+.custom-event:hover {
+    transform: scale(1.05);
+    background-color: #0f5c64;
+}
+
+/* Service title styling */
+.custom-event .event-title {
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Appointment time styling */
+.custom-event .event-time {
+    font-size: 16px;
+    color: #e0f7f9;
+}
+
+/* Appointment time styling */
+.custom-event .event-status {
+    font-size: 0.9em;
+    color: var(--color-2);
+}
+
+/* Filter Container */
+.filter-container {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Label Styling */
+.filter-container label {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Simple and Clean Select Box */
+#statusFilter {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    color: #333;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Hover and Focus Effects */
+#statusFilter:hover,
+#statusFilter:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Option Styling */
+#statusFilter option {
+    background-color: #fff;
+    color: #333;
+}
+
+.suggestions-box {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 89%;
+    z-index: 1000;
+    display: none;
+    margin-top: 80px; /* Adjust this to push it down */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Adds a slight shadow for better visibility */
+    border-radius: 5px;
+}
+
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.suggestion-item:hover {
+    background: #f0f0f0;
+}
+
+#PetSearch {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    background-color: #fff;
+    transition: all 0.3s ease-in-out;
+    outline: none;
+}
+
+/* When the input is focused */
+#PetSearch:focus {
+    border-color: #000000; /* Matches the primary color of your system */
+}
+
+/* Confirm Appointment (Green) */
+.swal2-confirm-btn {
+    background-color: #28a745 !important; /* Green */
+    color: white !important;
+}
+
+/* Edit Appointment (Blue) */
+.swal2-edit-btn {
+    background-color: #007bff !important; /* Blue */
+    color: white !important;
+}
+
+/* Cancel Appointment (Red) */
+.swal2-cancel-btn {
+    background-color: #dc3545 !important; /* Red */
+    color: white !important;
+}
+
+/* Start Consultation (Green - Same as Confirm) */
+.swal2-start-btn {
+    background-color: #156f77 !important; /* Green */
+    color: white !important;
+}
+
+/* Button Hover Effects */
+.swal2-confirm-btn:hover {
+    background-color: #218838 !important;
+}
+
+.swal2-edit-btn:hover {
+    background-color: #0056b3 !important;
+}
+
+.swal2-cancel-btn:hover {
+    background-color: #c82333 !important;
+}
+
+.swal2-start-btn:hover {
+    background-color: #0f5c64 !important;
+}
+
+/* Button Styling */
+.swal2-confirm-btn, 
+.swal2-cancel-btn, 
+.swal2-edit-btn, 
+.swal2-start-btn {
+    font-weight: bold;
+    font-size: 16px;
+    padding: 12px 20px;
+    border-radius: 5px; /* Rounded corners */
+    border: none;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Button Press (Active) Effect */
+.swal2-confirm-btn:active, 
+.swal2-cancel-btn:active, 
+.swal2-edit-btn:active, 
+.swal2-start-btn:active {
+    transform: scale(0.95);
+}
+
+/* Ensure Buttons are Centered */
+.swal2-actions {
+    display: flex !important;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* SweetAlert2 Custom Close Button */
+.swal2-close-button {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    background: transparent;
+    font-size: 50px;
+    border: none;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.swal2-close-button:hover {
+    color: #ff0000; /* Red on hover */
+    transform: scale(1.2);
+}
+
+/* Align label and input fields properly */
+.swal2-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+/* Labels stay on the left */
+.swal2-row label {
+    width: 50px; /* Increase width so "Service" fits properly */
+    font-weight: bold;
+    text-align: left;
+    white-space: nowrap; /* Prevents label from wrapping */
+}
+
+/* Make input fields longer */
+.swal2-row input,
+.swal2-row select {
+    flex: 1;  /* Allows the input to take up remaining space */
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: calc(100% - 100px);  /* Adjust input field width */
+    max-width: 400px;  /* Adjust maximum width */
+}
+

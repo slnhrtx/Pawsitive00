@@ -1,0 +1,578 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins";
+}
+
+body, html {
+    display: flex;
+    min-height: 100vh;
+    background-color: #ffffff;
+    font-family: "Poppins" !important;
+}
+
+.sidebar {
+    position: fixed; /* Fixes the sidebar to the left */
+    width: 250px;
+    background-color: #156f77; /* Background color for sidebar */
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 0 20px 20px 0; /* Rounded right corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    height: 100vh; /* Full height */
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    margin-bottom: 50px; /* Adjust this as necessary */
+} 
+
+.logo img {
+    width: 210px;
+    margin-right: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+nav ul li {
+    padding: 10px 0;
+    margin-bottom: 15px; /* Spacing between items */
+    margin-left: 15px; /* Move the items to the right */
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center; /* Align text and icon horizontally */
+}
+
+nav ul li:last-child {
+    margin-bottom: 0; /* Remove margin after the last item */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+nav ul li.active {
+    font-weight: bold;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+nav ul li.active {
+    background-color: #ffffff; /* White background for the active item */
+    color: #156f77; /* Text color for active item */
+    border-radius: 8px; /* Rounded corners for the active item */
+    padding: 10px; /* Padding inside the white box */
+}
+
+nav ul li.active a {
+    color: #156f77; /* Ensuring link text inside active item is dark teal */
+}
+
+nav ul li a:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+.sidebar-bottom {
+    margin-top: auto; /* Moves this section to the bottom of the sidebar */
+    display: flex;
+    margin-left: 15px; /* Move the items to the right */
+    flex-direction: column;
+}
+
+.sidebar-bottom button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 10px;
+    font-size: 20px;
+    display: flex;
+    align-items: center; /* Align icon and text horizontally */
+}
+
+.sidebar-bottom button img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+    vertical-align: middle; /* Align icon with text */
+}
+
+.sidebar-bottom button:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li:focus, .sidebar-bottom button:focus {
+    outline: 3px solid var(--color-2);
+}
+
+/* Smooth transitions for interactive elements */
+nav ul li, .sidebar-bottom button {
+    transition: all 0.3s ease-in-out;
+}
+
+nav ul li:hover, .sidebar-bottom button:hover {
+    transform: translateX(5px); /* Adds a smooth hover effect */
+}
+
+.main-content {
+    flex: 1; /* Dynamically adjusts width to fill available space */
+    padding: 20px;
+    background-color: #ffffff;
+    min-height: 100vh; /* Ensures it spans the full height */
+    margin-left: 250px; /* Adds space to the left for the sidebar */
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* End of Header/Sidebar */
+
+/* Content Wrapper */
+.content-wrapper {
+    display: flex;
+    gap: 20px; /* Adds space between content and quick actions */
+    width: 100%;
+    min-height: 100vh; /* Full viewport height */
+}
+
+/* Right-section container */
+.right-section {
+    position: fixed; /* Fixes the right section so it doesn't move while scrolling */
+    right: 20px; /* Distance from the right edge */
+    top: 20px; /* Distance from the top edge */
+    width: 300px; /* Width of the right section */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align content to the left */
+    gap: 20px; /* Add spacing between cards and buttons */
+    max-height: calc(100vh - 40px); /* Ensures it doesn't exceed the viewport height */
+    overflow-y: auto; /* Enable vertical scrolling for overflow content */
+    background-color: #fff; /* Add background to make it distinct */
+    padding: 15px; /* Add padding inside the right section */
+}
+
+/* Styling for cards (Confirm Appointment and Recent Activities) */
+.right-section .card {
+    background-color: #ffffff; /* White background like Canvas */
+    border-radius: 8px; /* Rounded corners */
+    padding: 15px; /* Padding inside the card */
+    width: 100%; /* Full width of the right section */
+    font-family: 'Poppins', sans-serif; /* Clean font */
+}
+
+.right-section .card h2 {
+    font-size: 16px; /* Smaller, clean heading */
+    font-weight: 600; /* Bold heading */
+    margin-bottom: 10px;
+    color: #333; /* Dark text */
+}
+
+.right-section .card p {
+    font-size: 14px; /* Slightly smaller text */
+    color: #555; /* Subtle gray text */
+}
+
+/* Buttons (Add Pet and Export Data) */
+.right-section .add-pet,
+.right-section .export-button,
+.right-section .walk-in,
+.right-section .add-record {
+    width: 100%; /* Buttons span the full width */
+    padding: 12px;
+    font-size: 14px; /* Clean, smaller font */
+    font-weight: bold;
+    text-align: center;
+    border-radius: 4px; /* Rounded buttons */
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-pet,
+.export-button,
+.walk-in,
+.add-record {
+    background-color: #156f77; /* Unified background color */
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+}
+
+.add-pet a,
+.export-button a,
+.walk-in a,
+.add-record a {
+    color: white;
+    text-decoration: none;
+}
+
+.add-pet:hover,
+.walk-in,
+.add-record:hover {
+    background-color: #004d4f; /* Slightly darker shade for hover */
+    color: white; /* Keep the text color consistent */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+}
+
+.chart-container {
+    width: 100%;
+    height: 400px; /* Increase height for better visibility */
+    margin: 20px 0; /* Add spacing around the chart */
+}
+
+.export-button:hover {
+    background-color: #004d4f; /* Slightly darker shade for hover */
+    color: white; /* Keep the text color consistent */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+} 
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.buttons .btn {
+    width: 250px; /* Set a fixed width */
+    height: 100px; /* Set a fixed height */
+}
+
+.appointments, .medical-history, .reminders {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+table th, table td {
+    text-align: left;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background: #f9f9f9;
+}
+
+form {
+    display: flex;
+}
+
+form input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px 0 0 5px;
+}
+
+form button {
+    padding: 10px 20px;
+    background: #014d4e;
+    color: white;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+form button:hover {
+    background: #026a6c;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn.blue {
+    height: 100px;
+    font-weight: 600;
+    background-color: #007bff;
+    color: white;
+}
+
+.btn.green {
+    height: 100px;
+    font-weight: 600;
+    background-color: #28a745;
+    color: white;
+}
+
+.btn.red {
+    height: 100px;
+    font-weight: 600;
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn.green1 {
+    background-color: #156f77;
+    color: white;
+}
+
+.btn.green1:hover {
+    background-color: #0e4f54; /* Darker shade for hover effect */
+    color: #ffffff;
+}
+
+.btn-action {
+    display: inline-block; /* Makes link behave like a button */
+    padding: 10px 15px; /* Consistent padding */
+    background-color: #156f77; /* Match the search button color */
+    color: #ffffff; /* White text */
+    text-decoration: none; /* Removes underline */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 14px; /* Adjust font size */
+    text-align: center; /* Align text center */
+    cursor: pointer; /* Pointer cursor on hover */
+    border: none; /* Remove border */
+    transition: background-color 0.3s ease; /* Smooth hover */
+}
+
+.btn-action:hover {
+    background-color: #0e4f54; /* Darker shade for hover effect */
+    color: #ffffff;
+}
+
+.profile-container {
+    display: flex;
+    align-items: center; /* Vertically align the image and text */
+    gap: 15px; /* Reduce spacing between image and text */
+}
+
+.card.profile-card {
+    display: flex;
+    justify-content: space-between; /* Align text to the left and button to the right */
+    align-items: center; /* Vertically center all content */
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    max-width: 500px;
+    position: relative; /* Ensure child elements position correctly */
+}
+
+.card.profile-card img {
+    width: 100px; /* Image size */
+    height: 100px;
+    border-radius: 50%; /* Circular image */
+    object-fit: cover;
+    margin-right: 20px; /* Space between the image and text */
+}
+
+.card.profile-card .profile-info {
+    flex: 1; /* Takes up available space */
+    margin-right: 20px; /* Creates the gap between text and button */
+}
+
+.card.profile-card .profile-info h5 {
+    font-size: 1.2rem; /* Adjust font size */
+    font-weight: bold; /* Bold for name */
+    color: #333;
+    margin: 0; /* Remove any margin */
+}
+
+.card.profile-card .profile-info p {
+    font-size: 0.9rem; /* Smaller font for role */
+    color: #777;
+    margin: 0; /* Remove any margin */
+}
+
+/* Positioning for Three-dot Menu */
+.menu-container {
+    position: absolute; /* Relative to the card */
+    top: 10px; /* Top-right position inside the card */
+    right: 10px;
+    z-index: 10;
+    margin-left: 30px;
+}
+
+/* Three-dot Button Style */
+.menu-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #777;
+}
+
+.menu-btn:hover {
+    color: #333;
+}
+
+/* Dropdown Menu */
+.menu-content {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 30px; /* Show below the button */
+    left: 0; /* Align to the right of the button */
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 20;
+}
+
+.menu-content a {
+    display: block; /* Ensures the link behaves as a block element */
+    white-space: nowrap; /* Prevents text from wrapping to the next line */
+    padding: 10px 15px; /* Adds padding for a clean look */
+    width: auto; /* Adjusts width dynamically to fit content */
+    text-align: left; /* Align text to the left */
+    text-decoration: none; /* Removes underline */
+    color: #333; /* Dark gray text color */
+    font-size: 14px; /* Adjust font size as needed */
+}
+
+.menu-content a:hover {
+    background-color: #f5f5f5; /* Light gray background on hover */
+}
+
+
+.reminders {
+    background-color: #ffffff; /* White background */
+    border-radius: 8px; /* Rounded corners */
+    padding: 20px; /* Add padding around the content */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    font-family: 'Poppins', sans-serif; /* Consistent font styling */
+}
+
+.reminders ul {
+    list-style-type: none; /* Remove default bullet points */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
+.reminders ul li {
+    font-size: 0.9rem; /* Adjust font size for list items */
+    color: #555; /* Subtle gray text for better readability */
+    background-color: #f5f5f5; /* Light gray background for each item */
+    border-radius: 6px; /* Rounded corners for list items */
+    padding: 10px 15px; /* Add padding inside the list items */
+    margin-bottom: 10px; /* Space between list items */
+    display: flex; /* Align content flexibly */
+    align-items: center; /* Vertically center content */
+    gap: 10px; /* Add space between text and any potential icons */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for each item */
+}
+
+.reminders ul li:hover {
+    background-color: #e8f4f8; /* Slightly change background color on hover */
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+/* Horizontally Enlarged Cards */
+.appointments, .medical-history, .reminders {
+    width: 140%; /* Make the sections almost full-width */
+    max-width: 1200px; /* Prevent excessive stretching on larger screens */
+    margin: 20px auto; /* Center horizontally */
+    padding: 20px; /* Add padding for spacing */
+    font-size: 16px; /* Slightly increase text size */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+    border: 1px solid #ddd; /* Add a clean border */
+    border-radius: 8px; /* Rounded corners */
+}
+
+.appointments table {
+    width: 100%; /* Make the table span the container */
+}
+
+.appointments h3, 
+.medical-history h3, 
+.reminders h3 {
+    font-size: 20px; /* Make headings slightly larger */
+    margin-bottom: 15px; /* Space below heading */
+}
+
+form input, form button {
+    font-size: 14px; /* Adjust input and button text size */
+}
+
+/* Simple Search Filter Styles */
+.search-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Spacing between elements */
+    margin-bottom: 15px;
+}
+
+.search-filters input[type="text"],
+.search-filters select {
+    padding: 12px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.search-filters button {
+    padding: 12px 10px;
+    background-color: #156f77;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.search-filters button:hover {
+    background-color: #0e4f54;
+}
+
+

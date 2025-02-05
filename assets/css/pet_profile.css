@@ -1,0 +1,482 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins";
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #156f77; /* Background color for sidebar */
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 0 20px 20px 0; /* Rounded right corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    height: 100vh; /* Full height */
+    position: fixed; /* Fixes the sidebar to the left */
+    top: 0; /* Ensures the sidebar stays at the top */
+    left: 0; /* Anchors the sidebar to the left of the viewport */
+    z-index: 10; /* Keeps the sidebar above other content */
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    margin-bottom: 50px; /* Adjust this as necessary */
+} 
+
+.logo img {
+    width: 210px;
+    margin-right: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+nav ul li {
+    padding: 10px 0;
+    margin-bottom: 15px; /* Spacing between items */
+    margin-left: 15px; /* Move the items to the right */
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center; /* Align text and icon horizontally */
+}
+
+nav ul li:last-child {
+    margin-bottom: 0; /* Remove margin after the last item */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+nav ul li.active {
+    font-weight: bold;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+nav ul li.active {
+    background-color: #ffffff; /* White background for the active item */
+    color: #156f77; /* Text color for active item */
+    border-radius: 8px; /* Rounded corners for the active item */
+    padding: 10px; /* Padding inside the white box */
+}
+
+nav ul li.active a {
+    color: #156f77; /* Ensuring link text inside active item is dark teal */
+}
+
+nav ul li a:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+.sidebar-bottom {
+    margin-top: auto; /* Moves this section to the bottom of the sidebar */
+    display: flex;
+    margin-left: 15px; /* Move the items to the right */
+    flex-direction: column;
+}
+
+.sidebar-bottom button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 10px;
+    font-size: 20px;
+    display: flex;
+    align-items: center; /* Align icon and text horizontally */
+}
+
+.sidebar-bottom button img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+    vertical-align: middle; /* Align icon with text */
+}
+
+.sidebar-bottom button:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease-in-out; /* Smooth transition */
+}
+
+nav ul li:focus, .sidebar-bottom button:focus, .schedule-item button:focus {
+    outline: 3px solid var(--color-2);
+}
+
+/* Smooth transitions for interactive elements */
+nav ul li, .sidebar-bottom button, .schedule-item button {
+    transition: all 0.3s ease-in-out;
+}
+
+nav ul li:hover, .sidebar-bottom button:hover, .schedule-item button:hover {
+    transform: translateX(5px); /* Adds a smooth hover effect */
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #ffffff;
+    margin-left: 250px; /* Adds space to the left for the sidebar */
+    min-height: 100vh; /* Ensures the main content covers the full height */
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* End of Header/Sidebar */
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Space between the image and details */
+    margin-bottom: 20px;
+}
+
+.profile-image {
+    margin-top: 10px;
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: var(--color-3); /* Light gray background for image */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-details-horizontal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.profile-details-horizontal h2 {
+    font-size: 36px; /* Increase font size for the name */
+    color: black; /* Theme color for the name */
+}
+
+.profile-details-horizontal p {
+    font-size: 20px; /* Increase font size for details */
+    color: #333; /* Darker color for text */
+    margin: 0;
+    line-height: 1.8; /* Adjust line height for better readability */
+}
+
+.profile-details-horizontal p strong {
+    color: var(--color-1); /* Theme color for labels */
+    margin-right: 5px; /* Add spacing after labels */
+}
+
+.profile-details-horizontal p span {
+    margin-right: 40px; /* Add gap between each detail */
+    display: inline-block; /* Ensures consistent spacing */
+}
+
+.diagonal-line {
+    display: flex; /* Arrange items in a single line */
+    justify-content: center; /* Center all the details below the name */
+    gap: 30px; /* Add space between Age, Pet Type, and Sex */
+    font-size: 18px; /* Adjust text size */
+    white-space: nowrap; /* Prevent wrapping to a new line */
+}
+
+.diagonal-line span {
+    margin: 0; /* Remove default margins */
+}
+
+.diagonal-line strong {
+    color: var(--color-1); /* Use your teal color for labels */
+    font-weight: bold; /* Emphasize labels */
+}
+
+.latest-appointment, .previous-appointments, .consultation {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid var(--color-3);
+    border-radius: 10px;
+    background-color: var(--color-4);
+}
+
+.latest-appointment h2, .previous-appointments h2, .consultation h2 {
+    color: var(--color-1);
+    font-size: 20px;
+}
+
+.appointment-box, .appointment-item {
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px solid #000;
+    border-radius: 10px;
+    background-color: #ffffff;
+}
+
+.appointment-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--color-1);
+}
+
+.appointment-body {
+    margin-top: 10px;
+    font-size: 16px;
+    color: var(--color-6);
+}
+
+.appointments-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.prescription table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.prescription table th, .prescription table td {
+    padding: 10px;
+    border: 1px solid #000;
+    text-align: left;
+}
+
+.prescription table th {
+    background-color: var(--color-1);
+    color: white;
+}
+
+.btn {
+    background-color: var(--color-1);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin-top: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #004d4f; /* Custom hover color */
+    color: white; /* Ensure text color is white for contrast */
+}
+
+.appointment-item {
+    text-decoration: none; /* Removes the underline */
+    color: black; /* Sets the text color to black */
+    display: block; /* Ensures the entire box is clickable */
+    padding: 10px; /* Add padding for better spacing */
+    border-radius: 5px; /* Optional: Rounds the corners */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.appointment-item:hover {
+    background-color: var(--color-2); /* Optional: Light background on hover */
+    color: black; /* Ensures the text stays black on hover */
+}
+
+.appointments-list {
+    display: flex; /* Use flexbox for flexible alignment */
+    flex-wrap: wrap; /* Allow items to wrap to the next line if needed */
+    gap: 15px; /* Spacing between items */
+    justify-content: flex-start; /* Align items to the left */
+    align-items: center; /* Vertically center the items */
+}
+
+/* Style for the date input */
+#appointment_date {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 200px;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease-in-out;
+}
+
+#appointment_date:hover {
+    border-color: var(--color-1);
+    background-color: #fff;
+}
+
+#appointment_date:focus {
+    outline: none;
+    border-color: var(--color-1);
+}
+
+/* Modal background */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4); /* Black background with opacity */
+}
+
+/* Modal content */
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    width: 20%; /* Adjust the width as needed */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal actions (buttons) */
+.modal-actions {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+.confirm-btn {
+    background-color: var(--color-1); /* Teal color */
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    padding: 20px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.confirm-btn:hover {
+    background-color: #004d4f; /* Darker teal on hover */
+}
+
+.cancel-btn {
+    font-size: 14px;
+    background-color: #ccc;
+    color: #333;
+    border: none;
+    padding: 20px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cancel-btn:hover {
+    background-color: #aaa; /* Slightly darker gray on hover */
+}
+
+.confine-button {
+    position: absolute; /* Makes it relative to the page */
+    top: 160px; /* Adjust distance from the top of the page */
+    right: 20px; /* Adjust distance from the right of the page */
+    z-index: 100; /* Ensure it's above other content */
+}
+
+.previous-appointments table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.previous-appointments table th, 
+.previous-appointments table td {
+    padding: 10px;
+    border: 1px solid #000;
+    text-align: left;
+}
+
+.previous-appointments table th {
+    background-color: var(--color-1);
+    color: white;
+}
+
+.previous-appointments .btn {
+    background-color: var(--color-1);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.previous-appointments .btn:hover {
+    background-color: #004d4f;
+    color: white;
+}
+
+.see-all-button {
+    position: absolute; /* Makes it relative to the page */
+    top: 283px; /* Adjust distance from the top of the page */
+    right: 40px; /* Adjust distance from the right of the page */
+    z-index: 100; /* Ensure it's above other content */
+}
+
+.export-button {
+    margin-top: 5px;
+    text-align: right;
+}
+
+.export-button .btn {
+    background-color: var(--color-1);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin-top: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.export-button .btn:hover {
+    background-color: #45a049;
+}

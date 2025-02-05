@@ -1,0 +1,275 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins";
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  header {
+    background-color: #156f77;
+    padding: 20px 10%;
+    border-radius: 0 0 20px 20px;
+    position: fixed; /* Make the header stick to the top */
+    top: 0; /* Align it to the top */
+    width: 100%; /* Make sure it stretches across the screen */
+    z-index: 1000; /* Ensure it stays on top of other elements */
+  }
+  
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+  }
+  
+  .logo img {
+    width: 250px;
+    margin-right: 10px;
+  }
+  
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 50px; /* Adjust the gap between the navigation items */
+    align-items: center;
+    margin-left: auto; /* Push the nav-links to the left */
+  }
+  
+  .profile-icon {
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-links li a {
+    color: #BDBDBD;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 10px 15px; /* Add padding to the links */
+  }
+  
+  .nav-links a:hover {
+    color: #FFFFFF;
+    transition: color 0.3s;
+  }
+  
+  .profile-icon img {
+    width: 30px;
+  }
+  
+  main {
+    padding-top: 130px; /* Adjust this value to match the height of your fixed header */
+    padding-left: 80px; /* Add left padding */
+    padding-right: 80px; /* Add right padding */
+    padding-bottom: 80px; /* Add bottom padding */
+    background-color: #ffffff; /* Optional background to highlight content */
+    box-sizing: border-box; /* Ensures padding doesn't affect the width calculation */
+    border-radius: 10px; /* Optional for rounded edges */
+  }
+  
+  /* Profile dropdown */
+  .profile-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .profile-icon {
+    width: 30px;
+    cursor: pointer;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 210px; /* Increase the width to accommodate longer text */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 10px 0;
+    z-index: 1;
+    top: 150%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .dropdown-content a {
+    display: flex; /* Use flexbox to align the icon and text */
+    align-items: center; /* Vertically center icon and text */
+    padding: 10px 16px; /* Adjust padding */
+    color: black;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .dropdown-content a img {
+    width: 20px; /* Set a fixed width for icons */
+    height: 20px; /* Set a fixed height for icons */
+    margin-right: 10px; /* Add spacing between icon and text */
+  }
+  
+  .dropdown-content a:hover {
+    background-color: #f1f1f1; /* Background color on hover */
+  }
+  
+  /* Profile dropdown */
+  /* End of Header */
+  
+  .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding-top: 0; /* Add this line to reduce the padding at the top */
+  }
+  
+  h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      margin-top: 0; /* Add this line to remove the top margin */
+      padding-top: 0; /* Add this line if there's any padding */
+  }
+  
+  .form-section {
+      margin-bottom: 20px;
+  }
+  
+  .form-section h2 {
+      background-color: #f8f8f8;
+      padding: 10px;
+      color: #156f77; /* Change the text color to #156f77 */
+      border-left: 4px solid #156f77;
+      margin-bottom: 15px;
+  }
+  
+  .form-row {
+      display: flex;
+      align-items: center;
+      gap: 10px; /* Adjusts the space between elements */
+      margin-bottom: 10px;
+      width: 100%;
+  }
+  
+  .form-row input[type="checkbox"] {
+      margin-right: 10px; /* Adds space between checkbox and labels */
+  }
+  
+  .small-input {
+      flex: 1; /* Allows the input boxes to stretch and fill available space */
+      border: 1px solid #767676;
+      padding: 8px; /* Make padding consistent with other input fields */
+      margin-right: 10px;
+      width: 100%; /* Make the input boxes take up the full available space */
+      box-sizing: border-box; /* Ensures padding does not affect width */
+  }
+  
+  .form-row label {
+      margin-right: 5px; /* Reduces space between label and input */
+  }
+  
+  .form-row input[type="text"],
+  .form-row input[type="number"],
+  .form-row input[type="date"],
+  .form-row select,
+  .form-row textarea {
+      flex: 1;
+      padding: 8px;
+      margin-right: 10px;
+  }
+  
+  textarea {
+      width: 100%;
+  }
+  
+  select {
+      width: auto;
+      padding: 8px;
+      margin-right: 10px;
+      font-size: 14px;
+  }
+  
+  input[type="submit"] {
+      background-color: #156f77; /* Original background color */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+  }
+  
+  .fecal-score-options {
+      align-items: center;
+      gap: 10px; /* Adjust the gap between each radio button/label pair */
+  }
+  
+  .fecal-score-options label {
+      margin-right: 2px;
+  }
+  
+  .test-options {
+      align-items: center;
+      gap: 10px; /* Adjust this value to control spacing between checkboxes */
+  }
+  
+  .test-options input[type="checkbox"] {
+      margin-right: 2px; /* Adds a small gap between checkbox and label */
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  table th, table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  table th {
+    background-color: #156f77;
+    color: white;
+  }
+  
+  @media (max-width: 768px) {
+    .appointment-section {
+        flex-direction: column; /* Stacks the sections vertically */
+    }
+  }
+  
+  .back-button {
+    background-color: var(--color-1); /* Use the primary color */
+    color: white; /* White text */
+    padding: 10px 20px; /* Adjust padding */
+    font-size: 16px; /* Adjust font size */
+    border: none; /* Remove borders */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Show pointer on hover */
+    transition: background-color 0.3s ease; /* Smooth transition */
+  }
+  
+  
+  .back-button:hover {
+      background-color: #104d56; /* Lighter color on hover */
+  }

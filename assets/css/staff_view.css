@@ -1,0 +1,655 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins";
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #156f77; /* Background color for sidebar */
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 0 20px 20px 0; /* Rounded right corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    height: 100vh; /* Full height */
+    
+    /* Make sidebar fixed */
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    margin-bottom: 50px; /* Adjust this as necessary */
+} 
+
+.logo img {
+    width: 210px;
+    margin-right: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+nav ul li {
+    padding: 10px 0;
+    margin-bottom: 15px; /* Spacing between items */
+    margin-left: 15px; /* Move the items to the right */
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center; /* Align text and icon horizontally */
+}
+
+nav ul li:last-child {
+    margin-bottom: 0; /* Remove margin after the last item */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+nav ul li.active {
+    font-weight: bold;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+nav ul li.active {
+    background-color: #ffffff; /* White background for the active item */
+    color: #156f77; /* Text color for active item */
+    border-radius: 8px; /* Rounded corners for the active item */
+    padding: 10px; /* Padding inside the white box */
+}
+
+nav ul li.active a {
+    color: #156f77; /* Ensuring link text inside active item is dark teal */
+}
+
+nav ul li a:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+.sidebar-bottom {
+    margin-top: auto; /* Moves this section to the bottom of the sidebar */
+    display: flex;
+    margin-left: 15px; /* Move the items to the right */
+    flex-direction: column;
+}
+
+.sidebar-bottom button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 10px;
+    font-size: 20px;
+    display: flex;
+    align-items: center; /* Align icon and text horizontally */
+}
+
+.sidebar-bottom button img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+    vertical-align: middle; /* Align icon with text */
+}
+
+.sidebar-bottom button:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li:focus, .sidebar-bottom button:focus, .schedule-item button:focus {
+    outline: 3px solid var(--color-2);
+}
+
+/* Smooth transitions for interactive elements */
+nav ul li, .sidebar-bottom button, .schedule-item button, .export-button {
+    transition: all 0.3s ease-in-out;
+}
+
+nav ul li:hover, .sidebar-bottom button:hover, .schedule-item button:hover, .export-button:hover {
+    transform: translateX(5px); /* Adds a smooth hover effect */
+}
+
+.main-content {
+    margin-left: 250px; /* Adjust this based on sidebar width */
+    flex: 1;
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* End of Header/Sidebar */
+
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.actions input {
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.actions .filter-btn, .add-btn {
+    padding: 10px 15px;
+    background-color: #156f77;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.actions .add-btn {
+    margin-left: auto; /* Move the Add Staff button to the right */
+    padding: 10px 15px;
+    background-color: #156f77;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.staff-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.staff-table th, .staff-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.staff-table th {
+    background-color: #a8ebf0;
+}
+
+.staff-table tbody tr {
+    transition: background-color 0.3s ease;
+    cursor: pointer; /* Add a pointer cursor for a better user experience */
+}
+
+/* Hover effect for the table rows */
+.staff-table tbody tr:hover {
+    background-color: #EEEEEE; /* Highlight color on hover */
+    color: #fff; /* Optional: Change text color on hover */
+}
+
+.staff-table tbody tr:hover td {
+    color: #000000; /* Change the color of text inside the row */
+}
+
+/* Tooltip container */
+.staff-table tr {
+    position: relative;
+}
+
+.staff-table tr:hover::after {
+    content: attr(data-details); /* Display details stored in the data-details attribute */
+    position: absolute;
+    bottom: 100%;
+    left: 20px;
+    color: #fff;
+    padding: 8px 12px;
+    white-space: nowrap;
+    z-index: 10;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.staff-table tr:hover {
+    background-color: #e0f7fa;
+}
+
+/* Hover Card Container */
+.hover-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+/* Larger Hover Card */
+.hover-card {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 30px; /* Adjust the position downward */
+    left: 10px; /* Adjust the position horizontally */
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px; /* Increased padding for more spacing */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    width: 350px; /* Make the hover card wider */
+    font-size: 16px; /* Slightly larger text */
+    color: #333;
+}
+
+/* Show on hover */
+.hover-container:hover .hover-card {
+    display: block; /* Show when hovering */
+}
+
+/* Ensure hover behavior is independent of click toggle */
+.hover-card {
+    pointer-events: auto; /* Ensure the hover card can be interacted with */
+}
+
+/* Profile Image and Information */
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px; /* Add spacing after profile info */
+}
+
+.profile-img {
+    width: 80px; /* Bigger profile image */
+    height: 80px;
+    border-radius: 50%;
+}
+
+/* Text inside the hover card */
+.hover-card strong {
+    font-size: 18px; /* Larger name font */
+    color: #156f77;
+}
+
+.hover-card div {
+    margin: 5px 0; /* Add spacing between details */
+}
+
+/* Show the hover card on hover */
+.hover-container:hover .hover-card {
+    display: block;
+}
+
+/* Optional: Larger Icon */
+.hover-container i {
+    margin-left: 5px;
+    color: #156f77;
+    font-size: 18px; /* Bigger info icon */
+    transition: color 0.3s;
+}
+
+.hover-container i:hover {
+    color: #004d4f;
+}
+
+
+/* For Filter */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.dropdown-content label {
+    padding: 10px;
+    display: block;
+    cursor: pointer;
+    color: #333;
+}
+
+.dropdown-content label.active {
+    font-weight: bold;
+    color: #156f77;
+}
+
+.dropdown-content hr {
+    border: 1px solid #ddd;
+    margin: 10px 0;
+}
+
+.dropdown-content label:hover {
+    background-color: #f1f1f1;
+}
+
+/* Show the dropdown content when the button is clicked */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-filter {
+    position: relative;
+    display: inline-block;
+}
+
+.filter-btn {
+    padding: 10px 15px;
+    background-color: #156f77;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.filter-btn i {
+    margin-right: 5px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    margin-top: 5px;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    padding: 15px;
+    z-index: 100;
+    width: 200px;
+}
+
+.dropdown-content label {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.dropdown-content select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.dropdown-content hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 10px 0;
+}
+
+.apply-btn, .clear-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.apply-btn {
+    background-color: #2ba540;
+    color: white;
+}
+
+.clear-btn {
+    background-color: #dd3244;
+    color: white;
+}
+
+.apply-btn:hover {
+    background-color: #1c6a29;
+}
+
+.clear-btn:hover {
+    background-color: #a62633;
+}
+
+.dropdown-filter:hover .dropdown-content {
+    display: block;
+}
+
+/* Styling for action buttons */
+.action-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 14px;
+    margin-right: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Edit button */
+.edit-btn {
+    background-color: #2ba540; /* Dark teal */
+}
+
+.edit-btn:hover {
+    background-color: #1c6a29; /* Darker teal */
+}
+
+/* Delete button */
+.delete-btn {
+    background-color: #dd3244; /* Red */
+}
+
+.delete-btn:hover {
+    background-color: #a62633; /* Darker red */
+}
+
+/* Toggle (Activate/Deactivate) button */
+.toggle-btn {
+    background-color: #ffc010; /* Green */
+}
+
+.toggle-btn:hover {
+    background-color: #b78a0d; /* Darker green */
+}
+
+/* Add spacing and align buttons in the table cell */
+td button {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+.pagination a {
+    padding: 8px 16px;
+    margin: 0 4px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #007b8a;
+    font-weight: 500;
+}
+.pagination a.active {
+    background-color: #007b8a;
+    color: white;
+    border-color: #007b8a;
+}
+.pagination a:hover {
+    background-color: #005f6b;
+    color: white;
+}
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .pagination-link {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}
+
+form label {
+    display: block;
+    font-weight: bold;
+    margin: 10px 0 5px;
+    color: #333;
+}
+
+form input,
+form select {
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+form input:focus,
+form select:focus {
+    outline: none;
+    border-color: #156f77;
+    box-shadow: 0px 0px 5px rgba(21, 111, 119, 0.5);
+}
+
+form button {
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #156f77;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #0d5055;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Slightly darker background for focus */
+}
+
+.modal-content {
+    position: relative;
+    background-color: #fff;
+    margin: 5% auto; /* Center the modal vertically */
+    padding: 20px;
+    border-radius: 10px;
+    width: 25%;
+    max-height: 80vh; /* Set a max height for the modal */
+    overflow-y: auto; /* Enable scrolling inside the modal content */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.close-btn {
+    position: absolute; /* Position relative to the modal content */
+    top: 1px; /* Distance from the top of the modal content */
+    right: 20px; /* Distance from the right edge of the modal content */
+    color: #000;
+    font-size: 50px; /* Adjust font size */
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+    color: #156f77; /* Optional hover effect */
+}
+
+/* Align label and input fields properly */
+.swal2-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+/* Labels stay on the left */
+.swal2-row label {
+    width: 70px;  /* Adjusted for better alignment */
+    font-weight: bold;
+    text-align: left;
+    white-space: nowrap; /* Prevents label from wrapping */
+}
+
+/* Make input fields longer */
+.swal2-row input,
+.swal2-row select {
+    flex: 1;  /* Allows the input to take up remaining space */
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: calc(100% - 80px);  /* Adjust input field width */
+    max-width: 400px;  /* Adjust maximum width */
+}
+
+/* Make the email field non-editable */
+#swalEmail {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}

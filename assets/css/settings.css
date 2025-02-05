@@ -1,0 +1,459 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins";
+}
+
+body, html {
+    min-height: 100vh;
+    background-color: var(--color-3);
+    font-family: "Poppins" !important;
+}
+
+.sidebar {
+    position: fixed; /* Fixes the sidebar to the left */
+    width: 250px;
+    background-color: #156f77; /* Background color for sidebar */
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 0 20px 20px 0; /* Rounded right corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    height: 100vh; /* Full height */
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    margin-bottom: 50px; /* Adjust this as necessary */
+} 
+
+.logo img {
+    width: 210px;
+    margin-right: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+nav ul li {
+    padding: 10px 0;
+    margin-bottom: 15px; /* Spacing between items */
+    margin-left: 15px; /* Move the items to the right */
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center; /* Align text and icon horizontally */
+}
+
+nav ul li:last-child {
+    margin-bottom: 0; /* Remove margin after the last item */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+nav ul li.active {
+    font-weight: bold;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+nav ul li.active {
+    background-color: #ffffff; /* White background for the active item */
+    color: #156f77; /* Text color for active item */
+    border-radius: 8px; /* Rounded corners for the active item */
+    padding: 10px; /* Padding inside the white box */
+}
+
+nav ul li.active a {
+    color: #156f77; /* Ensuring link text inside active item is dark teal */
+}
+
+nav ul li a:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+nav ul li img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+}
+
+nav ul li:focus, .sidebar-bottom button:focus {
+    outline: 3px solid var(--color-2);
+}
+
+/* Smooth transitions for interactive elements */
+nav ul li, .sidebar-bottom button {
+    transition: all 0.3s ease-in-out;
+}
+
+nav ul li:hover, .sidebar-bottom button:hover {
+    transform: translateX(5px); /* Adds a smooth hover effect */
+}
+
+.sidebar-bottom button.active {
+    background-color: #ffffff; /* White background for the active item */
+    color: #156f77; /* Text color for active item */
+    border-radius: 8px; /* Rounded corners for the active item */
+    padding: 10px; /* Padding inside the white box */
+    font-weight: bold;
+}
+
+.sidebar-bottom {
+    margin-top: auto; /* Moves this section to the bottom of the sidebar */
+    display: flex;
+    margin-left: 15px; /* Move the items to the right */
+    flex-direction: column;
+}
+
+.sidebar-bottom button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 10px;
+    font-size: 20px;
+    display: flex;
+    align-items: center; /* Align icon and text horizontally */
+}
+
+.sidebar-bottom button img {
+    width: 24px; /* Set the desired icon size */
+    height: 24px; /* Set the desired icon size */
+    margin-right: 10px; /* Space between icon and text */
+    vertical-align: middle; /* Align icon with text */
+}
+
+.sidebar-bottom button:hover {
+    color: var(--color-2); /* Change the color on hover */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+.main-content {
+    margin-left: 250px; /* Adds space to the left for the sidebar */
+    min-height: 100vh; /* Ensures the main content covers the full height */
+    flex: 1;
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* End of Header/Sidebar */
+
+.settings-container {
+    margin-left: 250px; /* Space for the fixed sidebar */
+    flex: 1;
+    display: flex;
+    height: 100vh;
+    background-color: var(--color-5);
+}
+
+.settings-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;  /* Full viewport height */
+    background-color: var(--color-4);
+    color: var(--color-6);
+    width: 250px;
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.settings-sidebar h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.settings-sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.settings-sidebar ul li {
+    margin-bottom: 15px;
+}
+
+.settings-sidebar ul li a {
+    display: block;
+    text-decoration: none;
+    color: var(--color-6);
+    font-size: 18px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.settings-sidebar ul li a:hover,
+.settings-sidebar ul li a.active {
+    background-color: var(--color-2); /* Light blue background */
+    color: var(--color-1);            /* Dark text for contrast */
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 10px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+/* Main Content */
+.settings-main {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #ffffff; /* Ensures the background is white */
+}
+
+.settings-main h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-1);
+    margin-bottom: 20px;
+}
+
+.settings-main form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.settings-main form label {
+    font-weight: bold;
+}
+
+.settings-main form input,
+.settings-main form textarea,
+.settings-main form select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--color-3);
+    border-radius: 5px;
+    background-color: var(--color-5);
+    font-size: 16px;
+    margin-bottom: 15px;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.settings-main form input:focus,
+.settings-main form textarea:focus,
+.settings-main form select:focus {
+    border-color: var(--color-1);
+    background-color: #fff;
+    outline: none;
+}
+
+.settings-main form button {
+    background-color: #156f77;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.settings-main form button:hover {
+    background-color: #004d4f;
+}
+
+.settings-main button {
+    background-color: #156f77;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.settings-main button:hover {
+    background-color: #004d4f;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: var(--color-5);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ccc;;
+}
+
+table th,
+table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ccc;; /* Match the border color for cell lines */
+}
+
+table th {
+    background-color: var(--color-2);
+    color: var(--color-1);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+table td {
+    background-color: var(--color-5);
+    color: var(--color-6);
+}
+
+table tr:nth-child(even) td {
+    background-color: var(--color-4);
+}
+
+table td button {
+    background-color: var(--color-1); /* Same background for all buttons */
+    color: var(--color-5); /* Text color */
+    padding: 6px 10px; /* Padding to size the buttons */
+    font-size: 14px; /* Font size */
+    border: none; /* Remove any borders */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transitions */
+}
+
+table td button:hover {
+    background-color: #004d4f;
+}
+
+/* Make Feature Access table scrollable */
+.table-container {
+    width: 100%;
+    border: 1px solid #ccc; /* Optional: Adds border for better visibility */
+    border-radius: 8px; /* Optional: Rounded corners */
+    padding-bottom: 10px; /* Prevents scrollbar overlap */
+}
+
+.scrollable-container {
+    overflow-x: auto;   /* Enables horizontal scrolling */
+    max-width: 100%;    /* Restricts width to the container */
+}
+
+.permissions-table {
+    width: max-content; /* Allows table to extend beyond container */
+    min-width: 100%; /* Ensures it doesn’t shrink smaller than container */
+    border-collapse: collapse;
+}
+
+.permissions-table th, .permissions-table td {
+    white-space: nowrap;  /* Prevents text from wrapping */
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+
+/* Permission column is wider */
+.permissions-table th:first-child, 
+.permissions-table td:first-child {
+    width: 70%; /* More space for Permission text */
+    text-align: center;
+    padding-left: 15px;
+}
+
+/* Admin and Veterinarian columns are narrower */
+.permissions-table th:not(:first-child),
+.permissions-table td:not(:first-child) {
+    width: 30%; /* Smaller width for checkboxes */
+}
+
+/* Style for the checkboxes */
+.permissions-table input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* Edit Button */
+table td button.edit-btn {
+    background-color: #2ba540; /* Background color for Edit button */
+    color: #ffffff; /* Text color */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Keep rounded corners */
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out; /* Smooth color transition */
+}
+
+table td button.edit-btn:hover {
+    background-color: #1c6a29; /* Hover background color for Edit button */
+}
+
+/* Delete Button */
+table td button.delete-btn {
+    background-color: #dd3244; /* Background color for Delete button */
+    color: #ffffff; /* Text color */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Keep rounded corners */
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out; /* Smooth color transition */
+}
+
+table td button.delete-btn:hover {
+    background-color: #a62633; /* Hover background color for Delete button */
+}
+
+a {
+    text-decoration: none; /* Removes underline from all <a> tags */
+}
+
+a:hover {
+    text-decoration: none; /* Ensures no underline appears on hover */
+}
+
+/* Style the checkbox and label */
+#force-all-container {
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Center items vertically */
+    gap: 10px; /* Add spacing between label and checkbox */
+}
+
+#force-all {
+    width: 20px; /* Set a consistent size */
+    height: 20px; /* Set a consistent size */
+    cursor: pointer; /* Add a pointer cursor */
+}
+
+#force-all-label {
+    font-size: 16px; /* Match form font size */
+    font-weight: bold; /* Make it more prominent */
+    color: #333; /* Darker color for readability */
+    margin-bottom: 10.5px;
+    cursor: pointer; /* Pointer cursor for better usability */
+}
+
