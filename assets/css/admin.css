@@ -712,3 +712,94 @@ header {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+#appointmentsChart {
+    width: 100%;
+    height: 400px; /* Keep the height as needed */
+}
+
+#speciesPieChart {
+    width: 100%; /* Make it fill the width of the container */
+    max-width: 450px; /* Limit the maximum size */
+    height: 300px; /* Adjust height as needed */
+    margin: 0; /* Remove any extra margin */
+    padding: 0; /* Remove any padding around the canvas */
+}
+
+/* Filter Container */
+.species-filter-container {
+    margin-top: 20px;
+    gap: 10px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Label Styling */
+.species-filter-container label {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Clean and Modern Dropdown */
+#speciesFilter {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    color: #333;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Hover and Focus Effects */
+#speciesFilter:hover,
+#speciesFilter:focus {
+    border-color: #156f77;
+    outline: none;
+}
+
+/* Option Styling */
+#speciesFilter option {
+    background-color: #fff;
+    color: #333;
+}
+
+/* Filter Container */
+.chart-controls-container {
+    margin-top: 20px;
+    gap: 10px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Label Styling */
+.chart-controls-container label {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Clean and Modern Dropdown */
+#appointmentRange {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    color: #333;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Hover and Focus Effects */
+#appointmentRange:hover,
+#appointmentRange:focus {
+    border-color: #156f77;
+    outline: none;
+}
+
+/* Option Styling */
+#appointmentRange option {
+    background-color: #fff;
+    color: #333;
+}

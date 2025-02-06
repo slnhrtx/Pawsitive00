@@ -174,9 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="../assets/css/admin.css">
     <script src="../assets/js/update_appointment.js?v=1.0.1"></script>
@@ -278,7 +276,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <section class="overview-section">
                 <div class="total-record">
                     <h2>Total Records of Registered Pets</h2>
-                    <p><?= htmlspecialchars($totalRecords); ?></p>
+                    <p style="font-size: 40px;"><?= htmlspecialchars($totalRecords); ?></p>
                 </div>
                 <section class="pet-records">
                     <div class="pet-item">
@@ -298,17 +296,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </section>
             </section>
-            <div class="chart-controls">
-                <button class="toggle-btn" data-range="day">Per Day</button>
-                <button class="toggle-btn" data-range="week">Per Week</button>
-                <button class="toggle-btn" data-range="month" class="active">Per Month</button>
-                <button class="toggle-btn" data-range="year">Per Year</button>
-            </div>
 
+            <br><hr><br>
+
+            <div class="chart-controls-container">
+            <h2 class="text-xl font-semibold text-center text-gray-700">Appointment Analytics</h2>
+                <label for="appointmentRange" class="text-gray-700 font-medium">Filter by Range:</label>
+                <select id="appointmentRange" class="border rounded-md p-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="day">Per Day</option>
+                    <option value="week">Per Week</option>
+                    <option value="month" selected>Per Month</option>
+                    <option value="year">Per Year</option>
+                </select>
+            </div>          
+            <br>
             <canvas id="appointmentsChart" data-appointments='<?= json_encode($appointmentData); ?>' width="800"
                 height="400"></canvas>
-            <br>
-            <div class="flex items-center justify-center mt-4 space-x-4">
+
+            <br><hr><br>
+
+            <div class="species-filter-container">
+                <h2 class="text-xl font-semibold text-center text-gray-700">Pets Per Species Analytics</h2>
                 <label for="speciesFilter" class="text-gray-700 font-medium">Filter by Species:</label>
                 <select id="speciesFilter" class="border rounded-md p-2 focus:ring-2 focus:ring-blue-500">
                     <option value="all">All Species</option>
@@ -323,10 +331,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <option value="Fish">Fish</option>
                 </select>
             </div>
+            <br>
             <div class="max-w-md mx-auto mt-8 bg-white shadow-lg rounded-lg p-4">
-                <h2 class="text-xl font-semibold text-center text-gray-700">Pets Per Species</h2>
                 <canvas id="speciesPieChart" data-labels='<?= json_encode($speciesLabels); ?>'
-                    data-counts='<?= json_encode($speciesCounts); ?>' width="400" height="400"></canvas>
+                    data-counts='<?= json_encode($speciesCounts); ?>'></canvas>
             </div>
             <div class="right-section">
                 <h2>Quick Actions</h2>
@@ -465,124 +473,152 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const chartElement = document.getElementById('appointmentsChart');
-            const appointmentData = JSON.parse(chartElement.dataset.appointments);
-            let currentChart = null;
+    document.addEventListener('DOMContentLoaded', function () {
+        const chartElement = document.getElementById('appointmentsChart');
+        const appointmentData = JSON.parse(chartElement.dataset.appointments);
+        let currentChart = null;
 
-            function renderBarChart(range) {
-                const data = appointmentData[range];
+        function renderBarChart(range) {
+            const data = appointmentData[range];
 
-                if (currentChart) currentChart.destroy(); // Clear the existing chart
+            if (currentChart) currentChart.destroy(); // Clear the existing chart
 
-                currentChart = new Chart(chartElement, {
-                    type: 'bar',
-                    data: {
-                        labels: data.labels,
-                        datasets: [{
-                            label: `Appointments Per ${range.charAt(0).toUpperCase() + range.slice(1)}`,
-                            data: data.counts,
-                            backgroundColor: 'rgba(54, 162, 235, 0.7)',  // Bar color
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: function (tooltipItem) {
-                                        return `Appointments: ${tooltipItem.raw}`;
-                                    }
-                                }
-                            },
-                            legend: {
-                                display: false // Hides the legend for cleaner look
-                            }
-                        },
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Date Range'
-                                },
-                                ticks: {
-                                    maxRotation: 45,
-                                    minRotation: 45
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Number of Appointments'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Default view: Month
-            renderBarChart('month');
-
-            // Event Listener for buttons
-            document.querySelectorAll('.toggle-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    renderBarChart(button.dataset.range);
-                });
-            });
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const ctx = document.getElementById('speciesPieChart').getContext('2d');
-            const labels = JSON.parse(ctx.canvas.dataset.labels);
-            const counts = JSON.parse(ctx.canvas.dataset.counts);
-
-            const backgroundColors = [
-                '#FF6384', '#36A2EB', '#FFCE56', '#4CAF50',
-                '#9C27B0', '#FF9800', '#795548', '#03A9F4', '#E91E63'
-            ];
-
-            new Chart(ctx, {
-                type: 'pie',
+            currentChart = new Chart(chartElement, {
+                type: 'bar',
                 data: {
-                    labels: labels,
+                    labels: data.labels,
                     datasets: [{
-                        data: counts,
-                        backgroundColor: backgroundColors.slice(0, labels.length),
-                        borderColor: '#fff',
-                        borderWidth: 2
+                        label: `Appointments Per ${range.charAt(0).toUpperCase() + range.slice(1)}`,
+                        data: data.counts,
+                        backgroundColor: '#a8ebf0',  // Bar color
+                        borderColor: '#156f77',
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#4A4A4A',
-                                font: {
-                                    size: 14,
-                                    family: 'Poppins'
-                                }
-                            }
-                        },
                         tooltip: {
                             callbacks: {
                                 label: function (tooltipItem) {
-                                    return `${labels[tooltipItem.dataIndex]}: ${counts[tooltipItem.dataIndex]} pets`;
+                                    return `Appointments: ${tooltipItem.raw}`;
                                 }
+                            }
+                        },
+                        legend: {
+                            display: false // Hides the legend for cleaner look
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date Range'
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Appointments'
                             }
                         }
                     }
                 }
             });
+        }
+
+        // Default view: Month
+        renderBarChart('month');
+
+        // Event Listener for dropdown change
+        document.getElementById('appointmentRange').addEventListener('change', (event) => {
+            renderBarChart(event.target.value);
         });
+    });
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('speciesPieChart').getContext('2d');
+        const allLabels = JSON.parse(ctx.canvas.dataset.labels);
+        const allCounts = JSON.parse(ctx.canvas.dataset.counts);
+
+        // Define consistent colors for each species
+        const speciesColors = {
+            "Dog": "#FF6384",
+            "Cat": "#36A2EB",
+            "Rabbit": "#FFCE56",
+            "Bird": "#4CAF50",
+            "Hamster": "#9C27B0",
+            "Guinea Pig": "#FF9800",
+            "Reptile": "#795548",
+            "Ferret": "#03A9F4",
+            "Fish": "#E91E63"
+        };
+
+        // Generate color mapping for existing labels
+        const assignedColors = allLabels.map(species => speciesColors[species] || "#CCCCCC"); // Default gray if missing
+
+        let speciesChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: allLabels,
+                datasets: [{
+                    data: allCounts,
+                    backgroundColor: assignedColors,
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#4A4A4A',
+                            font: { size: 14, family: 'Poppins' }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (tooltipItem) {
+                                return `${speciesChart.data.labels[tooltipItem.dataIndex]}: ${speciesChart.data.datasets[0].data[tooltipItem.dataIndex]} pets`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Event Listener for Species Dropdown
+        document.getElementById('speciesFilter').addEventListener('change', function () {
+            const selectedSpecies = this.value;
+
+            if (selectedSpecies === 'all') {
+                speciesChart.data.labels = allLabels;
+                speciesChart.data.datasets[0].data = allCounts;
+                speciesChart.data.datasets[0].backgroundColor = assignedColors;
+            } else {
+                const index = allLabels.indexOf(selectedSpecies);
+                if (index !== -1) {
+                    speciesChart.data.labels = [allLabels[index]];
+                    speciesChart.data.datasets[0].data = [allCounts[index]];
+                    speciesChart.data.datasets[0].backgroundColor = [speciesColors[selectedSpecies]];
+                }
+            }
+
+            speciesChart.update(); // Refresh the chart
+        });
+    });
+    </script>
+    <script>
+
     </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

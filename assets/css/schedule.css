@@ -445,7 +445,7 @@ form button[type="submit"]:hover {
 /* Hover and Focus Effects */
 #statusFilter:hover,
 #statusFilter:focus {
-    border-color: #007bff;
+    border-color: #156f77;
     outline: none;
 }
 
