@@ -1,0 +1,189 @@
+<!-- <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+/* For pets basic info */
+/* For pets basic info */
+/* For pets basic info */
+
+session_start();
+
+require '../config/dbh.inc.php';
+
+if (!isset($_SESSION['OwnerId'])) {
+    header('Location: owner_login.php');
+    exit();
+}
+
+$owner_id = $_SESSION['OwnerId']; // Get the logged-in owner's ID
+$user_name = isset($_SESSION['FirstName']) ? $_SESSION['FirstName'] . ' ' . $_SESSION['LastName'] : 'Owner';
+
+try {
+    // Query to fetch pets linked to the logged-in owner
+    $query = "SELECT 
+        pets.PetId, 
+        pets.Name AS pet_name, 
+        pets.SpeciesId, 
+        pets.Gender, 
+        pets.CalculatedAge, 
+        pets.Breed
+    FROM 
+        pets 
+    WHERE 
+        pets.OwnerId = :OwnerId";
+
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':OwnerId', $owner_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $pets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Database Error: " . $e->getMessage());
+}
+?>
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pawsitive</title>
+  <link rel="icon" type="image/x-icon" href="/../assets/images/logo/LOGO.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <!-- Link to CSS -->
+  <link rel="stylesheet" href="pet_my_appointment.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+             <div class="logo">
+                 <img src="/../assets/images/logo/LOGO 2 WHITE.png" alt="Pawsitive Logo">
+             </div>
+                <ul class="nav-links">
+                  <li><a href="../index.html">Home</a></li>
+                  <li><a href="../book_an_appointment/pet_book_appointment.html" class="active">Appointment</a></li>
+                  <li><a href="../pet/pet_add.html">Pet</a></li>
+                  <li><a href="../record/pet_record.html">Record</a></li>
+                  <li><a href="../record/record.php">Billing</a></li>
+                </ul>
+            <div class="profile-dropdown">
+                <img src="/assets/images/Icons/User 1.png" alt="Profile Icon" class="profile-icon">
+                    <div class="dropdown-content">
+                      <a href="profile/index.php"><img src="/assets/images/Icons/Profile.png"alt="Profile Icon">Profile</a>
+                      <a href=""><img src="/assets/images/Icons/Change Password.png"alt="Change Password Icon">Change Password</a>
+                      <a href=""><img src="/assets/images/Icons/Settings 2.png"alt="Settings">Settings</a>
+                      <a href=""><img src="/assets/images/Icons/Sign out.png"alt="Sign Out">Sign Out</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="home">
+        <div class="hero-text">
+          <h1>My Appointment</h1>
+      </section>
+
+      <div class="main-content">
+        <div class="container">
+          <!-- Left Section: Pet List -->
+          <div class="left-section">
+            <h2>Upcoming Appointments</h2>
+            <?php if (!empty($appointments)): ?>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Pet Name</th>
+                    <th>Service</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php foreach ($appointments as $appointment): ?>
+                  <tr>
+                    <td><?= htmlspecialchars($appointment['pet_name']) ?></td>
+                    <td><?= htmlspecialchars($appointment['Service']) ?></td>
+                    <td><?= htmlspecialchars($appointment['AppointmentDate']) ?></td>
+                    <td><?= htmlspecialchars($appointment['AppointmentTime']) ?></td>
+                    <td>
+                      <button class="action-btn edit-btn" onclick="editAppointment(<?= $appointment['AppointmentId'] ?>)">Edit</button>
+                      <button class="action-btn delete-btn" onclick="deleteAppointment(<?= $appointment['AppointmentId'] ?>)">Delete</button>
+                    </td>
+                  </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
+            <?php else: ?>
+            <p>You have no upcoming appointments.</p>
+            <?php endif; ?>            
+          </div>
+        </div>
+
+        <div class="container">
+          <!-- Left Section: Pet List -->
+          <div class="left-section">
+            <h2>Previous Appointments</h2>
+            <?php if (!empty($appointments)): ?>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Pet Name</th>
+                    <th>Service</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php foreach ($appointments as $appointment): ?>
+                  <tr>
+                    <td><?= htmlspecialchars($appointment['pet_name']) ?></td>
+                    <td><?= htmlspecialchars($appointment['Service']) ?></td>
+                    <td><?= htmlspecialchars($appointment['AppointmentDate']) ?></td>
+                    <td><?= htmlspecialchars($appointment['AppointmentTime']) ?></td>
+                  </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
+            <?php else: ?>
+            <p>You have no previous appointments.</p>
+            <?php endif; ?>            
+          </div>
+        </div>
+      </div>
+      
+</main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const profileIcon = document.querySelector('.profile-icon');
+      const dropdownContent = document.querySelector('.dropdown-content');
+
+      profileIcon.addEventListener('click', function() {
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+      });
+
+      window.addEventListener('click', function(event) {
+        if (!event.target.matches('.profile-icon')) {
+          if (dropdownContent.style.display === 'block') {
+            dropdownContent.style.display = 'none';
+          }
+        }
+      });
+    });
+  </script>
+
+<script src="add_pet.js"></script>
+</body>
+</html>
