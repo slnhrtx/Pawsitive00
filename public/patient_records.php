@@ -1,5 +1,4 @@
 <?php
-// Enable error reporting
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -23,6 +22,7 @@ $pet_id = $_POST['pet_id'] ?? $_GET['pet_id'] ?? null;
 $errors = [];
 $successMessage = "";
 $appointmentDetails = [];
+$latestVaccineName = '';
 
 if ($appointment_id && $pet_id) {
     try {
@@ -47,8 +47,6 @@ if ($appointment_id && $pet_id) {
         $errors[] = "Database Error: " . $e->getMessage();
     }
 }
-
-$appointment_id = $_POST['appointment_id'] ?? $_GET['appointment_id'] ?? null;
 
 if ($appointment_id) {
     $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM Appointments WHERE AppointmentId = :appointment_id");
@@ -116,63 +114,74 @@ if ($appointment_id && $pet_id) {
 
 $recordId = $_GET['record_id'] ?? null;
 
-if ($recordId) {
+$physicalExam = [];
+
+if ($appointment_id && $pet_id) {
     try {
         $stmt = $pdo->prepare("
             SELECT * FROM PhysicalExams
-            WHERE RecordId = :record_id
+            WHERE RecordId = (
+                SELECT RecordId FROM PatientRecords 
+                WHERE AppointmentId = :appointment_id AND PetId = :pet_id
+            )
         ");
-        $stmt->execute([':record_id' => $recordId]);
+        $stmt->execute([
+            ':appointment_id' => $appointment_id,
+            ':pet_id' => $pet_id
+        ]);
         $physicalExam = $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        echo "Database Error: " . $e->getMessage();
+        $errors[] = "Database Error: " . $e->getMessage();
     }
 }
 
-$labTests = [];
 $recordId = $_GET['record_id'] ?? null;
+$labTests = [];
 
-if ($recordId) {
+if ($appointment_id && $pet_id) {
     try {
         $stmt = $pdo->prepare("
             SELECT * FROM LaboratoryTests
-            WHERE RecordId = :record_id
+            WHERE RecordId = (
+                SELECT RecordId FROM PatientRecords 
+                WHERE AppointmentId = :appointment_id AND PetId = :pet_id
+            )
         ");
-        $stmt->execute([':record_id' => $recordId]);
+        $stmt->execute([
+            ':appointment_id' => $appointment_id,
+            ':pet_id' => $pet_id
+        ]);
         $labTests = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        echo "Database Error: " . $e->getMessage();
+        $errors[] = "Database Error: " . $e->getMessage();
     }
 }
 
-$diagnosisData = [];
-$recordId = $_GET['record_id'] ?? null;  // Fetch RecordId from URL
+// Organize lab tests into categories
+$storedLabTests = [];
+foreach ($labTests as $test) {
+    $storedLabTests[$test['TestName']] = [
+        'type' => $test['TestType'],
+        'detail' => $test['TestDetail']
+    ];
+}
 
-if ($recordId) {
+$recordId = $_GET['record_id'] ?? null;
+$diagnosisData = [];
+if ($appointment_id && $pet_id) {
     try {
         $stmt = $pdo->prepare("
-            SELECT AppointmentId, PetId
-            FROM PatientRecords
-            WHERE RecordId = :record_id
+            SELECT d.*
+            FROM Diagnoses d
+            INNER JOIN PatientRecords pr ON d.RecordId = pr.RecordId
+            WHERE pr.AppointmentId = :appointment_id AND pr.PetId = :pet_id
+            ORDER BY d.DiagnosisId DESC LIMIT 1
         ");
-        $stmt->execute([':record_id' => $recordId]);
-        $record = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($record) {
-            $appointment_id = $record['AppointmentId'];
-            $pet_id = $record['PetId'];
-
-            // Step 2: Fetch Diagnosis Data using AppointmentId and PetId
-            $stmt = $pdo->prepare("
-                SELECT * FROM Diagnoses
-                WHERE AppointmentId = :appointment_id AND PetId = :pet_id
-            ");
-            $stmt->execute([
-                ':appointment_id' => $appointment_id,
-                ':pet_id' => $pet_id
-            ]);
-            $diagnosisData = $stmt->fetch(PDO::FETCH_ASSOC);
-        }
+        $stmt->execute([
+            ':appointment_id' => $appointment_id,
+            ':pet_id' => $pet_id
+        ]);
+        $diagnosisData = $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         $errors[] = "Database Error: " . $e->getMessage();
     }
@@ -273,7 +282,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
             <br>
 
             <h2>Chief Complaint</h2>
-            <form action="../src/process_chief_complaint.php" method="POST">
+            <form action="../src/chief_complaint_process.php" method="POST" novalidate>
                 <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
                 <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
                 <div class="form-row">
@@ -282,6 +291,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                         <textarea id="chief_complaint" name="chief_complaint" rows="3" maxlength="300"
                             placeholder="Describe the main reason for today's visit..."
                             required><?= htmlspecialchars($patientRecord['ChiefComplaint'] ?? '', ENT_QUOTES); ?></textarea>
+                        <small id="char-count">0 / 300 characters</small>
                     </div>
                 </div>
 
@@ -294,7 +304,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                             </span>
                         </label>
                         <input type="date" id="onset" name="onset" max="<?= date('Y-m-d'); ?>" 
-                            value="<?= htmlspecialchars($patientRecord['onset'] ?? '', ENT_QUOTES); ?>">
+                            value="<?= htmlspecialchars($patientRecord['OnsetDate'] ?? '', ENT_QUOTES); ?>">
                     </div>
                 
                     <div class="input-container">
@@ -308,13 +318,17 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                             <option value="7" <?= ($patientRecord['DurationDays'] ?? '') == '7' ? 'selected' : ''; ?>>1 Week</option>
                             <option value="14" <?= ($patientRecord['DurationDays'] ?? '') == '14' ? 'selected' : ''; ?>>2 Weeks</option>
                             <option value="30" <?= ($patientRecord['DurationDays'] ?? '') == '30' ? 'selected' : ''; ?>>1 Month</option>
-                            <option value="Other" <?= ($patientRecord['DurationDays'] ?? '') == 'Other' ? 'selected' : ''; ?>>Other (Specify)</option>
+                            <option value="Other" <?= (!in_array($patientRecord['DurationDays'] ?? '', ['1', '2', '3', '5', '7', '14', '30']) && !empty($patientRecord['DurationDays'])) ? 'selected' : ''; ?>>
+                                Other (Specify)
+                            </option>
                         </select>
-                    
-                        <input type="number" id="custom-duration" name="custom-duration" min="1"
+
+                        <input type="number" id="custom-duration" name="custom_duration" min="1"
                             placeholder="Specify duration (days)" 
-                            value="<?= htmlspecialchars($patientRecord['CustomDuration'] ?? '', ENT_QUOTES); ?>"
-                            style="display: <?= ($patientRecord['DurationDays'] ?? '') == 'Other' ? 'block' : 'none'; ?>;">
+                            value="<?= (!in_array($patientRecord['DurationDays'] ?? '', ['1', '2', '3', '5', '7', '14', '30']) && !empty($patientRecord['DurationDays'])) 
+                                ? htmlspecialchars($patientRecord['DurationDays'], ENT_QUOTES) 
+                                : ''; ?>"
+                            style="display: <?= (!in_array($patientRecord['DurationDays'] ?? '', ['1', '2', '3', '5', '7', '14', '30']) && !empty($patientRecord['DurationDays'])) ? 'block' : 'none'; ?>;">
                     </div>
                 </div>
 
@@ -325,20 +339,20 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                             <?php
                             // List of predefined symptoms
                             $symptoms = ['Vomiting', 'Diarrhea', 'Lethargy', 'Coughing', 'Sneezing'];
-                
-                            // Retrieve symptoms from patient record (assumed comma-separated)
-                            $storedSymptoms = isset($patientRecord['Symptoms']) ? explode(',', $patientRecord['Symptoms']) : [];
-                
+
+                            // Fetch stored symptoms from database
+                            $storedSymptoms = isset($patientRecord['ObservedSymptoms']) ? explode(', ', $patientRecord['ObservedSymptoms']) : [];
+
                             foreach ($symptoms as $symptom) :
-                                $checked = in_array($symptom, $storedSymptoms);
+                                $checked = in_array($symptom, $storedSymptoms) ? 'checked' : '';
                             ?>
                                 <label>
-                                    <input type="checkbox" name="symptoms[]" value="<?= $symptom ?>" <?= $checked ? 'checked' : ''; ?>>
+                                    <input type="checkbox" name="symptoms[]" value="<?= $symptom ?>" <?= $checked; ?>>
                                     <?= $symptom ?>
                                 </label>
                             <?php endforeach; ?>
-                
-                            <!-- Other Symptom -->
+
+                            <!-- "Other" Symptom Input -->
                             <label>
                                 <input type="checkbox" name="symptoms[]" value="Other"
                                     <?= in_array('Other', $storedSymptoms) ? 'checked' : ''; ?>
@@ -346,7 +360,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                                 Other
                             </label>
                             <input type="text" id="other_symptom" name="other_symptom" placeholder="Specify other symptoms"
-                                value="<?= htmlspecialchars($patientRecord['OtherSymptom'] ?? '', ENT_QUOTES) ?>"
+                                value="<?= htmlspecialchars($patientRecord['OtherSymptom'] ?? '', ENT_QUOTES); ?>"
                                 style="display: <?= (!empty($patientRecord['OtherSymptom'])) ? 'block' : 'none'; ?>; width: 113%;">
                         </div>
                     </div>
@@ -509,13 +523,10 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                     </div>
 
                     <div class="form-row">
-                        <!-- Medication Given -->
                         <div class="input-container">
                             <label for="medication"><b>Medication given prior to check-up:</b></label>
-                            <textarea id="medication" name="medication" rows="2" maxlength="300">
-                                <?= htmlspecialchars($patientRecord['MedicationPriorCheckup'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
-                            </textarea>
-                        
+                            <textarea id="medication" name="medication" rows="2" maxlength="300"><?= htmlspecialchars($patientRecord['MedicationPriorCheckup'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                            <small id="medication-char-count">0 / 300 characters</small>
                             <?php if (!empty($errors['medication'])): ?>
                                 <span class="error-message" style="color: red;"><?= htmlspecialchars($errors['medication']); ?></span>
                             <?php endif; ?>
@@ -533,7 +544,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
             <br>
             
             <h2>Medical History</h2>
-            <form action="../src/process_medical_history.php" method="POST">
+            <form action="../src/medical_history_process.php" method="POST">
                 <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
                 <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
             
@@ -543,23 +554,20 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                         <input type="date" id="last_vaccination" name="last_vaccination" 
                             value="<?= htmlspecialchars($medicalHistory['LastVaccinationDate'] ?? '', ENT_QUOTES); ?>">
                     </div>
-                    
+
                     <div class="input-container">
                         <label for="Vaccine"><b>Select Vaccine:</b></label>
                         <select id="Vaccine" name="Vaccine" onchange="toggleVaccineInput(this)">
                             <option value="" <?= empty($medicalHistory['VaccinesGiven']) ? 'selected' : ''; ?>>Select a vaccine</option>
-                    
                             <?php 
                             $vaccines = ['Rabies', 'Parvovirus', 'Distemper', 'Hepatitis', 'Bordetella', 'Leptospirosis', 'Other'];
                             $selectedVaccine = $medicalHistory['VaccinesGiven'] ?? ''; 
-                    
                             foreach ($vaccines as $vaccine) {
                                 $selected = (strcasecmp($selectedVaccine, $vaccine) === 0) ? 'selected' : '';
                                 echo "<option value=\"$vaccine\" $selected>$vaccine</option>";
                             }
                             ?>
                         </select>
-                    
                         <input type="text" id="VaccineInput" name="VaccineInput" placeholder="Specify vaccine"
                             value="<?= htmlspecialchars(($selectedVaccine === 'Other') ? ($medicalHistory['CustomVaccine'] ?? '') : '', ENT_QUOTES); ?>"
                             style="display: <?= ($selectedVaccine === 'Other') ? 'block' : 'none'; ?>;">
@@ -572,23 +580,20 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                         <input type="date" id="last_deworming" name="last_deworming" 
                             value="<?= htmlspecialchars($medicalHistory['LastDewormingDate'] ?? '', ENT_QUOTES); ?>">
                     </div>
-                
+
                     <div class="input-container">
                         <label for="Dewormer"><b>Dewormer Used:</b></label>
-                        <?php
-                            // Fetch data from MedicalHistory
-                            $selectedDewormer = $medicalHistory['DewormerUsed'] ?? '';
-                        ?>
                         <select id="Dewormer" name="Dewormer" onchange="toggleDewormerInput(this)">
-                            <option value="" <?= empty($selectedDewormer) ? 'selected' : ''; ?>>Select a dewormer</option>
-                            <option value="Drontal" <?= $selectedDewormer === 'Drontal' ? 'selected' : ''; ?>>Drontal</option>
-                            <option value="Panacur" <?= $selectedDewormer === 'Panacur' ? 'selected' : ''; ?>>Panacur</option>
-                            <option value="Strongid" <?= $selectedDewormer === 'Strongid' ? 'selected' : ''; ?>>Strongid</option>
-                            <option value="Cestex" <?= $selectedDewormer === 'Cestex' ? 'selected' : ''; ?>>Cestex</option>
-                            <option value="Milbemax" <?= $selectedDewormer === 'Milbemax' ? 'selected' : ''; ?>>Milbemax</option>
-                            <option value="Other" <?= $selectedDewormer === 'Other' ? 'selected' : ''; ?>>Other (Specify)</option>
+                            <option value="" <?= empty($medicalHistory['DewormerUsed']) ? 'selected' : ''; ?>>Select a dewormer</option>
+                            <?php
+                            $dewormers = ['Drontal', 'Panacur', 'Strongid', 'Cestex', 'Milbemax', 'Other'];
+                            $selectedDewormer = $medicalHistory['DewormerUsed'] ?? '';
+                            foreach ($dewormers as $dewormer) {
+                                $selected = ($selectedDewormer === $dewormer) ? 'selected' : '';
+                                echo "<option value=\"$dewormer\" $selected>$dewormer</option>";
+                            }
+                            ?>
                         </select>
-                
                         <input type="text" id="DewormerInput" name="DewormerInput" placeholder="Specify dewormer"
                             value="<?= htmlspecialchars($medicalHistory['CustomDewormer'] ?? '', ENT_QUOTES); ?>"
                             style="display: <?= ($selectedDewormer === 'Other') ? 'block' : 'none'; ?>;">
@@ -626,16 +631,12 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                 <div class="form-row">
                     <div class="input-container">
                         <label for="MedicationAllergies"><b>Medication Allergies:</b></label>
-                        <textarea id="MedicationAllergies" name="MedicationAllergies" rows="2" placeholder="e.g., Penicillin">
-                            <?= htmlspecialchars($medicalHistory['MedicationAllergies'] ?? '', ENT_QUOTES); ?>
-                        </textarea>
+                        <textarea id="MedicationAllergies" name="MedicationAllergies" rows="2" placeholder="e.g., Penicillin"><?= htmlspecialchars($medicalHistory['MedicationAllergies'] ?? '', ENT_QUOTES); ?></textarea>
                     </div>
                     
                     <div class="input-container">
                         <label for="PastIllnesses"><b>Past Illnesses:</b></label>
-                        <textarea id="PastIllnesses" name="PastIllnesses" rows="2" placeholder="e.g., Parvovirus in 2023">
-                            <?= htmlspecialchars($medicalHistory['PastIllnesses'] ?? '', ENT_QUOTES); ?>
-                        </textarea>
+                        <textarea id="PastIllnesses" name="PastIllnesses" rows="2" placeholder="e.g., Parvovirus in 2023"><?= htmlspecialchars($medicalHistory['PastIllnesses'] ?? '', ENT_QUOTES); ?></textarea>
                     </div>
                 </div>
             
@@ -659,13 +660,17 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                 
                     <div class="input-container">
                         <label for="BehavioralIssues"><b>Behavioral Issues:</b></label>
-                        <textarea id="BehavioralIssues" name="BehavioralIssues" rows="2" placeholder="e.g., Aggression towards other pets"><?= htmlspecialchars($medicalHistory['BehaviouralIssues'] ?? '', ENT_QUOTES); ?></textarea>
+                        <textarea id="BehavioralIssues" name="BehavioralIssues" rows="2" maxlength="300"
+                            placeholder="e.g., Aggression towards other pets"
+                            oninput="updateCharCount('BehavioralIssues', 'BehavioralIssues-char-count')"><?= 
+                            htmlspecialchars($medicalHistory['BehavioralIssues'] ?? '', ENT_QUOTES); ?></textarea>
+                        <small id="BehavioralIssues-char-count" class="char-counter">0 / 300 characters</small>
                     </div>
                 </div>
             
                 <div class="form-row">
                     <div class="input-container">
-                        <label for="LastHeatCycle"><b>Last Heat Cycle (for females):</b></label>
+                        <label for="LastHeatCycle"><b>Last Heat Cycle:</b></label>
                         <input type="date" id="LastHeatCycle" name="LastHeatCycle" 
                             value="<?= htmlspecialchars($medicalHistory['LastHeatCycle'] ?? '', ENT_QUOTES); ?>">
                     </div>
@@ -685,19 +690,13 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                 </div>
             </form>
             
-            <script>
-                function toggleVaccineInput(select) {
-                    document.getElementById("VaccineInput").style.display = select.value === "Other" ? "block" : "none";
-                }
-            </script>
-
             <br>
             <br>
             <hr>
             <br>
 
             <h2>Physical Examination</h2>
-            <form action="../src/process_physical_exam.php" method="POST">
+            <form action="../src/physical_exam_process.php" method="POST">
                 <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
                 <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
             <h3 style="color: #156f77;">Vital Signs</h3>
@@ -716,7 +715,6 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                         <?php endforeach; ?>
                         <option value="Other" <?= $isCustomPulse ? 'selected' : ''; ?>>Other (Specify)</option>
                     </select>
-            
                     <input type="number" id="pulseInput" name="pulseInput" min="40" max="250"
                         placeholder="Specify pulse" 
                         value="<?= htmlspecialchars($isCustomPulse ? $storedPulse : '', ENT_QUOTES); ?>"
@@ -728,7 +726,6 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                     <?php 
                         $storedHeartRate = $physicalExam['HeartRate'] ?? '';
                         $heartRateOptions = [60, 70, 80, 90, 100];
-                
                         $isCustomHeartRate = !in_array($storedHeartRate, $heartRateOptions) && $storedHeartRate !== '';
                     ?>
                     <select id="heart-rate" name="heart-rate" onchange="toggleInput('heart-rate', 'heartRateInput')">
@@ -738,7 +735,6 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                         <?php endforeach; ?>
                         <option value="Other" <?= $isCustomHeartRate ? 'selected' : ''; ?>>Other (Specify)</option>
                     </select>
-                
                     <input type="number" id="heartRateInput" name="heartRateInput" step="1" min="40" max="300"
                         placeholder="Specify heart rate"
                         value="<?= htmlspecialchars($isCustomHeartRate ? $storedHeartRate : '', ENT_QUOTES); ?>"
@@ -748,14 +744,10 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                 <div class="input-container">
                     <label for="respiratory-rate"><b>Respiratory Rate (brpm):</b></label>
                     <?php 
-                        // Fetch stored value from database
                         $storedRespiratoryRate = $physicalExam['RespiratoryRate'] ?? ''; 
                         $respiratoryOptions = [10, 15, 20, 25, 30];
-                
-                        // Check if stored value is custom (not in predefined options)
                         $isCustomRespiratoryRate = !in_array($storedRespiratoryRate, $respiratoryOptions) && $storedRespiratoryRate !== '';
                     ?>
-                
                     <select id="respiratory-rate" name="respiratory-rate" onchange="toggleInput('respiratory-rate', 'respiratoryInput')">
                         <option value="">Select Respiratory Rate</option>
                         <?php foreach ($respiratoryOptions as $option): ?>
@@ -765,7 +757,6 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                         <?php endforeach; ?>
                         <option value="Other" <?= $isCustomRespiratoryRate ? 'selected' : ''; ?>>Other (Specify)</option>
                     </select>
-                
                     <input type="number" id="respiratoryInput" name="respiratoryInput" min="10" max="100" step="1"
                         placeholder="Enter custom rate"
                         value="<?= htmlspecialchars($isCustomRespiratoryRate ? $storedRespiratoryRate : '', ENT_QUOTES); ?>"
@@ -886,6 +877,119 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                 </div>
             </div>
 
+            <h3 style="color: #156f77;">Head & Sensory Functions</h3>
+            <div class="form-row">
+                <div class="input-container">
+                    <label for="eyes"><b>Eyes:</b></label>
+                    <?php 
+                        $storedEyes = $physicalExam['Eyes'] ?? '';
+                        $eyeOptions = ["Normal", "Redness", "Discharge", "Cloudiness", "Other"];
+                        $isCustomEyes = !in_array($storedEyes, $eyeOptions) && $storedEyes !== '';
+                    ?>
+                    <select id="eyes" name="eyes" onchange="toggleInput('eyes', 'eyesInput')">
+                        <option value="">Select Eye Condition</option>
+                        <?php foreach ($eyeOptions as $option): ?>
+                            <option value="<?= $option ?>" <?= ($storedEyes == $option) ? 'selected' : ''; ?>><?= $option ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <input type="text" id="eyesInput" name="eyesInput"
+                        placeholder="Specify eye condition"
+                        value="<?= htmlspecialchars($isCustomEyes ? $storedEyes : '', ENT_QUOTES); ?>"
+                        style="display: <?= $isCustomEyes ? 'block' : 'none'; ?>;">
+                </div>
+
+                <div class="input-container">
+                    <label for="ears"><b>Ears:</b></label>
+                    <?php 
+                        $storedEars = $physicalExam['Ears'] ?? '';
+                        $earOptions = ["Normal", "Discharge", "Odor", "Swelling", "Other"];
+                        $isCustomEars = !in_array($storedEars, $earOptions) && $storedEars !== '';
+                    ?>
+                    <select id="ears" name="ears" onchange="toggleInput('ears', 'earsInput')">
+                        <option value="">Select Ear Condition</option>
+                        <?php foreach ($earOptions as $option): ?>
+                            <option value="<?= $option ?>" <?= ($storedEars == $option) ? 'selected' : ''; ?>><?= $option ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <input type="text" id="earsInput" name="earsInput"
+                        placeholder="Specify ear condition"
+                        value="<?= htmlspecialchars($isCustomEars ? $storedEars : '', ENT_QUOTES); ?>"
+                        style="display: <?= $isCustomEars ? 'block' : 'none'; ?>;">
+                </div>
+            </div>
+
+            <h3 style="color: #156f77;">Tracheal & Abdominal Palpation</h3>
+            <div class="form-row">
+                <div class="input-container">
+                    <label for="tracheal-pinch"><b>Tracheal Pinch:</b></label>
+                    <?php 
+                        $storedTrachealPinch = $physicalExam['TrachealPinch'] ?? '';
+                        $trachealOptions = ["Positive", "Negative"];
+                    ?>
+                    <select id="tracheal-pinch" name="tracheal-pinch">
+                        <option value="">Select Tracheal Pinch</option>
+                        <?php foreach ($trachealOptions as $option): ?>
+                            <option value="<?= $option ?>" <?= ($storedTrachealPinch == $option) ? 'selected' : ''; ?>><?= $option ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="input-container">
+                    <label for="abdominal-palpation"><b>Abdominal Palpation:</b></label>
+                    <?php 
+                        $storedAbdominalPalpation = $physicalExam['AbdominalPalpation'] ?? '';
+                        $abdominalOptions = ["Normal", "Painful", "Firm", "Distended", "Other"];
+                        $isCustomAbdominal = !in_array($storedAbdominalPalpation, $abdominalOptions) && $storedAbdominalPalpation !== '';
+                    ?>
+                    <select id="abdominal-palpation" name="abdominal-palpation" onchange="toggleInput('abdominal-palpation', 'abdominalInput')">
+                        <option value="">Select Abdominal Palpation</option>
+                        <?php foreach ($abdominalOptions as $option): ?>
+                            <option value="<?= $option ?>" <?= ($storedAbdominalPalpation == $option) ? 'selected' : ''; ?>><?= $option ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <input type="text" id="abdominalInput" name="abdominalInput"
+                        placeholder="Specify abdominal palpation"
+                        value="<?= htmlspecialchars($isCustomAbdominal ? $storedAbdominalPalpation : '', ENT_QUOTES); ?>"
+                        style="display: <?= $isCustomAbdominal ? 'block' : 'none'; ?>;">
+                </div>
+            </div>
+
+            <h3 style="color: #156f77;">Lymph Nodes & BCS</h3>
+            <div class="form-row">
+                <div class="input-container">
+                    <label for="ln"><b>Lymph Nodes (LN):</b></label>
+                    <?php 
+                        $storedLN = $physicalExam['LN'] ?? '';
+                        $lnOptions = ["Normal", "Enlarged", "Painful", "Other"];
+                        $isCustomLN = !in_array($storedLN, $lnOptions) && $storedLN !== '';
+                    ?>
+                    <select id="ln" name="ln" onchange="toggleInput('ln', 'lnInput')">
+                        <option value="">Select LN Condition</option>
+                        <?php foreach ($lnOptions as $option): ?>
+                            <option value="<?= $option ?>" <?= ($storedLN == $option) ? 'selected' : ''; ?>><?= $option ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <input type="text" id="lnInput" name="lnInput"
+                        placeholder="Specify LN condition"
+                        value="<?= htmlspecialchars($isCustomLN ? $storedLN : '', ENT_QUOTES); ?>"
+                        style="display: <?= $isCustomLN ? 'block' : 'none'; ?>;">
+                </div>
+
+                <div class="input-container">
+                    <label for="bcs"><b>Body Condition Score (BCS):</b></label>
+                    <?php 
+                        $storedBCS = $physicalExam['BCS'] ?? '';
+                        $bcsOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                    ?>
+                    <select id="bcs" name="bcs">
+                        <option value="">Select BCS</option>
+                        <?php foreach ($bcsOptions as $option): ?>
+                            <option value="<?= $option ?>" <?= ($storedBCS == $option) ? 'selected' : ''; ?>><?= $option ?>/9</option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+
             <div class="form-buttons">
                 <button type="submit" class="confirm-btn">Save Physical Exam</button>
             </div>
@@ -897,93 +1001,132 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
             <br>
                 
             <h2>Laboratory Examination</h2>
-            <form action="../src/process_lab_exam.php" method="POST">
+            <form action="../src/laboratory_test_process.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
                 <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
 
                 <?php $storedTests = $_SESSION['lab_exam_data']['lab-tests'] ?? []; ?>
 
-                <!-- Blood Tests -->
                 <h3 style="color: #156f77;">Blood Tests</h3>
                 <div class="form-row">
                     <div class="form-group">
-                    <label>
-                        <input type="checkbox" name="lab-tests[]" value="CBC" <?= in_array('CBC', $storedTests) ? 'checked' : ''; ?>>
-                        Complete Blood Count (CBC)
-                    </label>
-            
-                    <label>
-                        <input type="checkbox" name="lab-tests[]" value="Blood Chemistry" <?= in_array('Blood Chemistry', $storedTests) ? 'checked' : ''; ?>>
-                        Blood Chemistry
-                    </label>
-            
-                    <label>
-                        <input type="checkbox" name="lab-tests[]" value="Blood Smear" <?= in_array('Blood Smear', $storedTests) ? 'checked' : ''; ?>>
-                        Blood Smear
-                    </label>
-            
-                    <label>
-                        <input type="checkbox" name="lab-tests[]" value="Other Blood Test"
-                            onchange="toggleCustomInput(this, 'blood-test-detail')"
-                            <?= in_array('Other Blood Test', $storedTests) ? 'checked' : ''; ?>>
-                        Other Blood Test
-                    </label>
-            
-                    <!-- Custom Input for 'Other' -->
-                    <input type="text" id="blood-test-detail" name="blood-test-detail"
-                        placeholder="Specify other blood test"
-                        value="<?= htmlspecialchars($otherBloodTestDetail, ENT_QUOTES); ?>"
-                        style="display: <?= in_array('Other Blood Test', $storedTests) ? 'block' : 'none'; ?>;">
-                </div>
+                        <?php
+                        $bloodTests = ["CBC", "Blood Chemistry", "Blood Smear", "Other Blood Test"];
+                        foreach ($bloodTests as $test) {
+                            $isChecked = isset($storedLabTests[$test]);
+                            $fileInputId = str_replace(" ", "-", strtolower($test)) . "-file";
+                            $customInputId = str_replace(" ", "-", strtolower($test)) . "-detail";
+                            $testDetail = $storedLabTests[$test]['detail'] ?? '';
+                        ?>
+                            <label>
+                                <input type="checkbox" name="lab-tests[]" value="<?= $test ?>" <?= $isChecked ? 'checked' : ''; ?>
+                                    onchange="toggleFileUpload(this, '<?= $fileInputId ?>', '<?= $customInputId ?>')">
+                                <?= $test ?>
+                            </label>
+
+                            <input type="file" id="<?= $fileInputId ?>" name="lab-results[]"
+                                style="display: <?= $isChecked ? 'block' : 'none'; ?>;">
+                            
+                            <?php if ($test === "Other Blood Test"): ?>
+                                <input type="text" id="<?= $customInputId ?>" name="blood-test-detail"
+                                    placeholder="Specify other blood test"
+                                    value="<?= htmlspecialchars($testDetail, ENT_QUOTES); ?>"
+                                    style="display: <?= $isChecked ? 'block' : 'none'; ?>;">
+                            <?php endif; ?>
+                        <?php } ?>
+                    </div>
                 </div>
 
-                <!-- Imaging -->
                 <h3 style="color: #156f77;">Imaging</h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label><input type="checkbox" name="lab-tests[]" value="X-ray" <?= in_array('X-ray', $storedTests) ? 'checked' : ''; ?>> X-ray</label>
-                        <label><input type="checkbox" name="lab-tests[]" value="Ultrasound" <?= in_array('Ultrasound', $storedTests) ? 'checked' : ''; ?>> Ultrasound</label>
-                        <label><input type="checkbox" name="lab-tests[]" value="CT Scan" <?= in_array('CT Scan', $storedTests) ? 'checked' : ''; ?>> CT Scan</label>
-                        <label>
-                            <input type="checkbox" name="lab-tests[]" value="Other Imaging" onchange="toggleCustomInput(this, 'imaging-other-detail')" <?= in_array('Other Imaging', $storedTests) ? 'checked' : ''; ?>> Other Imaging
-                        </label>
-                        <input type="text" id="imaging-other-detail" name="imaging-other-detail"
-                            placeholder="Specify other imaging"
-                            value="<?= htmlspecialchars($_SESSION['lab_exam_data']['imaging-other-detail'] ?? '', ENT_QUOTES); ?>"
-                            style="display: <?= in_array('Other Imaging', $storedTests) ? 'block' : 'none'; ?>;">
+                        <?php
+                        $imagingTests = ["X-ray", "Ultrasound", "CT Scan", "Other Imaging"];
+                        foreach ($imagingTests as $test) {
+                            $checked = in_array($test, $storedTests) ? 'checked' : '';
+                            $fileInputId = str_replace(" ", "-", strtolower($test)) . "-file";
+                            $customInputId = str_replace(" ", "-", strtolower($test)) . "-detail";
+                        ?>
+                            <label>
+                                <input type="checkbox" name="lab-tests[]" value="<?= $test ?>" <?= $checked ?>
+                                    onchange="toggleFileUpload(this, '<?= $fileInputId ?>', '<?= $customInputId ?>')">
+                                <?= $test ?>
+                            </label>
+
+                            <!-- File Upload Field -->
+                            <input type="file" id="<?= $fileInputId ?>" name="lab-results[]" 
+                                style="display: <?= $checked ? 'block' : 'none'; ?>;">
+
+                            <!-- Custom Input for 'Other Imaging' -->
+                            <?php if ($test === "Other Imaging"): ?>
+                                <input type="text" id="<?= $customInputId ?>" name="imaging-other-detail"
+                                    placeholder="Specify other imaging"
+                                    value="<?= htmlspecialchars($_SESSION['lab_exam_data']['imaging-other-detail'] ?? '', ENT_QUOTES); ?>"
+                                    style="display: <?= in_array('Other Imaging', $storedTests) ? 'block' : 'none'; ?>;">
+                            <?php endif; ?>
+                        <?php } ?>
                     </div>
                 </div>
 
-                <!-- Microbiology -->
                 <h3 style="color: #156f77;">Microbiology</h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label><input type="checkbox" name="lab-tests[]" value="Ear Swab" <?= in_array('Ear Swab', $storedTests) ? 'checked' : ''; ?>> Ear Swab</label>
-                        <label><input type="checkbox" name="lab-tests[]" value="Skin Scrape" <?= in_array('Skin Scrape', $storedTests) ? 'checked' : ''; ?>> Skin Scrape</label>
-                        <label><input type="checkbox" name="lab-tests[]" value="Fungal Test" <?= in_array('Fungal Test', $storedTests) ? 'checked' : ''; ?>> Fungal Test</label>
-                        <label>
-                            <input type="checkbox" name="lab-tests[]" value="Other Microbiology" onchange="toggleCustomInput(this, 'microbiology-other-detail')" <?= in_array('Other Microbiology', $storedTests) ? 'checked' : ''; ?>> Other Microbiology
-                        </label>
-                        <input type="text" id="microbiology-other-detail" name="microbiology-other-detail"
-                            placeholder="Specify other microbiology"
-                            value="<?= htmlspecialchars($_SESSION['lab_exam_data']['microbiology-other-detail'] ?? '', ENT_QUOTES); ?>"
-                            style="display: <?= in_array('Other Microbiology', $storedTests) ? 'block' : 'none'; ?>;">
+                        <?php
+                        $microbiologyTests = ["Ear Swab", "Skin Scrape", "Fungal Test", "Other Microbiology"];
+                        foreach ($microbiologyTests as $test) {
+                            $checked = in_array($test, $storedTests) ? 'checked' : '';
+                            $fileInputId = str_replace(" ", "-", strtolower($test)) . "-file";
+                            $customInputId = str_replace(" ", "-", strtolower($test)) . "-detail";
+                        ?>
+                            <label>
+                                <input type="checkbox" name="lab-tests[]" value="<?= $test ?>" <?= $checked ?>
+                                    onchange="toggleFileUpload(this, '<?= $fileInputId ?>', '<?= $customInputId ?>')">
+                                <?= $test ?>
+                            </label>
+
+                            <!-- File Upload Field -->
+                            <input type="file" id="<?= $fileInputId ?>" name="lab-results[]" 
+                                style="display: <?= $checked ? 'block' : 'none'; ?>;">
+
+                            <!-- Custom Input for 'Other Microbiology' -->
+                            <?php if ($test === "Other Microbiology"): ?>
+                                <input type="text" id="<?= $customInputId ?>" name="microbiology-other-detail"
+                                    placeholder="Specify other microbiology"
+                                    value="<?= htmlspecialchars($_SESSION['lab_exam_data']['microbiology-other-detail'] ?? '', ENT_QUOTES); ?>"
+                                    style="display: <?= in_array('Other Microbiology', $storedTests) ? 'block' : 'none'; ?>;">
+                            <?php endif; ?>
+                        <?php } ?>
                     </div>
                 </div>
-
-                <!-- Other Tests -->
+                
                 <h3 style="color: #156f77;">Other Tests</h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label><input type="checkbox" name="lab-tests[]" value="Otoscope" <?= in_array('Otoscope', $storedTests) ? 'checked' : ''; ?>> Otoscope Examination</label>
-                        <label><input type="checkbox" name="lab-tests[]" value="Vaginal Smear" <?= in_array('Vaginal Smear', $storedTests) ? 'checked' : ''; ?>> Vaginal Smear</label>
-                        <label>
-                            <input type="checkbox" name="lab-tests[]" value="ETC" onchange="toggleCustomInput(this, 'etc-detail')" <?= in_array('ETC', $storedTests) ? 'checked' : ''; ?>> Other (Specify)
-                        </label>
-                        <input type="text" id="etc-detail" name="etc-detail"
-                            placeholder="Specify other tests"
-                            value="<?= htmlspecialchars($_SESSION['lab_exam_data']['etc-detail'] ?? '', ENT_QUOTES); ?>"
-                            style="display: <?= in_array('ETC', $storedTests) ? 'block' : 'none'; ?>;">
+                        <?php
+                        $otherTests = ["Otoscope", "Vaginal Smear", "Other"];
+                        foreach ($otherTests as $test) {
+                            $checked = in_array($test, $storedTests) ? 'checked' : '';
+                            $fileInputId = str_replace(" ", "-", strtolower($test)) . "-file";
+                            $customInputId = str_replace(" ", "-", strtolower($test)) . "-detail";
+                        ?>
+                            <label>
+                                <input type="checkbox" name="lab-tests[]" value="<?= $test ?>" <?= $checked ?>
+                                    onchange="toggleFileUpload(this, '<?= $fileInputId ?>', '<?= $customInputId ?>')">
+                                <?= $test ?>
+                            </label>
+
+                            <!-- File Upload Field -->
+                            <input type="file" id="<?= $fileInputId ?>" name="lab-results[]"
+                                style="display: <?= $checked ? 'block' : 'none'; ?>;">
+
+                            <!-- Custom Input for 'Other' -->
+                            <?php if ($test === "Other"): ?>
+                                <input type="text" id="<?= $customInputId ?>" name="etc-detail"
+                                    placeholder="Specify other tests"
+                                    value="<?= htmlspecialchars($_SESSION['lab_exam_data']['etc-detail'] ?? '', ENT_QUOTES); ?>"
+                                    style="display: <?= in_array('Other', $storedTests) ? 'block' : 'none'; ?>;">
+                            <?php endif; ?>
+                        <?php } ?>
                     </div>
                 </div>
 
@@ -1009,8 +1152,8 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                     <div class="input-container">
                         <label for="diagnosis-type"><b>Is this a Final or Tentative Diagnosis?</b></label>
                         <select id="diagnosis-type" name="diagnosis-type" required>
-                            <option value="final" <?= ($diagnosisData['DiagnosisType'] ?? '') === 'final' ? 'selected' : ''; ?>>Final Diagnosis</option>
-                            <option value="tentative" <?= ($diagnosisData['DiagnosisType'] ?? '') === 'tentative' ? 'selected' : ''; ?>>Tentative Diagnosis</option>
+                            <option value="final" <?= isset($diagnosisData['DiagnosisType']) && $diagnosisData['DiagnosisType'] === 'final' ? 'selected' : ''; ?>>Final Diagnosis</option>
+                            <option value="tentative" <?= isset($diagnosisData['DiagnosisType']) && $diagnosisData['DiagnosisType'] === 'tentative' ? 'selected' : ''; ?>>Tentative Diagnosis</option>
                         </select>
                     </div>
             
@@ -1021,7 +1164,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                             <?php
                             $prognosisOptions = ['Excellent', 'Good', 'Fair', 'Poor', 'Questionable', 'Grave'];
                             foreach ($prognosisOptions as $option) {
-                                $selected = ($diagnosisData['Prognosis'] ?? '') === $option ? 'selected' : '';
+                                $selected = isset($diagnosisData['Prognosis']) && $diagnosisData['Prognosis'] === $option ? 'selected' : '';
                                 echo "<option value='$option' $selected>$option</option>";
                             }
                             ?>
@@ -1034,7 +1177,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                         <label for="diagnosis"><b>Diagnosis:</b></label>
                         <textarea id="diagnosis" name="diagnosis" rows="3" placeholder="Enter diagnosis here..." required><?= htmlspecialchars($diagnosisData['Diagnosis'] ?? '', ENT_QUOTES); ?></textarea>
                     </div>
-            
+
                     <div class="input-container">
                         <label for="treatment"><b>Treatment:</b></label>
                         <textarea id="treatment" name="treatment" rows="3" placeholder="Enter treatment here..." required><?= htmlspecialchars($diagnosisData['Treatment'] ?? '', ENT_QUOTES); ?></textarea>
@@ -1188,251 +1331,28 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                 <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? '') ?>">
                 <button type="submit" onclick="confirmFinishConsultation(event)">Finish Consultation</button>
             </form>
-            <?php if (!empty($errors)): ?>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error Occurred',
-                            html: '<?= implode("<br>", array_map("htmlspecialchars", $errors)) ?>',
-                            confirmButtonColor: '#d33'
-                        });
-                    });
-                </script>
-                <?php exit(); ?>
-            <?php endif; ?>
             <script>
-                function confirmFinishConsultation(event) {
-                    event.preventDefault();
-                    Swal.fire({
-                        title: "Finish Consultation?",
-                        text: "All data will be saved, and you can't modify this appointment afterward.",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Yes, finish it!",
-                        cancelButtonText: "Cancel",
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            event.target.form.submit();
-                        }
-                    });
+                function toggleFileUpload(checkbox, fileInputId, customInputId = null) {
+                    document.getElementById(fileInputId).style.display = checkbox.checked ? 'block' : 'none';
+                    
+                    // Show custom input field if 'Other Imaging' is selected
+                    if (customInputId) {
+                        document.getElementById(customInputId).style.display = checkbox.checked ? 'block' : 'none';
+                    }
                 }
-            </script>
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    <?php if (!empty($_SESSION['success_chief_complaint'])): ?>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: '<?= htmlspecialchars($_SESSION['success_chief_complaint'], ENT_QUOTES); ?>',
-                            confirmButtonColor: '#156f77'
-                        });
-                        <?php unset($_SESSION['success_chief_complaint']); ?>
-                    <?php endif; ?>
-                
-                    <?php if (!empty($_SESSION['success_medical_history'])): ?>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: '<?= htmlspecialchars($_SESSION['success_medical_history'], ENT_QUOTES); ?>',
-                            confirmButtonColor: '#156f77'
-                        });
+                document.addEventListener("DOMContentLoaded", function () {
+                    // Transfer PHP session messages to sessionStorage before they are cleared
+                    <?php if (isset($_SESSION['success_medical_history'])): ?>
+                        sessionStorage.setItem("success_medical_history", "<?= $_SESSION['success_medical_history']; ?>");
                         <?php unset($_SESSION['success_medical_history']); ?>
                     <?php endif; ?>
-                    
-                    <?php if (!empty($_SESSION['success_physical_exam'])): ?>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: '<?= htmlspecialchars($_SESSION['success_physical_exam'], ENT_QUOTES); ?>',
-                            confirmButtonColor: '#156f77'
-                        });
-                        <?php unset($_SESSION['success_physical_exam']); ?>
-                    <?php endif; ?>
-                    <?php if (!empty($_SESSION['success_lab_exam'])): ?>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: '<?= htmlspecialchars($_SESSION['success_lab_exam'], ENT_QUOTES); ?>',
-                            confirmButtonColor: '#156f77'
-                        });
-                        <?php unset($_SESSION['success_lab_exam']); ?>
-                    <?php endif; ?>
-                    <?php if (!empty($_SESSION['success_diagnosis'])): ?>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: '<?= htmlspecialchars($_SESSION['success_diagnosis'], ENT_QUOTES); ?>',
-                            confirmButtonColor: '#156f77'
-                        });
-                        <?php unset($_SESSION['success_diagnosis']); ?>
-                    <?php endif; ?>
-                    <?php if (!empty($_SESSION['success_lab_exam'])): ?>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: '<?= htmlspecialchars($_SESSION['success_lab_exam'], ENT_QUOTES); ?>',
-                            confirmButtonColor: '#156f77'
-                        });
-                        <?php unset($_SESSION['success_lab_exam']); ?>
+
+                    <?php if (isset($_SESSION['success_chief_complaint'])): ?>
+                        sessionStorage.setItem("success_chief_complaint", "<?= $_SESSION['success_chief_complaint']; ?>");
+                        <?php unset($_SESSION['success_chief_complaint']); ?>
                     <?php endif; ?>
                 });
-            </script>
-            <script>
-                document.getElementById("add-medication").addEventListener("click", function () {
-                    let container = document.getElementById("medications-container");
-                    let newMed = container.firstElementChild.cloneNode(true);
-                    
-                    // Reset values in the cloned medication row
-                    newMed.querySelector(".medication-select").selectedIndex = 0;
-                    newMed.querySelector(".custom-medication").style.display = "none";
-                    newMed.querySelector(".custom-medication").value = "";
-                
-                    newMed.querySelector(".dosage-select").selectedIndex = 0;
-                    newMed.querySelector(".custom-dosage").style.display = "none";
-                    newMed.querySelector(".custom-dosage").value = "";
-                
-                    newMed.querySelector(".duration-select").selectedIndex = 0;
-                    newMed.querySelector(".custom-duration").style.display = "none";
-                    newMed.querySelector(".custom-duration").value = "";
-                
-                    // Show delete button
-                    newMed.querySelector(".delete-button").style.display = "inline-block";
-                
-                    container.appendChild(newMed);
-                });
-                
-                function removeMedication(button) {
-                    let container = document.getElementById("medications-container");
-                    if (container.children.length > 1) {
-                        button.parentElement.remove();
-                    }
-                }
-            </script>
-            <script>
-                document.addEventListener("DOMContentLoaded", function () {
-                    <?php if (isset($_SESSION['success_message'])): ?>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Saved!',
-                            text: '<?= addslashes($_SESSION['success_message']); ?>',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                        <?php unset($_SESSION['success_message']); ?>
-                    <?php endif; ?>
-                });
-            </script>
-            <script>
-                function toggleUrineFrequencyInput() {
-                    let frequencySelect = document.getElementById("frequency");
-                    let customFrequencyInput = document.getElementById("custom-frequency");
-                    customFrequencyInput.style.display = frequencySelect.value === "Other" ? "block" : "none";
-                }
-
-                function toggleUrineColorInput() {
-                    let colorSelect = document.getElementById("color");
-                    let customColorInput = document.getElementById("custom-color");
-                    customColorInput.style.display = colorSelect.value === "Other" ? "block" : "none";
-                }
-                function toggleDietInput() {
-                    let dietSelect = document.getElementById("diet");
-                    let customDietInput = document.getElementById("custom-diet");
-                    customDietInput.style.display = dietSelect.value === "Other" ? "block" : "none";
-                }
-                function toggleOtherSymptom() {
-                    const otherCheckbox = document.querySelector('input[name="symptoms[]"][value="Other"]');
-                    const otherInput = document.getElementById("other_symptom");
-                    otherInput.style.display = otherCheckbox.checked ? "block" : "none";
-                }
-            </script>
-            <script>
-                document.getElementById("add-medication").addEventListener("click", function () {
-                    let container = document.getElementById("medications-container");
-                    let newMed = container.firstElementChild.cloneNode(true);
-                    
-                    // Reset fields in new medication row
-                    newMed.querySelector(".medication-select").selectedIndex = 0;
-                    newMed.querySelector(".custom-medication").style.display = "none";
-                    newMed.querySelector(".custom-medication").value = "";
-                    
-                    newMed.querySelector(".dosage-select").selectedIndex = 0;
-                    newMed.querySelector(".custom-dosage").style.display = "none";
-                    newMed.querySelector(".custom-dosage").value = "";
-
-                    newMed.querySelector(".duration-select").selectedIndex = 0;
-                    newMed.querySelector(".custom-duration").style.display = "none";
-                    newMed.querySelector(".custom-duration").value = "";
-                    
-                    // Ensure the delete button is visible and aligned at the bottom
-                    let deleteButton = newMed.querySelector(".delete-button");
-                    deleteButton.style.display = "inline-flex"; 
-                    deleteButton.style.alignItems = "flex-end";  // Align to the bottom
-                    deleteButton.style.justifyContent = "center"; 
-                    deleteButton.style.width = "42px"; 
-                    deleteButton.style.height = "42px"; 
-                    deleteButton.style.marginTop = "34px"; // Push it to the bottom
-                    deleteButton.addEventListener("click", function () {
-                        newMed.remove(); // Remove medication row when delete is clicked
-                    });
-
-                    container.appendChild(newMed);
-                });
-
-                function toggleCustomMedication(selectElement) {
-                    let customInput = selectElement.parentElement.querySelector(".custom-medication");
-                    customInput.style.display = selectElement.value === "Other" ? "block" : "none";
-                }
-
-                function toggleCustomDosage(selectElement) {
-                    let customInput = selectElement.parentElement.querySelector(".custom-dosage");
-                    customInput.style.display = selectElement.value === "Other" ? "block" : "none";
-                }
-
-                function toggleCustomDuration(selectElement) {
-                    let customInput = selectElement.parentElement.querySelector(".custom-duration");
-                    customInput.style.display = selectElement.value === "Other" ? "block" : "none";
-                }
-
-                function removeMedication(button) {
-                    let container = document.getElementById("medications-container");
-                    if (container.children.length > 1) {
-                        button.parentElement.remove();
-                    }
-                }
                 </script>
-                <script>
-                    function toggleCustomInput(checkboxId, inputId) {
-                        document.getElementById(inputId).style.display = document.getElementById(checkboxId).checked ? "block" : "none";
-                    }
-                </script>
-                <script>
-                function toggleInput(selectId, inputId) {
-                    let select = document.getElementById(selectId);
-                    let input = document.getElementById(inputId);
-                    input.style.display = select.value === "Other" ? "block" : "none";
-                }
-                </script>
-                <script>
-                    document.getElementById("Vaccine").addEventListener("change", function() {
-                        document.getElementById("VaccineInput").style.display = this.value === "Other" ? "block" : "none";
-                    });
-                    document.getElementById("Dewormer").addEventListener("change", function() {
-                        document.getElementById("DewormerInput").style.display = this.value === "Other" ? "block" : "none";
-                    });
-                    document.getElementById("duration").addEventListener("change", function() {
-                        document.getElementById("custom-duration").style.display = this.value === "Other" ? "block" : "none";
-                    });
-                </script>
-                <script>
-                    function updatePainValue(value) {
-                        document.getElementById("pain_value_display").innerText = value;
-                    }
-
-                    function toggleSymptomInput(checkbox) {
-                        let inputField = document.getElementById("other_symptom");
-                        inputField.style.display = checkbox.checked ? "block" : "none";
-                    }
-                </script>
+            <script src="../assets/js/patient_records.js?v=1.0.3"></script>
 </body>
 </html>
