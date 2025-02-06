@@ -1,0 +1,686 @@
+:root {
+  --color-1: #156f77;
+  --color-2: #a8ebf0;
+  --color-3: #efefef;
+  --color-4: #f5f5f5;
+  --color-5: #F4F6F8;
+  --color-6: #6F787C;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins";
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #ffffff;
+}
+
+header {
+  background-color: #156f77;
+  padding: 20px 10%;
+  border-radius: 0 0 20px 20px;
+  position: fixed; /* Make the header stick to the top */
+  top: 0; /* Align it to the top */
+  width: 100%; /* Make sure it stretches across the screen */
+  z-index: 1000; /* Ensure it stays on top of other elements */
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  color: #ffffff;
+}
+
+.logo img {
+  width: 250px;
+  margin-right: 10px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 20px; /* Reduce the gap between navigation items */
+  align-items: center;
+  margin-left: auto; /* Keeps the navigation aligned */
+}
+
+.profile-icon {
+  display: flex;
+  align-items: center;
+}
+
+.nav-links li a {
+  color: #BDBDBD;
+  text-decoration: none;
+  font-weight: bold; /* Reduce font weight */
+  font-size: 16px; /* Reduce font size */
+  padding: 8px 10px; /* Adjust padding */
+}
+
+.nav-links a.active {
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: bold; /* Reduce font weight */
+  font-size: 16px; /* Reduce font size */
+  padding: 8px 10px; /* Adjust padding */
+}
+
+.nav-links a:hover {
+  color: #FFFFFF;
+  transition: color 0.3s;
+}
+
+.profile-icon img {
+  width: 30px;
+}
+
+main {
+  padding: 0; /* Add top padding to prevent content from hiding behind the fixed header */
+}
+
+/* Profile dropdown */
+.profile-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-icon {
+  width: 30px;
+  cursor: pointer;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #ffffff;
+  min-width: 210px; /* Increase the width to accommodate longer text */
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 10px 0;
+  z-index: 1;
+  top: 150%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.dropdown-content a {
+  display: flex; /* Use flexbox to align the icon and text */
+  align-items: center; /* Vertically center icon and text */
+  padding: 10px 16px; /* Adjust padding */
+  color: black;
+  text-decoration: none;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-content a img {
+  width: 20px; /* Set a fixed width for icons */
+  height: 20px; /* Set a fixed height for icons */
+  margin-right: 10px; /* Add spacing between icon and text */
+}
+
+.dropdown-content a:hover {
+  background-color: #f1f1f1; /* Background color on hover */
+}
+
+/* Profile dropdown */
+/* End of Header */
+
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo h1 {
+    color: white;
+    margin-left: 10px;
+  }
+  
+  nav ul {
+    list-style: none;
+    display: flex;
+  }
+  :root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins";
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    background-color: #ffffff;
+  }
+  
+  header {
+    background-color: #156f77;
+    padding: 20px 10%;
+    border-radius: 0 0 20px 20px;
+    position: fixed; /* Make the header stick to the top */
+    top: 0; /* Align it to the top */
+    width: 100%; /* Make sure it stretches across the screen */
+    z-index: 1000; /* Ensure it stays on top of other elements */
+  }
+  
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+  }
+  
+  .logo img {
+    width: 250px;
+    margin-right: 10px;
+  }
+  
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px; /* Reduce the gap between navigation items */
+    align-items: center;
+    margin-left: auto; /* Keeps the navigation aligned */
+  }
+  
+  .profile-icon {
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-links li a {
+    color: #BDBDBD;
+    text-decoration: none;
+    font-weight: bold; /* Reduce font weight */
+    font-size: 16px; /* Reduce font size */
+    padding: 8px 10px; /* Adjust padding */
+  }
+
+  .nav-links a.active {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: bold; /* Reduce font weight */
+    font-size: 16px; /* Reduce font size */
+    padding: 8px 10px; /* Adjust padding */
+  }
+
+  .nav-links a:hover {
+    color: #FFFFFF;
+    transition: color 0.3s;
+  }
+  
+  .profile-icon img {
+    width: 30px;
+  }
+  
+  main {
+    padding: 0; /* Add top padding to prevent content from hiding behind the fixed header */
+  }
+  
+  /* Profile dropdown */
+  .profile-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .profile-icon {
+    width: 30px;
+    cursor: pointer;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 210px; /* Increase the width to accommodate longer text */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 10px 0;
+    z-index: 1;
+    top: 150%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .dropdown-content a {
+    display: flex; /* Use flexbox to align the icon and text */
+    align-items: center; /* Vertically center icon and text */
+    padding: 10px 16px; /* Adjust padding */
+    color: black;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .dropdown-content a img {
+    width: 20px; /* Set a fixed width for icons */
+    height: 20px; /* Set a fixed height for icons */
+    margin-right: 10px; /* Add spacing between icon and text */
+  }
+  
+  .dropdown-content a:hover {
+    background-color: #f1f1f1; /* Background color on hover */
+  }
+  
+  /* Profile dropdown */
+  /* End of Header */
+  
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo h1 {
+    color: white;
+    margin-left: 10px;
+  }
+  
+  nav ul {
+    list-style: none;
+    display: flex;
+  }
+  
+  nav ul li {
+    margin-right: 20px;
+  }
+  
+  nav ul li a {
+    color: white;
+    text-decoration: none;
+  }
+  
+  .profile {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .profile-pic {
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+  }
+  
+  .profile-info {
+    font-size: 22px;
+    margin-left: 20px;
+  }
+  
+
+  #home {
+    scroll-margin-top: 150px; /* Adjust based on your header height */
+  }
+
+  .hero {
+    display: flex;
+    justify-content: center; /* Center the entire content horizontally */
+    align-items: center; /* Vertically align the content */
+    padding: 150px 1rem 1rem; /* Increase the padding to give more space to the hero section */
+  }
+  
+  .hero h1 {
+    font-size: 200%; /* Keep the font size as is */
+    color: #000;
+    font-weight: bold;
+    margin: 0; /* Remove all margins around "Welcome!" */
+    padding: 0; /* Ensure no padding exists */
+}
+
+  footer {
+    background-color: #000000;
+    color: white;
+    padding: 40px 20px;
+  }
+  
+  .footer-content {
+    display: flex;
+    justify-content: flex-start; /* Align items to the left */
+    align-items: center; /* Vertically center align the items */
+    gap: 40px; /* Space between logo and text */
+  }
+  
+  .footer-logo {
+    padding-bottom: 30px; /* Add space below the logo without moving other items */
+  }
+  
+  .footer-logo img {
+    width: 200px; /* Adjust logo size as needed */
+  }
+  
+  .logo-spacer {
+    height: 30px; /* Adjust the height for the space you want below the logo */
+  }
+  
+  .footer-section {
+    width: 200px; /* You can adjust the width of each section here */
+  }
+  
+  .footer-section h4 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  
+  .footer-section ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .footer-section ul li {
+    margin-bottom: 8px;
+  }
+  
+  .footer-section ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+  .footer-section ul li a:hover {
+    text-decoration: underline;
+  }
+  
+  .footer-section p {
+    font-size: 14px;
+  }
+  
+  .footer-section.address {
+    margin-top: -65px; /* Adjust this value to align the Address with the other sections */
+  }
+  
+  .footer-bottom {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  
+  .social-media {
+    list-style: none;
+    padding: 0; /* Ensure no padding on the list */
+  }
+  
+  .social-media li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .social-media li a {
+    display: flex;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+  }
+  
+  .social-media li a img {
+    width: 24px; /* Adjust icon size */
+    height: auto;
+    margin-right: 15px; /* Space between icon and text */
+  }
+  
+  .social-media li a:hover {
+    text-decoration: underline; /* Add underline on hover */
+  }
+
+
+  /* End of Header/Sidebar */
+
+
+
+/* Section Headline */
+.section-headline {
+    font-size: 24px; /* Slightly larger font size */
+    font-weight: bold;
+    color: #333333; /* Dark gray color for the headline */
+    text-align: left; /* Align text to the left */
+    margin: 0 0 20px 13%; /* Adjust spacing to move the text slightly to the right */
+  }
+
+
+  /* Announcement Section */
+.consultation-section {
+    background-color: #ffffff;
+    padding: 20px 40px;
+  }
+  
+  .consultation-section .section-headline {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333333;
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  
+  .consultation-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between announcements */
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .no-consultations-text {
+    font-size: 16px;
+    color: red;
+    text-align: center;
+  }
+  
+  /* Individual Announcement Card */
+  .consultation-card {
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  .consultation-title {
+    font-size: 16x;
+    color: #156f77;
+    margin-bottom: 10px;
+  }
+  
+  .consultation-message {
+    font-size: 16px;
+    color: #333333;
+    line-height: 1.5;
+  }
+  
+
+
+    /* Announcement Section */
+.prescription-section {
+  background-color: #ffffff;
+  padding: 20px 40px;
+}
+
+.prescription-section .section-headline {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333333;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.no-prescriptions-text {
+  font-size: 16px;
+  color: red;
+  text-align: center;
+}
+
+.prescription-table {
+  width: 100%; /* Match consultation section width */
+  max-width: 1000px; /* Keep it consistent with consultation card */
+  margin: 0 auto;
+  border-collapse: collapse;
+  text-align: left;
+  font-family: "Poppins", sans-serif;
+}
+
+.prescription-table thead th {
+  background-color: var(--color-1);
+  color: #ffffff;
+  font-weight: bold;
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.prescription-table tbody td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.prescription-table tbody tr:nth-child(even) {
+  background-color: #f5f5f5;
+}
+
+.prescription-table tbody tr:hover {
+  background-color: var(--color-2);
+}
+
+.prescription-section h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: var(--color-1);
+  font-weight: bold;
+}
+
+
+
+
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.pagination .page-link {
+  color: var(--color-1);
+  padding: 10px 15px;
+  margin: 0 5px;
+  text-decoration: none;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.pagination .page-link:hover {
+  background-color: var(--color-1);
+  color: white;
+}
+
+.pagination .page-link.active {
+  background-color: var(--color-1);
+  color: white;
+  border: 1px solid var(--color-1);
+}
+
+
+
+.pet-details-section {
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pet-card {
+  text-align: center;
+  padding: 20px;
+  max-width: 1000px; /* Adjust width if necessary */
+}
+
+.pet-photo img {
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+}
+
+.pet-name h3 {
+  font-size: 24px;
+  color: #333333;
+  margin-bottom: 25px;
+}
+
+.pet-info {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+  gap: 100px; /* Add space between the items */
+}
+
+.pet-info-item {
+  text-align: center;
+}
+
+.pet-info-item .label {
+  font-size: 18px;
+  color: var(--color-1);
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block; /* Ensure it occupies its own line */
+}
+
+.pet-info-item .value {
+  font-size: 20px;
+  color: #333333;
+  margin-top: 5px; /* Add gap between label and value */
+  display: block; /* Ensure value stays below the label */
+}
+
+.pet-name-dropdown {
+  font-size: 18px; /* Match font size for readability */
+  font-weight: bold; /* Bold text to emphasize the name */
+  color: #333333; /* Text color */
+  border: 1px solid #ddd; /* Light border for the dropdown */
+  border-radius: 5px; /* Rounded corners */
+  padding: 5px 10px; /* Add padding inside the dropdown */
+  background-color: #ffffff; /* White background */
+  cursor: pointer; /* Pointer cursor for dropdown */
+}
+
+.pet-name-dropdown:hover {
+  background-color: #f9f9f9; /* Slightly darker background on hover */
+  border-color: var(--color-1); /* Highlight border on hover */
+}
+
+.pet-name-dropdown:focus {
+  outline: none; /* Remove default focus outline */
+  border-color: var(--color-1); /* Highlight border when focused */
+}

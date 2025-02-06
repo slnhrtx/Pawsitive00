@@ -15,6 +15,7 @@ unset($_SESSION['errors']);
 
 $email = '';
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,24 +31,16 @@ $email = '';
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/staff_login.css">
+    <link rel="stylesheet" href="../assets/css/owner_login.css">
     <script src="../assets/js/index.js" defer></script>
 </head>
 
 <body>
     <div class="login-container">
-        <div class="left-panel">
-            <h2 class="welcome-message">Hello! Welcome to</h2>
-            <div class="branding">
-                <img src="../assets/images/logo/LOGO 1 WHITE.png" alt="Pawsitive Logo" class="logo">
-                <p>Your all-in-one system management<br>pet records, appointments, and more!</p>
-            </div>
-        </div>
+        <!-- Right Panel First -->
         <div class="right-panel">
-            <h3 class="form-title">Log in your account</h3>
-            <form id="loginForm" action="../src/staff_handler.php" method="POST" novalidate>
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                <?php if (!empty($errors)): ?>
+            <h3 class="form-title">Login your account</h3>
+            <?php if (!empty($errors)): ?>
                     <div class="error-notification">
                         <ul>
                             <?php foreach ($errors as $error): ?>
@@ -56,32 +49,40 @@ $email = '';
                         </ul>
                     </div>
                 <?php endif; ?>
-
+            <form action="../../src/owner_login.php" method="POST">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                 <div class="form-group">
                     <label for="Email">Email:<span class="required-asterisk">*</span></label>
-                    <input type="email" id="Email" name="Email" placeholder="Enter your email address"
-                        value="<?= htmlspecialchars($email) ?>" required>
+                    <input type="email" id="Email" name="Email" placeholder="Enter your email address" value="<?= htmlspecialchars($email) ?>" required>
                 </div>
-
                 <div class="form-group">
                     <label for="password">Password:<span class="required-asterisk">*</span></label>
                     <div class="password-container">
                         <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                        <i class="fas fa-eye eye-icon" onclick="togglePassword('password', this)"></i>
+                        <i class="fas fa-eye eye-icon" onclick="togglePassword('Password', this)"></i>
                     </div>
-                    <a href="forgot_password.php" class="forgot-password-link">Forgot password?</a>
-                    <button type="submit" class="login-btn">Log in</button>
-                    <div class="form-group terms">
-                        <label for="terms">
-                            &copy; 2025 Pawsitive. All Rights Reserve.
-                            <span><a href="privacy.php" target="_blank">Policy</a> and <a href="terms.php"
-                                    target="_blank">Terms</a>.</span> </label>
-                    </div>
+                    <a href="../password/forgot_password.php" class="forgot-password-link">Forgot password?</a>
                 </div>
+                <button type="submit" class="login-btn">Log in</button>
+                <div class="form-group terms">
+                    <label for="terms">
+                        &copy; 2025 Pawsitive. All Rights Reserve.
+                        <span><a href="privacy.php" target="_blank">Policy</a> and <a href="terms.php"
+                            target="_blank">Terms</a>.</span> </label>
+                    </div>
             </form>
+        </div>
+    
+        <!-- Left Panel Second -->
+        <div class="left-panel">
+            <h2 class="welcome-message">Hello! Welcome to</h2>
+            <div class="branding">
+                <img src="../assets/images/logo/LOGO 1 WHITE.png" alt="Pawsitive Logo" class="logo">
+                <p>Your all-in-one system management<br>pet records, appointments, and more!</p>
+            </div>
         </div>
     </div>
     <script src="../assets/js/main.js?v=1.0.0" async></script>
-    <script src="../assets/js/password.js?v=1.0.0" async></script>
+    <script src="../assets/js/password.js" async></script>
 </body>
 </html>

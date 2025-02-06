@@ -21,9 +21,17 @@
       <div class="logo">
         <img src="assets/images/logo/LOGO 2 WHITE.png" alt="Pawsitive Logo">
       </div>
-      <ul class="nav-links">
-        <li><a href="public/staff_login.php">Log in</a></li>
-      </ul>
+        <ul class="nav-links">
+          <li><a href="#" onclick="openLoginModal()">Login</a></li>
+            <div id="loginModal" class="modal">
+              <div class="modal-content">
+                <span class="close-btn" onclick="closeLoginModal()">&times;</span>
+                <h2>Select Login Type</h2>
+                <button onclick="window.location.href='public/owner_login.php'">Pet Owner Login</button>
+                <button onclick="window.location.href='public/staff_login.php'">Clinic Staff Login</button>
+              </div>
+            </div>
+          </ul>
     </nav>
   </header>
 
@@ -124,5 +132,5 @@
     <p class="footer-bottom">&copy; 2025 Pet Adventure Veterinary Services and Supplies, All Rights Reserved.</p>
   </footer>
   <script src="assets/js/index.js"></script>
-</body>ß
+</body>
 </html>

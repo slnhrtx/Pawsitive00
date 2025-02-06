@@ -1,0 +1,686 @@
+:root {
+    --color-1: #156f77;
+    --color-2: #a8ebf0;
+    --color-3: #efefef;
+    --color-4: #f5f5f5;
+    --color-5: #F4F6F8;
+    --color-6: #6F787C;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins";
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    background-color: #ffffff;
+  }
+  
+  header {
+    background-color: #156f77;
+    padding: 20px 10%;
+    border-radius: 0 0 20px 20px;
+    position: fixed; /* Make the header stick to the top */
+    top: 0; /* Align it to the top */
+    width: 100%; /* Make sure it stretches across the screen */
+    z-index: 1000; /* Ensure it stays on top of other elements */
+  }
+  
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+  }
+  
+  .logo img {
+    width: 250px;
+    margin-right: 10px;
+  }
+  
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px; /* Reduce the gap between navigation items */
+    align-items: center;
+    margin-left: auto; /* Keeps the navigation aligned */
+  }
+  
+  .profile-icon {
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-links li a {
+    color: #BDBDBD;
+    text-decoration: none;
+    font-weight: bold; /* Reduce font weight */
+    font-size: 16px; /* Reduce font size */
+    padding: 8px 10px; /* Adjust padding */
+  }
+  
+  .nav-links a.active {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: bold; /* Reduce font weight */
+    font-size: 16px; /* Reduce font size */
+    padding: 8px 10px; /* Adjust padding */
+  }
+  
+  .nav-links a:hover {
+    color: #FFFFFF;
+    transition: color 0.3s;
+  }
+  
+  .profile-icon img {
+    width: 30px;
+  }
+  
+  main {
+    padding: 0; /* Add top padding to prevent content from hiding behind the fixed header */
+  }
+  
+  /* Profile dropdown */
+  .profile-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .profile-icon {
+    width: 30px;
+    cursor: pointer;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 210px; /* Increase the width to accommodate longer text */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 10px 0;
+    z-index: 1;
+    top: 150%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .dropdown-content a {
+    display: flex; /* Use flexbox to align the icon and text */
+    align-items: center; /* Vertically center icon and text */
+    padding: 10px 16px; /* Adjust padding */
+    color: black;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .dropdown-content a img {
+    width: 20px; /* Set a fixed width for icons */
+    height: 20px; /* Set a fixed height for icons */
+    margin-right: 10px; /* Add spacing between icon and text */
+  }
+  
+  .dropdown-content a:hover {
+    background-color: #f1f1f1; /* Background color on hover */
+  }
+  
+  /* Profile dropdown */
+  /* End of Header */
+  
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo h1 {
+    color: white;
+    margin-left: 10px;
+  }
+  
+  nav ul {
+    list-style: none;
+    display: flex;
+  }
+  
+  nav ul li {
+    margin-right: 20px;
+  }
+  
+  nav ul li a {
+    color: white;
+    text-decoration: none;
+  }
+  
+  .profile {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .profile-pic {
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+  }
+  
+  .profile-info {
+    font-size: 22px;
+    margin-left: 20px;
+  }
+  
+  
+  #home {
+    scroll-margin-top: 150px; /* Adjust based on your header height */
+  }
+  
+  .hero {
+    display: flex;
+    justify-content: center; /* Center the entire content horizontally */
+    align-items: center; /* Vertically align the content */
+    padding: 170px 2rem 2rem; /* Increase the padding to give more space to the hero section */
+    margin-bottom: 30px;
+  }
+  
+  .hero h1 {
+    font-size: 200%; /* Keep the font size as is */
+    color: #000;
+    font-weight: bold;
+    margin: 0; /* Remove all margins around "Welcome!" */
+    padding: 0; /* Ensure no padding exists */
+  }
+  
+  .hero h2 {
+    font-size: 350%; /* Keep the font size as is */
+    color: #156f77;
+    font-weight: bold;
+    margin: 0; /* Remove all margins around "Dan Teodoro" */
+    padding: 0; /* Ensure no padding exists */
+  }
+  
+  .hero h1, .hero h2 {
+  line-height: 1.2; /* Adjust the line height to remove any additional spacing */
+  }
+  
+  .hero p {
+    font-size: 150%; /* Adjust paragraph size */
+    color: #000000;
+    margin-top: 10px;
+  }
+  
+  .hero img {
+    width: 30%; /* Adjust the image size */
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .hero-text {
+    text-align: left; /* Align the text to the right side */
+    margin-right: 100px; /* Adjust the space between text and image */
+  }
+  
+  .hero p#current-date {
+    font-size: 120%; /* Adjust the font size as needed */
+    color: #6F787C; /* Gray color for the date */
+    margin-top: 10px; /* Add some space above the date */
+    font-weight: 400; /* Normal font weight */
+  }
+  
+  
+  
+  
+  #appointments-section {
+  scroll-margin-top: 100px; /* Adjust based on your header height */
+  }
+  
+  /* Wrapper for the Appointment Section */
+  .appointments-section {
+  background-color: #f5f5f5; /* Gray background */
+  padding: 40px 40px; /* Add padding for spacing */
+  box-sizing: border-box; /* Include padding in the width */
+  margin: 0 auto; /* Center the section horizontally */
+  }
+  
+  /* Section Headline */
+  .section-headline {
+  font-size: 24px; /* Slightly larger font size */
+  font-weight: bold;
+  color: #333333; /* Dark gray color for the headline */
+  text-align: left; /* Align text to the left */
+  margin: 0 0 20px 13%; /* Adjust spacing to move the text slightly to the right */
+  }
+  
+  /* Appointment Cards Wrapper */
+  .appointments {
+  display: flex;
+  justify-content: center; /* Center the cards */
+  align-items: flex-start; /* Align items to the top */
+  gap: 20px; /* Space between the cards */
+  max-width: 1200px; /* Limit the content width */
+  margin: 0 auto; /* Center the cards in the section */
+  }
+  
+  /* Individual Appointment Card */
+  .appointment-card {
+  background-color: #156f77; /* Green background */
+  padding: 20px;
+  text-align: center;
+  color: white;
+  width: 300px; /* Fixed card width */
+  height: 120px; /* Fixed card height */
+  position: relative;
+  border-radius: 12px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: visible; /* Allow description to slide out */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .appointment-card img {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 5px;
+  }
+  
+  .appointment-card h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+  }
+  
+  .appointment-card p {
+  position: absolute;
+  top: 100%; /* Position below the card */
+  left: 0;
+  right: 0;
+  background-color: #ffffff; /* White background for description */
+  color: #156f77; /* Match the theme color */
+  padding: 15px;
+  font-size: 14px;
+  text-align: center;
+  border: 1px solid #156f77; /* Border for separation */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px); /* Start slightly above its resting place */
+  transition: all 0.5s ease;
+  z-index: -1;
+  }
+  
+  .appointment-card:hover {
+  transform: translateY(-5px); /* Slight lift on hover */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .appointment-card:hover p {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(10px); /* Slide below the card */
+  z-index: 1;
+  }
+  
+  /* Remove underline from links */
+  a.appointment-link {
+  text-decoration: none;
+  color: inherit;
+  }
+  
+  
+  
+  
+  
+  #pets-section {
+  scroll-margin-top: 120px; /* Adjust based on your header height */
+  }
+  
+  /* Pets Section */
+  .pets-section {
+  background-color: #ffffff;
+  padding: 20px 40px;
+  margin-top: 20px;
+  }
+  
+  .pets-section .section-headline {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333333;
+  text-align: left;
+  margin-bottom: 20px;
+  }
+  
+  .pets-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  }
+  
+  .pet-card {
+  display: flex;
+  background-color: #f5f5f5;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  position: relative; /* Make the parent container relative for absolute positioning */
+  width: 100%;
+  max-width: 800px;
+  border: 1px solid #ddd;
+  transition: all 0.3s ease;
+  }
+  
+  .pet-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  background-color: #f9f9f9;
+  }
+  
+  .pet-avatar img {
+  width: 120px; /* Increased size for the avatar */
+  height: 120px;
+  border-radius: 50%;
+  margin-right: 40px;
+  margin-left: 10px;
+  }
+  
+  .pet-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  flex-grow: 1;
+  }
+  
+  .detail {
+  display: flex;
+  flex-direction: column;
+  }
+  
+  .label {
+  font-size: 18px;
+  color: #156F77;
+  font-weight: 600;
+  }
+  
+  .value {
+  font-size: 24px;
+  color: #000000;
+  font-weight: 600;
+  }
+  
+  /* No Pets Found Text */
+  .no-pets-text {
+  color: red;
+  font-size: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  }
+  
+  /* Three-dot menu button */
+  .three-dot-menu {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  }
+  
+  /* Three-dot menu button */
+  .menu-button {
+  background: none;
+  border: none;
+  font-size: 30px; /* Increased font size for larger dots */
+  cursor: pointer;
+  color: #000000; /* Change color to black */
+  outline: none;
+  line-height: 1; /* Adjust line height for better alignment */
+  }
+  
+  .menu-dropdown {
+  display: none;
+  position: absolute;
+  top: 30px;
+  left: 0;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 120px;
+  }
+  
+  .menu-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding: 10px 0;
+  }
+  
+  .menu-dropdown ul li {
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  }
+  
+  .menu-dropdown ul li a {
+  text-decoration: none;
+  color: #000000;
+  }
+  
+  .menu-dropdown ul li:hover {
+  background-color: #f1f1f1;
+  }
+  
+  /* Show menu on button hover */
+  .three-dot-menu:hover .menu-dropdown {
+  display: block;
+  }
+  
+  /* Add Pet Section */
+  .add-pet-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px; /* Adjust as needed */
+  }
+  
+  .add-pet-button {
+  background-color: #156f77; /* Button background color */
+  border: none;
+  border-radius: 50%; /* Circular shape */
+  width: 60px; /* Button width */
+  height: 60px; /* Button height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  transition: all 0.3s ease;
+  }
+  
+  .add-pet-button img {
+  width: 30px; /* Adjust icon size */
+  height: 30px;
+  }
+  
+  .add-pet-button:hover {
+  background-color: #0e4f5a; /* Darker color on hover */
+  transform: scale(1.1); /* Slight zoom effect on hover */
+  }
+  
+  .add-pet-text {
+  margin-top: 5px; /* Space between button and text */
+  font-size: 16px;
+  color: #156f77;
+  font-weight: 500;
+  text-align: center;
+  }
+  
+  
+  
+  
+  /* Announcement Section */
+  .announcement-section {
+  background-color: #ffffff;
+  padding: 20px 40px;
+  margin-top: 30px;
+  }
+  
+  .announcement-section .section-headline {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333333;
+  text-align: left;
+  margin-bottom: 20px;
+  }
+  
+  .announcement-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Space between announcements */
+  justify-content: center;
+  align-items: center;
+  }
+  
+  .no-announcements-text {
+  font-size: 16px;
+  color: red;
+  text-align: center;
+  }
+  
+  /* Individual Announcement Card */
+  .announcement-card {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 800px;
+  text-align: left;
+  border: 1px solid #ddd;
+  }
+  
+  .announcement-title {
+  font-size: 16x;
+  color: #156f77;
+  margin-bottom: 10px;
+  }
+  
+  .announcement-message {
+  font-size: 16px;
+  color: #333333;
+  line-height: 1.5;
+  }
+  
+  
+  
+  
+  
+  
+  
+  footer {
+    background-color: #000000;
+    color: white;
+    padding: 40px 20px;
+  }
+  
+  .footer-content {
+    display: flex;
+    justify-content: flex-start; /* Align items to the left */
+    align-items: center; /* Vertically center align the items */
+    gap: 40px; /* Space between logo and text */
+  }
+  
+  .footer-logo {
+    padding-bottom: 30px; /* Add space below the logo without moving other items */
+  }
+  
+  .footer-logo img {
+    width: 200px; /* Adjust logo size as needed */
+  }
+  
+  .logo-spacer {
+    height: 30px; /* Adjust the height for the space you want below the logo */
+  }
+  
+  .footer-section {
+    width: 200px; /* You can adjust the width of each section here */
+  }
+  
+  .footer-section h4 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  
+  .footer-section ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .footer-section ul li {
+    margin-bottom: 8px;
+  }
+  
+  .footer-section ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+  .footer-section ul li a:hover {
+    text-decoration: underline;
+  }
+  
+  .footer-section p {
+    font-size: 14px;
+  }
+  
+  .footer-section.address {
+    margin-top: -65px; /* Adjust this value to align the Address with the other sections */
+  }
+  
+  .footer-bottom {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  
+  .social-media {
+    list-style: none;
+    padding: 0; /* Ensure no padding on the list */
+  }
+  
+  .social-media li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .social-media li a {
+    display: flex;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+  }
+  
+  .social-media li a img {
+    width: 24px; /* Adjust icon size */
+    height: auto;
+    margin-right: 15px; /* Space between icon and text */
+  }
+  
+  .social-media li a:hover {
+    text-decoration: underline; /* Add underline on hover */
+  }
+  
+  
