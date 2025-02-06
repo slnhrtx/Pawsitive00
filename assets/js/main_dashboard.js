@@ -65,8 +65,20 @@ function promptVitalsUpdate(appointmentId, petId) {
                 return false;
             }
             if (temperature < 30 || temperature > 45) {
-                Swal.showValidationMessage('Temperature should be between 30°C and 45°C.');
-                return false;
+                return Swal.fire({
+                    title: 'Warning',
+                    text: 'The recorded temperature is outside the normal range (30°C - 45°C). Do you want to proceed?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Proceed',
+                    cancelButtonText: 'Cancel'
+                }).then((confirmation) => {
+                    if (confirmation.isConfirmed) {
+                        return { weight, temperature };
+                    } else {
+                        return false;
+                    }
+                });
             }
             
             return { weight, temperature };

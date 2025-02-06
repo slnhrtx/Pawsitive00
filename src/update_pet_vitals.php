@@ -26,4 +26,3 @@ if ($appointment_id && $pet_id && $weight && $temperature) {
 }
 
 echo json_encode($response);
-?>
