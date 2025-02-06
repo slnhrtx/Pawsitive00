@@ -16,11 +16,12 @@ $userName = $_SESSION['FirstName'] . ' ' . $_SESSION['LastName'];
 $role = $_SESSION['Role'] ?? 'Role';
 $email = $_SESSION['Email'];
 
-if (!hasPermission($pdo,'View Dashboard')) {
+if (!hasPermission($pdo, 'View Dashboard')) {
     exit("You do not have permission to access this page.");
 }
 
-function fetchData($pdo, $query, $params = []) {
+function fetchData($pdo, $query, $params = [])
+{
     try {
         $stmt = $pdo->prepare($query);
         $stmt->execute($params);
@@ -50,21 +51,49 @@ $statsQuery = "
 ";
 $stats = fetchData($pdo, $statsQuery)[0];
 
-$dogsCount = isset($stats['Dogs']) ? (int)$stats['Dogs'] : 0;
-$catsCount = isset($stats['Cats']) ? (int)$stats['Cats'] : 0;
-$otherPetsCount = isset($stats['Others']) ? (int)$stats['Others'] : 0;
-$totalRecords = isset($stats['TotalRecords']) ? (int)$stats['TotalRecords'] : 0;
+$dogsCount = isset($stats['Dogs']) ? (int) $stats['Dogs'] : 0;
+$catsCount = isset($stats['Cats']) ? (int) $stats['Cats'] : 0;
+$otherPetsCount = isset($stats['Others']) ? (int) $stats['Others'] : 0;
+$totalRecords = isset($stats['TotalRecords']) ? (int) $stats['TotalRecords'] : 0;
 
-$appointmentsData = fetchData($pdo, "
-    SELECT DATE_FORMAT(AppointmentDate, '%Y-%m') AS month, COUNT(*) AS count
+$appointmentsPerDay = fetchData($pdo, "
+    SELECT DATE(AppointmentDate) AS label, COUNT(*) AS count
     FROM Appointments
-    WHERE AppointmentDate >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
-    GROUP BY month
-    ORDER BY month
+    WHERE AppointmentDate >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+    GROUP BY label
+    ORDER BY label
 ");
 
-$months = array_column($appointmentsData, 'month') ?: [];
-$counts = array_column($appointmentsData, 'count') ?: [];
+$appointmentsPerWeek = fetchData($pdo, "
+    SELECT CONCAT(YEAR(AppointmentDate), '-W', WEEK(AppointmentDate)) AS label, COUNT(*) AS count
+    FROM Appointments
+    WHERE AppointmentDate >= DATE_SUB(CURDATE(), INTERVAL 12 WEEK)
+    GROUP BY label
+    ORDER BY label
+");
+
+$appointmentsPerMonth = fetchData($pdo, "
+    SELECT DATE_FORMAT(AppointmentDate, '%Y-%m') AS label, COUNT(*) AS count
+    FROM Appointments
+    WHERE AppointmentDate >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+    GROUP BY label
+    ORDER BY label
+");
+
+$appointmentsPerYear = fetchData($pdo, "
+    SELECT YEAR(AppointmentDate) AS label, COUNT(*) AS count
+    FROM Appointments
+    WHERE AppointmentDate >= DATE_SUB(CURDATE(), INTERVAL 5 YEAR)
+    GROUP BY label
+    ORDER BY label
+");
+
+$appointmentData = [
+    'day' => ['labels' => array_column($appointmentsPerDay, 'label'), 'counts' => array_column($appointmentsPerDay, 'count')],
+    'week' => ['labels' => array_column($appointmentsPerWeek, 'label'), 'counts' => array_column($appointmentsPerWeek, 'count')],
+    'month' => ['labels' => array_column($appointmentsPerMonth, 'label'), 'counts' => array_column($appointmentsPerMonth, 'count')],
+    'year' => ['labels' => array_column($appointmentsPerYear, 'label'), 'counts' => array_column($appointmentsPerYear, 'count')],
+];
 
 $upcomingAppointments = fetchData($pdo, "
     SELECT a.AppointmentId, a.AppointmentDate, a.AppointmentTime, p.PetId, p.Name AS PetName, a.Status, s.ServiceName
@@ -87,6 +116,18 @@ $recentActivities = fetchData($pdo, "
     ORDER BY CreatedAt DESC
     LIMIT 5
 ");
+
+$speciesData = fetchData($pdo, "
+    SELECT s.SpeciesName, COUNT(p.PetId) AS PetCount
+    FROM Species s
+    LEFT JOIN Pets p ON s.Id = p.SpeciesId
+    GROUP BY s.SpeciesName
+    ORDER BY PetCount DESC
+");
+
+// Prepare data for the pie chart
+$speciesLabels = array_column($speciesData, 'SpeciesName');
+$speciesCounts = array_column($speciesData, 'PetCount');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
@@ -138,13 +179,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="../assets/css/admin.css">
-    <script src="../assets/js/update_appointment.js"></script>
+    <script src="../assets/js/update_appointment.js?v=1.0.1"></script>
     <style>
         .success-message {
             color: #155724;
-            /* Green text */
             background-color: #d4edda;
-            /* Light green background */
             padding: 12px 15px;
             margin-bottom: 15px;
             border: 1px solid #c3e6cb;
@@ -155,16 +194,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             align-items: center;
             gap: 10px;
             position: fixed;
-            /* Make it appear as a toast */
             top: 20px;
             right: 20px;
             z-index: 9999;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             opacity: 0;
-            /* Hidden by default */
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
             transform: translateY(-20px);
-            /* Slide effect */
         }
 
         .success-message.show {
@@ -262,19 +298,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </section>
             </section>
-            <canvas id="appointmentsChart" data-months='<?= json_encode($months); ?>'
-                data-counts='<?= json_encode($counts); ?>' width="800" height="400">
-            </canvas>
+            <div class="chart-controls">
+                <button class="toggle-btn" data-range="day">Per Day</button>
+                <button class="toggle-btn" data-range="week">Per Week</button>
+                <button class="toggle-btn" data-range="month" class="active">Per Month</button>
+                <button class="toggle-btn" data-range="year">Per Year</button>
+            </div>
+
+            <canvas id="appointmentsChart" data-appointments='<?= json_encode($appointmentData); ?>' width="800"
+                height="400"></canvas>
             <br>
-            <canvas id="registeredPetsChart" data-dogs="<?= htmlspecialchars($dogsCount, ENT_QUOTES, 'UTF-8'); ?>"
-                data-cats="<?= htmlspecialchars($catsCount, ENT_QUOTES, 'UTF-8'); ?>"
-                data-others="<?= htmlspecialchars($otherPetsCount, ENT_QUOTES, 'UTF-8'); ?>" width="800" height="400">
-            </canvas>
+            <div class="flex items-center justify-center mt-4 space-x-4">
+                <label for="speciesFilter" class="text-gray-700 font-medium">Filter by Species:</label>
+                <select id="speciesFilter" class="border rounded-md p-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="all">All Species</option>
+                    <option value="Dog">Dog</option>
+                    <option value="Cat">Cat</option>
+                    <option value="Rabbit">Rabbit</option>
+                    <option value="Bird">Bird</option>
+                    <option value="Hamster">Hamster</option>
+                    <option value="Guinea Pig">Guinea Pig</option>
+                    <option value="Reptile">Reptile</option>
+                    <option value="Ferret">Ferret</option>
+                    <option value="Fish">Fish</option>
+                </select>
+            </div>
+            <div class="max-w-md mx-auto mt-8 bg-white shadow-lg rounded-lg p-4">
+                <h2 class="text-xl font-semibold text-center text-gray-700">Pets Per Species</h2>
+                <canvas id="speciesPieChart" data-labels='<?= json_encode($speciesLabels); ?>'
+                    data-counts='<?= json_encode($speciesCounts); ?>' width="400" height="400"></canvas>
+            </div>
             <div class="right-section">
                 <h2>Quick Actions</h2>
-                <?php if (hasPermission($pdo,'Create Owner')): ?>
+                <?php if (hasPermission($pdo, 'Create Owner')): ?>
                     <button class="add-owner">
-                        <a href="register_owner.php">Add Owner and Pet</a>
+                        <a href="add_owner_pet.php">Add Owner and Pet</a>
                     </button>
                 <?php endif; ?>
                 <?php if (hasPermission($pdo, 'Create Appointment')): ?>
@@ -304,55 +362,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             </div>
                                         </div>
                                     </div>
-
-                                    <br>
                                     <p><strong>Service:</strong> <?= htmlspecialchars($appointment['ServiceName']); ?></p>
                                     <p><strong>Date:</strong> <?= htmlspecialchars($appointment['AppointmentDate']); ?></p>
                                     <p><strong>Time:</strong> <?= htmlspecialchars($appointment['AppointmentTime']); ?></p>
                                     <p><strong>Status:</strong> <span
                                             class="status"><?= htmlspecialchars($appointment['Status']); ?></span></p>
-                                    <?php if ($appointment['Status'] === 'Done'): ?>
-                                        <?php if (hasPermission($pdo, 'Process Payments')): ?>
-                                            <button class="status-button"
-                                                onclick="window.location.href='invoice_billing_form.php?appointment_id=<?= htmlspecialchars($appointment['AppointmentId']); ?>'">Invoice
-                                                and Billing</button>
-                                        <?php else: ?>
-                                            <button class="status-button" disabled>Invoice and Billing</button>
-                                        <?php endif; ?>
-                                    <?php else: ?>
-                                        <?php if (hasPermission($pdo, 'Modify Appointment Status')): ?>
-                                            <button class="status-button"
-                                                onclick="updateAppointmentStatus(<?= htmlspecialchars($appointment['AppointmentId']); ?>, 'Done', <?= htmlspecialchars($appointment['PetId']); ?>)">Mark
-                                                as Done</button>
-                                        <?php else: ?>
-                                            <button class="status-button" disabled>Mark as Done</button>
-                                        <?php endif; ?>
-                                        <?php if ($appointment['Status'] === 'Confirmed'): ?>
-                                            <?php
-                                            $appointment_id = $appointment['AppointmentId'];
-                                            $pet_id = $appointment['PetId'];
-                                            ?>
-                                            <?php if ($appointment['ServiceName'] === 'Pet Vaccination & Deworming'): ?>
-                                                <button
-                                                    onclick="promptVitalsVaccine('<?= htmlspecialchars($appointment_id); ?>', '<?= htmlspecialchars($pet_id); ?>')">
-                                                    Start Consultation
+                                    <div class="buttons-container"
+                                        id="buttons-<?= htmlspecialchars($appointment['AppointmentId']) . '-' . htmlspecialchars($appointment['PetId']); ?>">
+                                        <?php if ($appointment['Status'] === 'Done'): ?>
+                                            <?php if (hasPermission($pdo, 'Process Payments')): ?>
+                                                <button class="status-button"
+                                                    onclick="window.location.href='invoice_billing_form.php?appointment_id=<?= htmlspecialchars($appointment['AppointmentId']); ?>'">
+                                                    Invoice and Billing
                                                 </button>
                                             <?php else: ?>
-                                                <button
-                                                    onclick="promptVitalsUpdate('<?= htmlspecialchars($appointment_id); ?>', '<?= htmlspecialchars($pet_id); ?>')">
-                                                    Start Consultation
-                                                </button>
+                                                <button class="status-button" disabled>Invoice and Billing</button>
                                             <?php endif; ?>
                                         <?php else: ?>
                                             <?php if (hasPermission($pdo, 'Modify Appointment Status')): ?>
-                                                <button class="confirm-btn"
-                                                    onclick="updateAppointmentStatus(<?= htmlspecialchars($appointment['AppointmentId']); ?>, 'Confirmed', <?= htmlspecialchars($appointment['PetId']); ?>)">Confirm</button>
+                                                <button class="status-button"
+                                                    onclick="updateAppointmentStatus(<?= htmlspecialchars($appointment['AppointmentId']); ?>, 'Done', <?= htmlspecialchars($appointment['PetId']); ?>)">
+                                                    Mark as Done
+                                                </button>
                                             <?php else: ?>
-                                                <button class="confirm-btn" disabled>Confirm</button>
+                                                <button class="status-button" disabled>Mark as Done</button>
+                                            <?php endif; ?>
+
+                                            <?php if ($appointment['Status'] === 'Confirmed'): ?>
+                                                <?php if ($appointment['ServiceName'] === 'Pet Vaccination & Deworming'): ?>
+                                                    <button
+                                                        onclick="promptVitalsVaccine('<?= htmlspecialchars($appointment['AppointmentId']); ?>', '<?= htmlspecialchars($appointment['PetId']); ?>')">
+                                                        Start Consultation
+                                                    </button>
+                                                <?php else: ?>
+                                                    <button
+                                                        onclick="promptVitalsUpdate('<?= htmlspecialchars($appointment['AppointmentId']); ?>', '<?= htmlspecialchars($appointment['PetId']); ?>')">
+                                                        Start Consultation
+                                                    </button>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <?php if (hasPermission($pdo, 'Modify Appointment Status')): ?>
+                                                    <button class="confirm-btn"
+                                                        onclick="updateAppointmentStatus(<?= htmlspecialchars($appointment['AppointmentId']); ?>, 'Confirmed', <?= htmlspecialchars($appointment['PetId']); ?>)">
+                                                        Confirm
+                                                    </button>
+                                                <?php else: ?>
+                                                    <button class="confirm-btn" disabled>Confirm</button>
+                                                <?php endif; ?>
                                             <?php endif; ?>
                                         <?php endif; ?>
-                                    <?php endif; ?>
+                                    </div>
                                 </div>
+
                             <?php endforeach; ?>
                         <?php else: ?>
                             <p>No upcoming appointments.</p>
@@ -370,7 +431,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <div class="activity-item">
                                         <h3><?= htmlspecialchars($activity['UserName']); ?></h3>
                                         <p><strong>Role:</strong> <?= htmlspecialchars($activity['Role']); ?></p>
-                                        <p><strong>Activity:</strong> <?= htmlspecialchars($activity['ActionDetails']); ?></p>
+                                        <p><strong>Activity:</strong> <?= htmlspecialchars_decode($activity['ActionDetails']); ?></p>
                                         <p><strong>Timestamp:</strong> <?= htmlspecialchars($activity['CreatedAt']); ?></p>
                                     </div>
                                 <?php endforeach; ?>
@@ -390,13 +451,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <span id="toast-message"></span>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const successMessage = <?= json_encode($successMessage) ?>;
-            if (successMessage) {
-                showToast(successMessage);
-            }
-        });
-
         function showToast(message) {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toast-message');
@@ -410,10 +464,130 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }, 4000);
         }
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartElement = document.getElementById('appointmentsChart');
+            const appointmentData = JSON.parse(chartElement.dataset.appointments);
+            let currentChart = null;
+
+            function renderBarChart(range) {
+                const data = appointmentData[range];
+
+                if (currentChart) currentChart.destroy(); // Clear the existing chart
+
+                currentChart = new Chart(chartElement, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: `Appointments Per ${range.charAt(0).toUpperCase() + range.slice(1)}`,
+                            data: data.counts,
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',  // Bar color
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (tooltipItem) {
+                                        return `Appointments: ${tooltipItem.raw}`;
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: false // Hides the legend for cleaner look
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Date Range'
+                                },
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Appointments'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Default view: Month
+            renderBarChart('month');
+
+            // Event Listener for buttons
+            document.querySelectorAll('.toggle-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    renderBarChart(button.dataset.range);
+                });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('speciesPieChart').getContext('2d');
+            const labels = JSON.parse(ctx.canvas.dataset.labels);
+            const counts = JSON.parse(ctx.canvas.dataset.counts);
+
+            const backgroundColors = [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4CAF50',
+                '#9C27B0', '#FF9800', '#795548', '#03A9F4', '#E91E63'
+            ];
+
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: backgroundColors.slice(0, labels.length),
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#4A4A4A',
+                                font: {
+                                    size: 14,
+                                    family: 'Poppins'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (tooltipItem) {
+                                    return `${labels[tooltipItem.dataIndex]}: ${counts[tooltipItem.dataIndex]} pets`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../assets/js/main_dashboard.js?v=1.0.1"></script>
+    <script src="../assets/js/main_dashboard.js?v=1.0.5"></script>
 </body>
 
 </html>

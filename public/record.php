@@ -316,7 +316,7 @@ function getDateRange($filter) {
                                 <div class="three-dot-menu" style="display: inline-block;">
                                     <button class="three-dot-btns" onclick="toggleDropdown(event, this)">⋮</button>
                                     <div class="dropdown-menus" style="display: none;">
-                                        <!--<a href="#" onclick="confirmConfine('<?= htmlspecialchars($pet['PetId']) ?>')">Confine Pet</a>-->
+                                        <a href="#" onclick="confirmConfine('<?= htmlspecialchars($pet['PetId']) ?>')">Confine Pet</a>
                                         <a href="add_vaccination.php?pet_id=<?= htmlspecialchars($pet['PetId']) ?>">Add
                                             Vaccination</a>
                                         <a href="#"
@@ -375,7 +375,7 @@ function getDateRange($filter) {
                     <i class="fas fa-check-circle"></i>
                     <?= htmlspecialchars($_SESSION['success']); ?>
                 </div>
-                <?php unset($_SESSION['success']); // Clear the message after displaying ?>
+                <?php unset($_SESSION['success']);?>
             <?php endif; ?>
         </div>
         <div class="pagination">

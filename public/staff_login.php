@@ -84,5 +84,6 @@ $email = '';
         </div>
     </div>
     <script src="../assets/js/main.js?v=1.0.0" async></script>
+    <script src="../assets/js/password.js?v=1.0.0" async></script>
 </body>
 </html>
