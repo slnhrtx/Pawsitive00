@@ -19,7 +19,7 @@ $role = $_SESSION['Role'] ?? 'Role';
 
 try {
     $stmt = $pdo->prepare("
-        SELECT 
+        SELECT
             pr.RecordId, pr.ChiefComplaint, pr.OnsetDate, pr.DurationDays, pr.Appetite, pr.Diet, 
             pr.UrineFrequency, pr.UrineColor, pr.WaterIntake, pr.PainLevel, pr.FecalScore, pr.Environment, pr.MedicationPriorCheckup,
             p.Name AS PetName, p.Weight, p.Temperature, p.Gender, p.Breed, p.Birthday,
@@ -52,7 +52,19 @@ try {
             LastVaccinationDate, 
             VaccinesGiven, 
             LastDewormingDate, 
-            DewormerUsed 
+            DewormerUsed,
+            FleaTickPrevention,
+            HeartwormPrevention,
+            GeneticConditions,
+            FoodAllergies,
+            MedicationAllergies,
+            PastIllnesses,
+            PastSurgeries,
+            Hospitalizations,
+            CurrentMedications,
+            BehavioralIssues,
+            LastHeatCycle,
+            SpayedNeutered
         FROM MedicalHistory 
         WHERE PetId = :PetId
         ORDER BY HistoryId DESC 
@@ -70,7 +82,7 @@ try {
 
     // Fetch Diagnoses and Treatment
     $stmt = $pdo->prepare("
-        SELECT DiagnosisType, Diagnosis, Treatment, Prognosis FROM Diagnoses 
+        SELECT DiagnosisType, Diagnosis, Treatment, Prognosis, Status FROM Diagnoses 
         WHERE RecordId = :record_id
     ");
     $stmt->execute([':record_id' => $record_id]);
@@ -92,6 +104,13 @@ try {
     $stmt->execute([':record_id' => $record_id]);
     $lab_tests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    $stmt = $pdo->prepare("
+    SELECT * FROM PhysicalExams 
+    WHERE RecordId = :record_id
+    ");
+    $stmt->execute([':record_id' => $record_id]);
+    $physical_exams = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
 }
@@ -108,6 +127,8 @@ try {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="../assets/css/consultation_record.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -145,6 +166,7 @@ try {
 
     <div class="main-content">
         <button class="btn" onclick="goBack()">Back</button>
+        <button class="btn" onclick="downloadPDF()">📄 Download as PDF</button>
         <form class="staff-form">            
             <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
             <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
@@ -307,24 +329,96 @@ try {
             <div class="form-row">
                 <div class="input-container">
                     <label><b>Last Vaccination Date:</b></label>
-                    <p><?= !empty($record['LastVaccinationDate']) ? htmlspecialchars($record['LastVaccinationDate'], ENT_QUOTES) : 'Not Available' ?></p>
+                    <p><?= !empty($medical_history['LastVaccinationDate']) ? htmlspecialchars($medical_history['LastVaccinationDate'], ENT_QUOTES) : 'Not Available' ?></p>
                 </div>
 
                 <div class="input-container">
                     <label><b>Vaccine Given:</b></label>
-                    <p><?= !empty($record['VaccinesGiven']) ? htmlspecialchars($record['VaccinesGiven'], ENT_QUOTES) : 'Not Available' ?></p>
+                    <p><?= !empty($medical_history['VaccinesGiven']) ? htmlspecialchars($medical_history['VaccinesGiven'], ENT_QUOTES) : 'Not Available' ?></p>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="input-container">
                     <label><b>Last Deworming Date:</b></label>
-                    <p><?= htmlspecialchars($record['LastDewormingDate'] ?? 'Not Available', ENT_QUOTES); ?></p>
+                    <p><?= htmlspecialchars($medical_history['LastDewormingDate'] ?? 'Not Available', ENT_QUOTES); ?></p>
                 </div>
 
                 <div class="input-container">
                     <label><b>Dewormer Used:</b></label>
-                    <p><?= htmlspecialchars($record['DewormerUsed'] ?? 'Not Available', ENT_QUOTES); ?></p>
+                    <p><?= htmlspecialchars($medical_history['DewormerUsed'] ?? 'Not Available', ENT_QUOTES); ?></p>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-container">
+                    <label><b>Flea & Tick Prevention:</b></label>
+                    <p><?= htmlspecialchars($medical_history['FleaTickPrevention'] ?? 'Not Available', ENT_QUOTES); ?></p>
+                </div>
+
+                <div class="input-container">
+                    <label><b>Heartworm Prevention:</b></label>
+                    <p><?= htmlspecialchars($medical_history['HeartwormPrevention'] ?? 'Not Available', ENT_QUOTES); ?></p>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-container">
+                    <label><b>Genetic Conditions:</b></label>
+                    <p><?= htmlspecialchars($medical_history['GeneticConditions'] ?? 'None', ENT_QUOTES); ?></p>
+                </div>
+
+                <div class="input-container">
+                    <label><b>Food Allergies:</b></label>
+                    <p><?= htmlspecialchars($medical_history['FoodAllergies'] ?? 'None', ENT_QUOTES); ?></p>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-container">
+                    <label><b>Medication Allergies:</b></label>
+                    <p><?= htmlspecialchars($medical_history['MedicationAllergies'] ?? 'None', ENT_QUOTES); ?></p>
+                </div>
+
+                <div class="input-container">
+                    <label><b>Past Illnesses:</b></label>
+                    <p><?= htmlspecialchars($medical_history['PastIllnesses'] ?? 'None', ENT_QUOTES); ?></p>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-container">
+                    <label><b>Past Surgeries:</b></label>
+                    <p><?= htmlspecialchars($medical_history['PastSurgeries'] ?? 'None', ENT_QUOTES); ?></p>
+                </div>
+
+                <div class="input-container">
+                    <label><b>Hospitalizations:</b></label>
+                    <p><?= htmlspecialchars($medical_history['Hospitalizations'] ?? 'None', ENT_QUOTES); ?></p>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-container">
+                    <label><b>Current Medications:</b></label>
+                    <p><?= htmlspecialchars($medical_history['CurrentMedications'] ?? 'None', ENT_QUOTES); ?></p>
+                </div>
+
+                <div class="input-container">
+                    <label><b>Behavioral Issues:</b></label>
+                    <p><?= htmlspecialchars($medical_history['BehavioralIssues'] ?? 'None', ENT_QUOTES); ?></p>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-container">
+                    <label><b>Last Heat Cycle:</b></label>
+                    <p><?= htmlspecialchars($medical_history['LastHeatCycle'] ?? 'Not Available', ENT_QUOTES); ?></p>
+                </div>
+
+                <div class="input-container">
+                    <label><b>Spayed/Neutered:</b></label>
+                    <p><?= isset($medical_history['SpayedNeutered']) ? ($medical_history['SpayedNeutered'] ? 'Yes' : 'No') : 'Not Available'; ?></p>
                 </div>
             </div>
 
@@ -334,88 +428,95 @@ try {
             <br>
 
             <h2>Physical Examination</h2>
-            <h3 style="color: #156f77;">Vital Signs</h3>
-            <div class="form-row">
-                <div class="input-container">
-                    <label><b>Pulse (bpm):</b></label>
-                    <p><?= !empty($record['Pulse']) ? htmlspecialchars($record['Pulse'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
+            <?php if (!empty($physical_exams)): ?>
+                <?php foreach ($physical_exams as $exam): ?>
+                    <h3 style="color: #156f77;">Vital Signs</h3>
+                    <div class="form-row">
+                        <div class="input-container">
+                            <label><b>Pulse (bpm):</b></label>
+                            <p><?= htmlspecialchars($exam['Pulse'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
 
-                <div class="input-container">
-                    <label><b>Heart Rate (bpm):</b></label>
-                    <p><?= !empty($record['HeartRate']) ? htmlspecialchars($record['HeartRate'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
+                        <div class="input-container">
+                            <label><b>Heart Rate (bpm):</b></label>
+                            <p><?= htmlspecialchars($exam['HeartRate'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
 
-                <div class="input-container">
-                    <label><b>Respiratory Rate (brpm):</b></label>
-                    <p><?= !empty($record['RespiratoryRate']) ? htmlspecialchars($record['RespiratoryRate'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
-            </div>
+                        <div class="input-container">
+                            <label><b>Respiratory Rate (brpm):</b></label>
+                            <p><?= htmlspecialchars($exam['RespiratoryRate'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
+                    </div>
 
-            <h3 style="color: #156f77;">Heart & Lung Sounds</h3>
-            <div class="form-row">
-                <div class="input-container">
-                    <label><b>Heart Sound:</b></label>
-                    <p><?= !empty($record['HeartSound']) ? htmlspecialchars($record['HeartSound'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
+                    <h3 style="color: #156f77;">Heart & Lung Sounds</h3>
+                    <div class="form-row">
+                        <div class="input-container">
+                            <label><b>Heart Sound:</b></label>
+                            <p><?= htmlspecialchars($exam['HeartSound'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
 
-                <div class="input-container">
-                    <label><b>Lung Sound:</b></label>
-                    <p><?= !empty($record['LungSound']) ? htmlspecialchars($record['LungSound'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
-            </div>
+                        <div class="input-container">
+                            <label><b>Lung Sound:</b></label>
+                            <p><?= htmlspecialchars($exam['LungSound'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
+                    </div>
 
-            <h3 style="color: #156f77;">Mucous Membrane & CRT</h3>
-            <div class="form-row">
-                <div class="input-container">
-                    <label><b>Mucous Membrane:</b></label>
-                    <p><?= !empty($record['MucousMembrane']) ? htmlspecialchars($record['MucousMembrane'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
+                    <h3 style="color: #156f77;">Mucous Membrane & CRT</h3>
+                    <div class="form-row">
+                        <div class="input-container">
+                            <label><b>Mucous Membrane:</b></label>
+                            <p><?= htmlspecialchars($exam['MucousMembrane'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
 
-                <div class="input-container">
-                    <label><b>Capillary Refill Time (sec):</b></label>
-                    <p><?= !empty($record['CapillaryRefillTime']) ? htmlspecialchars($record['CapillaryRefillTime'], ENT_QUOTES) . ' sec' : 'Not Available'; ?></p>
-                </div>
-            </div>
+                        <div class="input-container">
+                            <label><b>Capillary Refill Time (sec):</b></label>
+                            <p><?= htmlspecialchars($exam['CapillaryRefillTime'] ?? 'Not Available', ENT_QUOTES) ?> sec</p>
+                        </div>
+                    </div>
 
-            <h3 style="color: #156f77;">Head & Sensory Functions</h3>
-            <div class="form-row">
-                <div class="input-container">
-                    <label><b>Eyes:</b></label>
-                    <p><?= !empty($record['Eyes']) ? htmlspecialchars($record['Eyes'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
+                    <h3 style="color: #156f77;">Head & Sensory Functions</h3>
+                    <div class="form-row">
+                        <div class="input-container">
+                            <label><b>Eyes:</b></label>
+                            <p><?= htmlspecialchars($exam['Eyes'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
 
-                <div class="input-container">
-                    <label><b>Ears:</b></label>
-                    <p><?= !empty($record['Ears']) ? htmlspecialchars($record['Ears'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
-            </div>
+                        <div class="input-container">
+                            <label><b>Ears:</b></label>
+                            <p><?= htmlspecialchars($exam['Ears'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
+                    </div>
 
-            <h3 style="color: #156f77;">Tracheal & Abdominal Palpation</h3>
-            <div class="form-row">
-                <div class="input-container">
-                    <label><b>Tracheal Pinch:</b></label>
-                    <p><?= !empty($record['TrachealPinch']) ? htmlspecialchars($record['TrachealPinch'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
+                    <h3 style="color: #156f77;">Tracheal & Abdominal Palpation</h3>
+                    <div class="form-row">
+                        <div class="input-container">
+                            <label><b>Tracheal Pinch:</b></label>
+                            <p><?= htmlspecialchars($exam['TrachealPinch'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
 
-                <div class="input-container">
-                    <label><b>Abdominal Palpation:</b></label>
-                    <p><?= !empty($record['AbdominalPalpation']) ? htmlspecialchars($record['AbdominalPalpation'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
-            </div>
+                        <div class="input-container">
+                            <label><b>Abdominal Palpation:</b></label>
+                            <p><?= htmlspecialchars($exam['AbdominalPalpation'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
+                    </div>
 
-            <h3 style="color: #156f77;">Lymph Nodes & BCS</h3>
-            <div class="form-row">
-                <div class="input-container">
-                    <label><b>Lymph Nodes (LN):</b></label>
-                    <p><?= !empty($record['LN']) ? htmlspecialchars($record['LN'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
+                    <h3 style="color: #156f77;">Lymph Nodes & BCS</h3>
+                    <div class="form-row">
+                        <div class="input-container">
+                            <label><b>Lymph Nodes (LN):</b></label>
+                            <p><?= htmlspecialchars($exam['LN'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
 
-                <div class="input-container">
-                    <label><b>Body Condition Score (BCS):</b></label>
-                    <p><?= !empty($record['BCS']) ? htmlspecialchars($record['BCS'], ENT_QUOTES) . '/9' : 'Not Available'; ?></p>
-                </div>
-            </div>
+                        <div class="input-container">
+                            <label><b>Body Condition Score (BCS):</b></label>
+                            <p><?= htmlspecialchars($exam['BCS'] ?? 'Not Available', ENT_QUOTES) ?>/9</p>
+                        </div>
+                    </div>
+
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>No physical exam records found.</p>
+            <?php endif; ?>
 
             <br>
             <br>
@@ -446,29 +547,44 @@ try {
             <br>
 
             <h2>Diagnosis</h2>
-            <div class="form-row">
-                <div class="input-container">
-                    <label><b>Diagnosis Type:</b></label>
-                    <p><?= !empty($diagnoses['DiagnosisType']) ? htmlspecialchars(ucfirst($record['DiagnosisType']), ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
 
-                <div class="input-container">
-                    <label><b>Prognosis:</b></label>
-                    <p><?= !empty($diagnoses['Prognosis']) ? htmlspecialchars($record['Prognosis'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
-            </div>
+            <?php if (!empty($diagnoses)): ?>
+                <?php foreach ($diagnoses as $diagnosis): ?>
+                    <div class="form-row">
+                        <div class="input-container">
+                            <label><b>Diagnosis Type:</b></label>
+                            <p><?= htmlspecialchars($diagnosis['DiagnosisType'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
 
-            <div class="form-row">
-                <div class="input-container">
-                    <label><b>Diagnosis:</b></label>
-                    <p><?= !empty($diagnoses['Diagnosis']) ? htmlspecialchars($record['Diagnosis'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
+                        <div class="input-container">
+                            <label><b>Prognosis:</b></label>
+                            <p><?= htmlspecialchars($diagnosis['Prognosis'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
+                    </div>
 
-                <div class="input-container">
-                    <label><b>Treatment:</b></label>
-                    <p><?= !empty($diagnoses['Treatment']) ? htmlspecialchars($record['Treatment'], ENT_QUOTES) : 'Not Available'; ?></p>
-                </div>
-            </div>
+                    <div class="form-row">
+                        <div class="input-container">
+                            <label><b>Diagnosis:</b></label>
+                            <p><?= htmlspecialchars($diagnosis['Diagnosis'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
+
+                        <div class="input-container">
+                            <label><b>Treatment:</b></label>
+                            <p><?= htmlspecialchars($diagnosis['Treatment'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-container">
+                            <label><b>Status:</b></label>
+                            <p><?= htmlspecialchars($diagnosis['Status'] ?? 'Not Available', ENT_QUOTES) ?></p>
+                        </div>
+                    </div>
+
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>No diagnoses recorded.</p>
+            <?php endif; ?>
 
             <br>
             <br>
@@ -527,121 +643,6 @@ try {
             <?php endif; ?>
         </form>
         </form>
-
-<script>
-document.getElementById("add-followup").addEventListener("click", function() {
-    let container = document.getElementById("followup-container");
-    let index = container.children.length + 1;
-
-    let newFollowup = document.createElement("div");
-    newFollowup.classList.add("form-row", "followup-item");
-    newFollowup.innerHTML = `
-        <div class="input-container">
-            <label for="follow-up-date-${index}"><b>Follow-Up Date:</b></label>
-            <input type="date" id="follow-up-date-${index}" name="follow-up-dates[]" required>
-        </div>
-        <div class="input-container">
-            <label for="follow-up-notes-${index}"><b>Notes:</b></label>
-            <textarea id="follow-up-notes-${index}" name="follow-up-notes[]" rows="3" placeholder="Enter follow-up notes"></textarea>
-        </div>
-        <button type="button" class="delete-button" onclick="removeFollowUp(this)">X</button>
-    `;
-    container.appendChild(newFollowup);
-});
-
-function removeFollowUp(button) {
-    button.parentElement.remove();
-}
-</script>
-<script>
-document.getElementById("add-medication").addEventListener("click", function () {
-    let container = document.getElementById("medications-container");
-    let newMed = container.firstElementChild.cloneNode(true);
-    
-    // Reset fields in new medication row
-    newMed.querySelector(".medication-select").selectedIndex = 0;
-    newMed.querySelector(".custom-medication").style.display = "none";
-    newMed.querySelector(".custom-medication").value = "";
-    
-    newMed.querySelector(".dosage-select").selectedIndex = 0;
-    newMed.querySelector(".custom-dosage").style.display = "none";
-    newMed.querySelector(".custom-dosage").value = "";
-
-    newMed.querySelector(".duration-select").selectedIndex = 0;
-    newMed.querySelector(".custom-duration").style.display = "none";
-    newMed.querySelector(".custom-duration").value = "";
-    
-    // Ensure the delete button is visible and aligned at the bottom
-    let deleteButton = newMed.querySelector(".delete-button");
-    deleteButton.style.display = "inline-flex"; 
-    deleteButton.style.alignItems = "flex-end";  // Align to the bottom
-    deleteButton.style.justifyContent = "center"; 
-    deleteButton.style.width = "42px"; 
-    deleteButton.style.height = "42px"; 
-    deleteButton.style.marginTop = "34px"; // Push it to the bottom
-    deleteButton.addEventListener("click", function () {
-        newMed.remove(); // Remove medication row when delete is clicked
-    });
-
-    container.appendChild(newMed);
-});
-
-
-function toggleCustomMedication(selectElement) {
-    let customInput = selectElement.parentElement.querySelector(".custom-medication");
-    customInput.style.display = selectElement.value === "Other" ? "block" : "none";
-}
-
-function toggleCustomDosage(selectElement) {
-    let customInput = selectElement.parentElement.querySelector(".custom-dosage");
-    customInput.style.display = selectElement.value === "Other" ? "block" : "none";
-}
-
-function toggleCustomDuration(selectElement) {
-    let customInput = selectElement.parentElement.querySelector(".custom-duration");
-    customInput.style.display = selectElement.value === "Other" ? "block" : "none";
-}
-function removeMedication(button) {
-    let container = document.getElementById("medications-container");
-    if (container.children.length > 1) {
-        button.parentElement.remove();
-    }
-}
-</script>
-    <script>
-        function toggleCustomInput(checkboxId, inputId) {
-            document.getElementById(inputId).style.display = document.getElementById(checkboxId).checked ? "block" : "none";
-        }
-    </script>
-    <script>
-    function toggleInput(selectId, inputId) {
-        let select = document.getElementById(selectId);
-        let input = document.getElementById(inputId);
-        input.style.display = select.value === "Other" ? "block" : "none";
-    }
-    </script>
-    <script>
-        document.getElementById("Vaccine").addEventListener("change", function() {
-            document.getElementById("VaccineInput").style.display = this.value === "Other" ? "block" : "none";
-        });
-        document.getElementById("Dewormer").addEventListener("change", function() {
-            document.getElementById("DewormerInput").style.display = this.value === "Other" ? "block" : "none";
-        });
-        document.getElementById("duration").addEventListener("change", function() {
-            document.getElementById("custom-duration").style.display = this.value === "Other" ? "block" : "none";
-        });
-    </script>
-
-    <script>
-        function updatePainValue(value) {
-            document.getElementById("pain_value_display").innerText = value;
-        }
-
-        function toggleSymptomInput(checkbox) {
-            let inputField = document.getElementById("other_symptom");
-            inputField.style.display = checkbox.checked ? "block" : "none";
-        }
-    </script>
     <script>
     function goBack() {
         // Get the URL parameters from the current page
@@ -657,5 +658,89 @@ function removeMedication(button) {
         }
     }
     </script>
+    <script>
+    async function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+        // Select the entire main-content section
+        const content = document.querySelector(".main-content");
+
+        // Convert content to canvas with higher scale for better quality
+        const canvas = await html2canvas(content, {
+            scale: 3, // Higher scale improves quality
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: document.documentElement.scrollWidth,
+            windowHeight: document.documentElement.scrollHeight
+        });
+
+        const imgData = canvas.toDataURL("image/png");
+
+        // Calculate height to fit all content properly
+        const imgWidth = 190; // A4 width in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+
+        // Adjust height dynamically
+        let position = 10; // Start position on the PDF
+        doc.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+
+        // Save the PDF
+        doc.save("Medical_Record.pdf");
+    }
+    </script>
+   <script>
+async function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');  // Create a new PDF document
+
+    // Select the entire .main-content section
+    const content = document.querySelector(".main-content");
+
+    // Get Patient Name & Appointment Date from PHP variables
+    const patientName = "<?= isset($record['PetName']) ? htmlspecialchars($record['PetName'], ENT_QUOTES) : 'Unknown_Patient'; ?>";
+    const appointmentDate = "<?= isset($record['AppointmentDate']) ? htmlspecialchars($record['AppointmentDate'], ENT_QUOTES) : 'Unknown_Date'; ?>";
+
+    // Convert the appointment date to a filename-friendly format (YYYY-MM-DD)
+    const formattedDate = appointmentDate.replace(/[^0-9\-]/g, '');  // Remove unwanted characters
+
+    // Convert the content to a canvas image
+    const canvas = await html2canvas(content, {
+        scale: 3,  // Higher scale improves the image quality
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: document.documentElement.scrollWidth,
+        windowHeight: document.documentElement.scrollHeight
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+
+    // A4 page dimensions (210mm x 297mm)
+    const imgWidth = 190;  // A4 width in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;  // Maintain aspect ratio
+
+    // Start at the top of the first page
+    let position = 10;
+
+    // Add the first page image
+    doc.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+
+    // Check if content is too long for one page
+    let totalPages = Math.ceil(imgHeight / 297); // 297mm is the height of an A4 page
+
+    // If there are more pages, add them
+    for (let i = 1; i < totalPages; i++) {
+        doc.addPage();  // Add a new page to the PDF
+        position = -(i * 297) + 10;  // Adjust position for new pages
+        doc.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);  // Add the image for the new page
+    }
+
+    // Set the filename dynamically
+    const fileName = `${patientName.replace(/\s+/g, '_')}_${formattedDate}.pdf`;
+
+    // Save the PDF
+    doc.save(fileName);
+}
+</script>
 </body>
 </html>
