@@ -157,13 +157,18 @@ if ($appointment_id && $pet_id) {
     }
 }
 
-// Organize lab tests into categories
-$storedLabTests = [];
-foreach ($labTests as $test) {
-    $storedLabTests[$test['TestName']] = [
-        'type' => $test['TestType'],
-        'detail' => $test['TestDetail']
-    ];
+$uploadedFiles = [];
+
+$stmt = $pdo->prepare("SELECT TestName, FilePath FROM LaboratoryTests WHERE RecordId = (SELECT RecordId FROM PatientRecords WHERE AppointmentId = :appointment_id AND PetId = :pet_id)");
+$stmt->execute([
+    ':appointment_id' => $_GET['appointment_id'] ?? 0,
+    ':pet_id' => $_GET['pet_id'] ?? 0
+]);
+
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    if (!empty($row['FilePath'])) {
+        $uploadedFiles[$row['TestName']] = $row['FilePath'];
+    }
 }
 
 $recordId = $_GET['record_id'] ?? null;
@@ -187,8 +192,59 @@ if ($appointment_id && $pet_id) {
     }
 }
 
-$follow_up_dates = $_SESSION['form_data']['follow_up_dates'] ?? [''];
-$follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
+$medicationsGiven = [];
+if ($appointment_id && $pet_id) {
+    $stmt = $pdo->prepare("SELECT MedicationName FROM MedicationsGiven WHERE AppointmentId = :appointment_id AND PetId = :pet_id");
+    $stmt->execute([':appointment_id' => $appointment_id, ':pet_id' => $pet_id]);
+    $medicationsGiven = $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
+$_SESSION['medication_data']['medications'] = $medicationsGiven;
+$selectedMedications = $_SESSION['medication_data']['medications'] ?? [];
+
+$followUpRecords = [];
+if ($appointment_id && $pet_id) {
+    try {
+        $stmt = $pdo->prepare("
+            SELECT FollowUpDate, FollowUpNotes 
+            FROM FollowUps 
+            WHERE RecordId = (
+                SELECT RecordId FROM PatientRecords 
+                WHERE AppointmentId = :appointment_id AND PetId = :pet_id
+            )
+        ");
+        $stmt->execute([
+            ':appointment_id' => $appointment_id,
+            ':pet_id' => $pet_id
+        ]);
+        $followUpRecords = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        $errors[] = "Database Error: " . $e->getMessage();
+    }
+}
+
+// If database returns results, use them instead of session data
+if (!empty($followUpRecords)) {
+    $follow_up_dates = array_column($followUpRecords, 'FollowUpDate');
+    $follow_up_notes = array_column($followUpRecords, 'FollowUpNotes');
+}
+
+// If database returns results, use them instead of session data
+if (!empty($followUpRecords)) {
+    $_SESSION['form_data']['follow_up_dates'] = array_column($followUpRecords, 'FollowUpDate');
+    $_SESSION['form_data']['follow_up_notes'] = array_column($followUpRecords, 'FollowUpNotes');
+}
+
+// Ensure session data exists before using
+if (!isset($_SESSION['form_data']['follow_up_dates'])) {
+    $_SESSION['form_data']['follow_up_dates'] = [''];
+}
+if (!isset($_SESSION['form_data']['follow_up_notes'])) {
+    $_SESSION['form_data']['follow_up_notes'] = [''];
+}
+
+$follow_up_dates = $_SESSION['form_data']['follow_up_dates'];
+$follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -1005,18 +1061,26 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                 <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
                 <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
 
-                <?php $storedTests = $_SESSION['lab_exam_data']['lab-tests'] ?? []; ?>
-
                 <h3 style="color: #156f77;">Blood Tests</h3>
                 <div class="form-row">
                     <div class="form-group">
                         <?php
+                        // Ensure $storedTests is always an array
+                        $storedTests = $_SESSION['lab_exam_data']['lab-tests'] ?? [];
+                        if (!is_array($storedTests)) {
+                            $storedTests = [];
+                        }
+
                         $bloodTests = ["CBC", "Blood Chemistry", "Blood Smear", "Other Blood Test"];
+                        
                         foreach ($bloodTests as $test) {
-                            $isChecked = isset($storedLabTests[$test]);
+                            $isChecked = in_array($test, $storedTests);
                             $fileInputId = str_replace(" ", "-", strtolower($test)) . "-file";
                             $customInputId = str_replace(" ", "-", strtolower($test)) . "-detail";
-                            $testDetail = $storedLabTests[$test]['detail'] ?? '';
+                            $testDetail = $_SESSION['lab_exam_data'][$test . '-detail'] ?? '';
+
+                            // Ensure uploaded files array is set
+                            $uploadedFile = $uploadedFiles[$test] ?? null;
                         ?>
                             <label>
                                 <input type="checkbox" name="lab-tests[]" value="<?= $test ?>" <?= $isChecked ? 'checked' : ''; ?>
@@ -1024,9 +1088,15 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                                 <?= $test ?>
                             </label>
 
-                            <input type="file" id="<?= $fileInputId ?>" name="lab-results[]"
-                                style="display: <?= $isChecked ? 'block' : 'none'; ?>;">
-                            
+                            <?php if (!empty($uploadedFile) && file_exists("../uploads/lab_tests/$uploadedFile")): ?>
+                                <p>📂 <a href="../uploads/lab_tests/<?= htmlspecialchars($uploadedFile); ?>" target="_blank">
+                                    View Uploaded File</a></p>
+                                <input type="hidden" name="existing-files[<?= $test ?>]" value="<?= htmlspecialchars($uploadedFile); ?>">
+                            <?php else: ?>
+                                <input type="file" id="<?= $fileInputId ?>" name="lab-results[<?= $test ?>]" 
+                                    style="display: <?= $isChecked ? 'block' : 'none'; ?>;">
+                            <?php endif; ?>
+
                             <?php if ($test === "Other Blood Test"): ?>
                                 <input type="text" id="<?= $customInputId ?>" name="blood-test-detail"
                                     placeholder="Specify other blood test"
@@ -1200,23 +1270,54 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                 <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
 
                 <div id="medications-container">
+                    <div class="form-group">
+                        <label><b>Select Medications Given:</b></label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                            <?php
+                            $medications = [
+                                "Amoxicillin", "Cefalexin", "Doxycycline", "Metronidazole", 
+                                "Carprofen", "Meloxicam", "Prednisone", "Vitamin B12", 
+                                "Omega-3 Fatty Acids", "Calcium Supplements", "Other"
+                            ];
+                            
+                            foreach ($medications as $medication) :
+                                $checked = in_array($medication, $selectedMedications) ? 'checked' : '';
+                            ?>
+                                <label>
+                                    <input type="checkbox" name="medications[]" value="<?= $medication ?>" <?= $checked; ?>>
+                                    <?= $medication ?>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" class="confirm-btn">Save Medications</button>
+                </div>
+            </form>
+            <br>
+            <br>
+            <hr>
+            <br>
+            <h2>Prescribe Medication</h2>
+            <form action="../src/process_prescribe_medication.php" method="POST">
+                <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
+                <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
+
+                <div id="medications-container">
                     <?php
-                    // Load stored medications (if any) to retain form values
+                    // Load stored session data for user input retention
                     $storedMedications = $_SESSION['medication_data']['medications'] ?? [];
                     $storedDosages = $_SESSION['medication_data']['dosages'] ?? [];
                     $storedDurations = $_SESSION['medication_data']['durations'] ?? [];
-                    $storedCustomMedications = $_SESSION['medication_data']['custom-medications'] ?? [];
-                    $storedCustomDosages = $_SESSION['medication_data']['custom-dosages'] ?? [];
-                    $storedCustomDurations = $_SESSION['medication_data']['custom-durations'] ?? [];
 
-                    // Ensure at least one empty input is available
                     if (empty($storedMedications)) {
                         $storedMedications[] = "";
                         $storedDosages[] = "";
                         $storedDurations[] = "";
                     }
 
-                    // Loop through stored medications
                     foreach ($storedMedications as $index => $medication) :
                     ?>
                         <div class="form-row medication-item">
@@ -1228,17 +1329,20 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                                         <option value="Amoxicillin" <?= ($medication == 'Amoxicillin') ? 'selected' : ''; ?>>Amoxicillin</option>
                                         <option value="Cefalexin" <?= ($medication == 'Cefalexin') ? 'selected' : ''; ?>>Cefalexin</option>
                                         <option value="Doxycycline" <?= ($medication == 'Doxycycline') ? 'selected' : ''; ?>>Doxycycline</option>
-                                        <option value="Metronidazole" <?= ($medication == 'Metronidazole') ? 'selected' : ''; ?>>Metronidazole</option>
+                                        <option value="Enrofloxacin" <?= ($medication == 'Enrofloxacin') ? 'selected' : ''; ?>>Enrofloxacin (Baytril)</option>
+                                        <option value="Cefovecin" <?= ($medication == 'Cefovecin') ? 'selected' : ''; ?>>Cefovecin (Convenia)</option>
                                     </optgroup>
-                                    <optgroup label="Anti-Inflammatories">
-                                        <option value="Carprofen" <?= ($medication == 'Carprofen') ? 'selected' : ''; ?>>Carprofen</option>
-                                        <option value="Meloxicam" <?= ($medication == 'Meloxicam') ? 'selected' : ''; ?>>Meloxicam</option>
-                                        <option value="Prednisone" <?= ($medication == 'Prednisone') ? 'selected' : ''; ?>>Prednisone</option>
+                                    <optgroup label="Pain Relievers & Anti-Inflammatories">
+                                        <option value="Carprofen" <?= ($medication == 'Carprofen') ? 'selected' : ''; ?>>Carprofen (Rimadyl)</option>
+                                        <option value="Meloxicam" <?= ($medication == 'Meloxicam') ? 'selected' : ''; ?>>Meloxicam (Metacam)</option>
+                                        <option value="Gabapentin" <?= ($medication == 'Gabapentin') ? 'selected' : ''; ?>>Gabapentin</option>
+                                        <option value="Tramadol" <?= ($medication == 'Tramadol') ? 'selected' : ''; ?>>Tramadol</option>
                                     </optgroup>
                                     <optgroup label="Vitamins & Supplements">
-                                        <option value="Vitamin B12" <?= ($medication == 'Vitamin B12') ? 'selected' : ''; ?>>Vitamin B12</option>
-                                        <option value="Omega-3" <?= ($medication == 'Omega-3') ? 'selected' : ''; ?>>Omega-3 Fatty Acids</option>
-                                        <option value="Calcium Supplements" <?= ($medication == 'Calcium Supplements') ? 'selected' : ''; ?>>Calcium Supplements</option>
+                                        <option value="Fish Oil" <?= ($medication == 'Fish Oil') ? 'selected' : ''; ?>>Fish Oil (Omega-3)</option>
+                                        <option value="Glucosamine" <?= ($medication == 'Glucosamine') ? 'selected' : ''; ?>>Glucosamine & Chondroitin</option>
+                                        <option value="Probiotics" <?= ($medication == 'Probiotics') ? 'selected' : ''; ?>>Probiotics</option>
+                                        <option value="Vitamin B12 Injection" <?= ($medication == 'Vitamin B12 Injection') ? 'selected' : ''; ?>>Vitamin B12 Injection</option>
                                     </optgroup>
                                     <option value="Other" <?= ($medication == 'Other') ? 'selected' : ''; ?>>Other (Specify)</option>
                                 </select>
@@ -1252,32 +1356,45 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                                 <select name="dosages[]" class="dosage-select" onchange="toggleCustomDosage(this)">
                                     <option value="">Select Dosage</option>
                                     <optgroup label="Liquid (mL)">
-                                        <option value="0.5 mL" <?= ($storedDosages[$index] == '0.5 mL') ? 'selected' : ''; ?>>0.5 mL</option>
-                                        <option value="1 mL" <?= ($storedDosages[$index] == '1 mL') ? 'selected' : ''; ?>>1 mL</option>
+                                        <option value="0.5 mL" <?= (($storedDosages[$index] ?? '') == '0.5 mL') ? 'selected' : ''; ?>>0.5 mL</option>
+                                        <option value="1 mL" <?= (($storedDosages[$index] ?? '') == '1 mL') ? 'selected' : ''; ?>>1 mL</option>
+                                        <option value="2 mL" <?= (($storedDosages[$index] ?? '') == '2 mL') ? 'selected' : ''; ?>>2 mL</option>
+                                        <option value="5 mL" <?= (($storedDosages[$index] ?? '') == '5 mL') ? 'selected' : ''; ?>>5 mL</option>
                                     </optgroup>
                                     <optgroup label="Tablet (mg)">
-                                        <option value="50 mg" <?= ($storedDosages[$index] == '50 mg') ? 'selected' : ''; ?>>50 mg</option>
-                                        <option value="100 mg" <?= ($storedDosages[$index] == '100 mg') ? 'selected' : ''; ?>>100 mg</option>
+                                        <option value="25 mg" <?= (($storedDosages[$index] ?? '') == '25 mg') ? 'selected' : ''; ?>>25 mg</option>
+                                        <option value="50 mg" <?= (($storedDosages[$index] ?? '') == '50 mg') ? 'selected' : ''; ?>>50 mg</option>
+                                        <option value="100 mg" <?= (($storedDosages[$index] ?? '') == '100 mg') ? 'selected' : ''; ?>>100 mg</option>
+                                        <option value="200 mg" <?= (($storedDosages[$index] ?? '') == '200 mg') ? 'selected' : ''; ?>>200 mg</option>
                                     </optgroup>
-                                    <option value="Other" <?= ($storedDosages[$index] == 'Other') ? 'selected' : ''; ?>>Other (Specify)</option>
+                                    <optgroup label="Injection (IU)">
+                                        <option value="1 IU" <?= (($storedDosages[$index] ?? '') == '1 IU') ? 'selected' : ''; ?>>1 IU</option>
+                                        <option value="2 IU" <?= (($storedDosages[$index] ?? '') == '2 IU') ? 'selected' : ''; ?>>2 IU</option>
+                                        <option value="5 IU" <?= (($storedDosages[$index] ?? '') == '5 IU') ? 'selected' : ''; ?>>5 IU</option>
+                                    </optgroup>
+                                    <option value="Other" <?= (($storedDosages[$index] ?? '') == 'Other') ? 'selected' : ''; ?>>Other (Specify)</option>
                                 </select>
                                 <input type="text" name="custom-dosages[]" placeholder="Specify dosage" class="custom-dosage"
                                     value="<?= htmlspecialchars($storedCustomDosages[$index] ?? '', ENT_QUOTES); ?>"
-                                    style="display: <?= ($storedDosages[$index] == 'Other') ? 'block' : 'none'; ?>;">
+                                    style="display: <?= (($storedDosages[$index] ?? '') == 'Other') ? 'block' : 'none'; ?>;">
                             </div>
 
                             <div class="input-container">
                                 <label><b>Duration:</b></label>
                                 <select name="durations[]" class="duration-select" onchange="toggleCustomDuration(this)">
                                     <option value="">Select Duration</option>
-                                    <option value="1 Day" <?= ($storedDurations[$index] == '1 Day') ? 'selected' : ''; ?>>1 Day</option>
-                                    <option value="3 Days" <?= ($storedDurations[$index] == '3 Days') ? 'selected' : ''; ?>>3 Days</option>
-                                    <option value="7 Days" <?= ($storedDurations[$index] == '7 Days') ? 'selected' : ''; ?>>7 Days</option>
-                                    <option value="Other" <?= ($storedDurations[$index] == 'Other') ? 'selected' : ''; ?>>Other (Specify)</option>
+                                    <option value="3 Days" <?= (($storedDurations[$index] ?? '') == '3 Days') ? 'selected' : ''; ?>>3 Days</option>
+                                    <option value="5 Days" <?= (($storedDurations[$index] ?? '') == '5 Days') ? 'selected' : ''; ?>>5 Days</option>
+                                    <option value="7 Days" <?= (($storedDurations[$index] ?? '') == '7 Days') ? 'selected' : ''; ?>>7 Days</option>
+                                    <option value="10 Days" <?= (($storedDurations[$index] ?? '') == '10 Days') ? 'selected' : ''; ?>>10 Days</option>
+                                    <option value="14 Days" <?= (($storedDurations[$index] ?? '') == '14 Days') ? 'selected' : ''; ?>>14 Days</option>
+                                    <option value="30 Days" <?= (($storedDurations[$index] ?? '') == '30 Days') ? 'selected' : ''; ?>>30 Days</option>
+                                    <option value="Ongoing" <?= (($storedDurations[$index] ?? '') == 'Ongoing') ? 'selected' : ''; ?>>Ongoing</option>
+                                    <option value="Other" <?= (($storedDurations[$index] ?? '') == 'Other') ? 'selected' : ''; ?>>Other (Specify)</option>
                                 </select>
                                 <input type="text" name="custom-durations[]" placeholder="Specify duration" class="custom-duration"
                                     value="<?= htmlspecialchars($storedCustomDurations[$index] ?? '', ENT_QUOTES); ?>"
-                                    style="display: <?= ($storedDurations[$index] == 'Other') ? 'block' : 'none'; ?>;">
+                                    style="display: <?= (($storedDurations[$index] ?? '') == 'Other') ? 'block' : 'none'; ?>;">
                             </div>
 
                             <button type="button" class="delete-button" onclick="removeMedication(this)">X</button>
@@ -1287,10 +1404,9 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
 
                 <div class="form-buttons">
                     <button type="button" id="add-medication">Add Medication</button>
-                    <button type="submit" class="confirm-btn">Save Medications</button>
+                    <button type="submit" class="confirm-btn">Save Prescription</button>
                 </div>
             </form>
-            <br>
             <br>
             <hr>
             <br>
@@ -1314,19 +1430,18 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'] ?? [''];
                                 <textarea id="follow-up-notes-<?= $index + 1 ?>" 
                                         name="follow_up_notes[]" 
                                         rows="3"
-                                        placeholder="Enter follow-up notes"><?= htmlspecialchars($follow_up_notes[$index] ?? '', ENT_QUOTES); ?></textarea>
+                                        placeholder="Enter follow-up notes"><?= htmlspecialchars($follow_up_notes[$index], ENT_QUOTES); ?></textarea>
                             </div>
-                            <button type="button" class="delete-button" onclick="removeFollowUp(this)" <?= $index > 0 ? '' : 'style="display: none;"' ?>>X</button>
                         </div>
                     <?php endforeach; ?>
                 </div>
-
+                
                 <div class="form-buttons">
                     <button type="button" id="add-followup">Add Follow-Up</button>
                     <button type="submit" class="confirm-btn">Save Follow-Up</button>
                 </div>
             </form>
-            <form action="../src/process_finish_consultation.php" method="POST">
+            <form action="../src/finish_consultation.php" method="POST">
                 <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? '') ?>">
                 <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? '') ?>">
                 <button type="submit" onclick="confirmFinishConsultation(event)">Finish Consultation</button>

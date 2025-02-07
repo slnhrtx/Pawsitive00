@@ -31,6 +31,7 @@ if (!$pet_id || !$appointment_id) {
 try {
     $pdo->beginTransaction();
 
+    // Fetch RecordId
     $stmt = $pdo->prepare("SELECT RecordId FROM PatientRecords WHERE AppointmentId = :appointment_id AND PetId = :pet_id");
     $stmt->execute([':appointment_id' => $appointment_id, ':pet_id' => $pet_id]);
     $record = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -41,7 +42,7 @@ try {
 
     $record_id = $record['RecordId'];
 
-    // Delete previous records for this RecordId
+    // Delete previous lab tests for this record
     $delete_stmt = $pdo->prepare("DELETE FROM LaboratoryTests WHERE RecordId = :record_id");
     $delete_stmt->execute([':record_id' => $record_id]);
 
@@ -63,13 +64,12 @@ try {
         mkdir($upload_dir, 0777, true);
     }
 
-    // Iterate over uploaded files properly
     foreach ($lab_tests as $index => $test) {
         $test_type = null;
         $test_name = $test;
         $test_detail = null;
         $file_path = null;
-
+    
         if (in_array($test, ['CBC', 'Blood Chemistry', 'Blood Smear', 'Other Blood Test'])) {
             $test_type = 'Blood';
             $test_detail = ($test === 'Other Blood Test') ? $blood_test_detail : null;
@@ -87,24 +87,30 @@ try {
             $test_type = 'Other';
         }
 
-        // ✅ Handle file upload correctly using index
         if (!empty($_FILES['lab-results']['name'][$index])) {
             $original_file_name = $_FILES['lab-results']['name'][$index];
             $file_tmp = $_FILES['lab-results']['tmp_name'][$index];
-            $file_ext = pathinfo($original_file_name, PATHINFO_EXTENSION);
-            $allowed_extensions = ['jpg', 'jpeg', 'png', 'pdf'];
-
-            if (in_array(strtolower($file_ext), $allowed_extensions)) {
-                $new_file_name = uniqid("lab_") . "." . $file_ext;
-                $file_path = $upload_dir . $new_file_name;
-
-                if (move_uploaded_file($file_tmp, $file_path)) {
-                    $file_path = str_replace('../', '', $file_path); // ✅ Store relative path
-                } else {
-                    throw new Exception("Failed to upload file for $test.");
+            $file_error = $_FILES['lab-results']['error'][$index];
+    
+             /* 🔍 File Upload Debugging
+            echo "Processing File: $original_file_name <br>";
+            echo "Temp Path: $file_tmp <br>";
+            echo "File Error Code: $file_error <br>";
+            echo "File Size: $file_size bytes <br>";
+            flush();*/
+            
+            if ($file_error === UPLOAD_ERR_OK) {
+                $file_ext = pathinfo($original_file_name, PATHINFO_EXTENSION);
+                $allowed_extensions = ['jpg', 'jpeg', 'png', 'pdf'];
+    
+                if (in_array(strtolower($file_ext), $allowed_extensions)) {
+                    $new_file_name = uniqid("lab_") . "." . $file_ext;
+                    $file_path = $upload_dir . $new_file_name;
+    
+                    if (move_uploaded_file($file_tmp, $file_path)) {
+                        $file_path = str_replace('../', '', $file_path); // ✅ Store relative path
+                    }
                 }
-            } else {
-                throw new Exception("Invalid file type for $test. Allowed: jpg, png, pdf.");
             }
         }
 

@@ -51,7 +51,7 @@ try {
         m.Dosage, 
         m.Duration, 
         m.DateCreated as Date
-    FROM Medications m
+    FROM PrescribeMedications m
     INNER JOIN PatientRecords pr ON m.RecordId = pr.RecordId
     WHERE pr.PetId = :PetId
     ORDER BY m.DateCreated DESC";
@@ -313,7 +313,7 @@ try {
                                     <td><?= htmlspecialchars($appointment['AppointmentDate']) ?></td>
                                     <td><?= htmlspecialchars($appointment['AppointmentTime']) ?></td>
                                     <td>
-                                        <a href="consultation_record.php?AppointmentId=<?= urlencode($appointment['AppointmentId']) ?>&PetId=<?= urlencode($pet_id) ?>"
+                                        <a href="view_patient_records.php?AppointmentId=<?= urlencode($appointment['AppointmentId']) ?>&PetId=<?= urlencode($pet_id) ?>"
                                             class="btn">View Details</a>
                                     </td>
                                 </tr>
