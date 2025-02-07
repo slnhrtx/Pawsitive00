@@ -12,11 +12,29 @@ if ($appointment_id && $pet_id) {
     try {
         $pdo->beginTransaction();
 
-        // Update appointment status to Completed
         $stmt = $pdo->prepare("UPDATE Appointments SET Status = 'Done' WHERE AppointmentId = ?");
         $stmt->execute([$appointment_id]);
 
-        // Clear session data related to this appointment
+        $stmt = $pdo->prepare("
+            SELECT a.AppointmentDate, a.ServiceId, s.Price AS ServicePrice, p.OwnerId
+            FROM Appointments a
+            INNER JOIN Services s ON a.ServiceId = s.ServiceId
+            INNER JOIN Pets p ON a.PetId = p.PetId
+            WHERE a.AppointmentId = ?
+        ");
+        $stmt->execute([$appointment_id]);
+        $appointment = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$appointment) {
+            throw new Exception("Invalid appointment data.");
+        }
+
+        $stmt = $pdo->prepare("
+            INSERT INTO Invoices (AppointmentId, InvoiceNumber, InvoiceDate, TotalAmount, Status) 
+            VALUES (?, ?, ?, ?, 'Pending')
+        ");
+        $stmt->execute([$appointment_id, $invoice_number, $invoice_date, $total_amount]);
+
         unset($_SESSION['chief_complaint_data']);
         unset($_SESSION['medical_history_data']);
         unset($_SESSION['physical_exam_data']);

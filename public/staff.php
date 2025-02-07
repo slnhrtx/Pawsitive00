@@ -177,7 +177,7 @@ try {
                     <img src="../assets/images/Icons/Chart 1.png" alt="Overview Icon">Overview</a></li>
                 <li><a href="record.php">
                     <img src="../assets/images/Icons/Record 1.png" alt="Record Icon">Record</a></li>
-                <li class="active"><a href="staff_view.php">
+                <li class="active"><a href="staff.php">
                     <img src="../assets/images/Icons/Staff 3.png" alt="Schedule Icon">Staff</a></li>
                 <li><a href="appointment.php">
                     <img src="../assets/images/Icons/Schedule 1.png" alt="Schedule Icon">Schedule</a></li>
@@ -189,7 +189,7 @@ try {
             <button onclick="window.location.href='settings.php';">
                 <img src="../assets/images/Icons/Settings 1.png" alt="Settings Icon">Settings
             </button>
-            <button onclick="window.location.href='../logout.php';">
+            <button onclick="window.location.href='logout.php';">
                 <img src="../assets/images/Icons/Logout 1.png" alt="Logout Icon">Log out
             </button>
         </div>
