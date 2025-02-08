@@ -575,7 +575,7 @@ function sendEmailNotification($email, $ownerName, $petName, $serviceName, $appo
 <script src="../assets/js/update_appointment.js?v=<?= time() ?>"></script>
 <script>
     $(document).ready(function() {
-        let pets = <?php echo json_encode($pets); ?>;  // Fetch pets data from PHP
+        let pets = <?php echo json_encode($pets); ?>;
 
         $('#PetSearch').on('input', function() {
             let query = $(this).val().toLowerCase();
@@ -607,7 +607,6 @@ function sendEmailNotification($email, $ownerName, $petName, $serviceName, $appo
             }
             suggestionsBox.show();
         });
-        // Hide suggestions when clicking outside
         $(document).on('click', function(event) {
             if (!$(event.target).closest('#PetSearch, #PetSuggestions').length) {
                 $('#PetSuggestions').hide();
@@ -623,11 +622,11 @@ function sendEmailNotification($email, $ownerName, $petName, $serviceName, $appo
             const status = item.getAttribute("data-status");
 
             if (status === "Done" || status === "Paid" || status === "Declined") {
-                item.classList.add("disabled-appointment"); // Grey out the appointment
-                item.style.pointerEvents = "none";          // Disable click
+                item.classList.add("disabled-appointment");
+                item.style.pointerEvents = "none";
             } else {
                 item.addEventListener("click", () => {
-                    showAppointmentDetails(item.dataset);   // Only trigger if not disabled
+                    showAppointmentDetails(item.dataset);
                 });
             }
         });

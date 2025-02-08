@@ -55,6 +55,20 @@ try {
     $appointmentStmt->execute();
     $appointments = $appointmentStmt->fetchAll(PDO::FETCH_ASSOC);
 
+    $bookedTimesQuery = "
+        SELECT DATE(AppointmentTime) as booked_date, 
+            TIME(AppointmentTime) as booked_time
+        FROM Appointments";
+
+    $bookedTimesStmt = $pdo->prepare($bookedTimesQuery);
+    $bookedTimesStmt->execute();
+    $bookedTimes = $bookedTimesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $bookedTimesByDate = [];
+    foreach ($bookedTimes as $bt) {
+        $bookedTimesByDate[$bt['booked_date']][] = $bt['booked_time'];
+    }
+
 } catch (PDOException $e) {
     die("Database Error: " . $e->getMessage());
 }
@@ -76,6 +90,9 @@ try {
         rel="stylesheet">
 
     <link rel="stylesheet" href="pet_book_appointment.css">
+    <script>
+        const bookedTimesByDate = <?= json_encode($bookedTimesByDate); ?>;
+    </script>
 </head>
 
 <body>
@@ -257,12 +274,11 @@ try {
                     option.textContent = timeString;
                     timeSelect.appendChild(option);
 
-                    // Add the interval (30 minutes) to move to the next slot
                     start.setMinutes(start.getMinutes() + interval);
                 }
             }
 
-            generateTimeSlots('08:00', '17:00', 30); // From 8:00 AM to 5:00 PM with 30 min interval
+            generateTimeSlots('08:00', '17:00', 30);
         });
     </script>
 
@@ -278,7 +294,7 @@ try {
             let currentYear = today.getFullYear();
 
             function generateCalendar(month, year) {
-                calendarElement.innerHTML = ''; // Clear existing calendar
+                calendarElement.innerHTML = '';
 
                 const firstDay = new Date(year, month, 1).getDay();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -289,7 +305,6 @@ try {
                 ];
                 currentMonthYearElement.textContent = `${monthNames[month]} ${year}`;
 
-                // Add day labels
                 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                 daysOfWeek.forEach(day => {
                     const dayLabel = document.createElement('div');
@@ -298,13 +313,11 @@ try {
                     calendarElement.appendChild(dayLabel);
                 });
 
-                // Add empty cells for alignment
                 for (let i = 0; i < firstDay; i++) {
                     const emptyCell = document.createElement('div');
                     calendarElement.appendChild(emptyCell);
                 }
 
-                // Generate calendar days
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dayElement = document.createElement('div');
                     dayElement.classList.add('calendar-day');
@@ -346,12 +359,10 @@ try {
 
             generateCalendar(currentMonth, currentYear);
         });
-
-
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
-    <script src="add_pet.js"></script>
+
 </body>
 
 </html>

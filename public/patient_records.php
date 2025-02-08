@@ -159,7 +159,7 @@ if ($appointment_id && $pet_id) {
 
 $uploadedFiles = [];
 
-/*$stmt = $pdo->prepare("SELECT TestName, FilePath FROM LaboratoryTests WHERE RecordId = (SELECT RecordId FROM PatientRecords WHERE AppointmentId = :appointment_id AND PetId = :pet_id)");
+$stmt = $pdo->prepare("SELECT TestName, FilePath FROM LaboratoryTests WHERE RecordId = (SELECT RecordId FROM PatientRecords WHERE AppointmentId = :appointment_id AND PetId = :pet_id)");
 $stmt->execute([
     ':appointment_id' => $_GET['appointment_id'] ?? 0,
     ':pet_id' => $_GET['pet_id'] ?? 0
@@ -169,7 +169,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     if (!empty($row['FilePath'])) {
         $uploadedFiles[$row['TestName']] = $row['FilePath'];
     }
-}*/
+}
 
 $recordId = $_GET['record_id'] ?? null;
 $diagnosisData = [];
@@ -294,56 +294,43 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
 
     <div class="main-content">
         <button class="btn" onclick="goBack()">Back</button>
-        <h1 style="text-align: center; font-size: 45px;">Patient Record</h1>
-        <form class="staff-form" 
-            action="../src/chief_complaint_process.php" 
-            action="../src/medical_history_process.php" 
-            action="../src/physical_exam_process.php" 
-            action="../src/laboratory_test_process.php" 
-            action="../src/process_diagnosis.php" 
-            action="../src/process_medication.php"
-            action="../src/process_prescribe_medication.php" 
-            action="../src/process_followup.php"
-            action="../src/process_finish_consultation.php" method="POST">
-
-            <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
-            <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
-
+        <h1>Patient Record</h1>
             <h2>General Details</h2>
+            <div class="form-group">
+                <div class="form-row">
+                    <div class="input-container">
+                        <label for="Name"><b>Pet Name:</b></label>
+                        <input type="text" id="Name" name="Name" 
+                            value="<?= htmlspecialchars($appointmentDetails['PetName'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                    </div>
+                
+                    <div class="input-container">
+                        <label for="Weight"><b>Weight (kg):</b></label>
+                        <input type="number" id="Weight" name="Weight" step="0.1"
+                            value="<?= htmlspecialchars($appointmentDetails['Weight'] ?? 'N/A'); ?>" readonly>
+                    </div>
 
-            <div class="form-row">
-                <div class="input-container">
-                    <label for="Name"><b>Pet Name:</b></label>
-                    <input type="text" id="Name" name="Name" 
-                        value="<?= htmlspecialchars($appointmentDetails['PetName'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
-                </div>
-            
-                <div class="input-container">
-                    <label for="Weight"><b>Weight (kg):</b></label>
-                    <input type="number" id="Weight" name="Weight" step="0.1"
-                        value="<?= htmlspecialchars($appointmentDetails['Weight'] ?? 'N/A'); ?>" readonly>
+                    <div class="input-container">
+                        <label for="Temperature"><b>Temperature (C):</b></label>
+                        <input type="number" id="Temperature" name="Temperature" step="0.1"
+                            value="<?= htmlspecialchars($appointmentDetails['Temperature'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                    </div>
                 </div>
 
-                <div class="input-container">
-                    <label for="Temperature"><b>Temperature (C):</b></label>
-                    <input type="number" id="Temperature" name="Temperature" step="0.1"
-                        value="<?= htmlspecialchars($appointmentDetails['Temperature'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                <div class="form-row">
+                    <div class="input-container">
+                        <label for="appointment_date"><b>Appointment Date:</b></label>
+                        <input type="text" id="appointment_date" name="appointment_date" 
+                                value="<?= htmlspecialchars($appointmentDetails['AppointmentDate'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                    </div>
+                
+                    <div class="input-container">
+                        <label for="service"><b>Service:</b></label>
+                        <input type="text" id="service" name="service" 
+                            value="<?= htmlspecialchars($appointmentDetails['ServiceName'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                    </div>
                 </div>
-            </div>
-
-            <div class="form-row">
-                <div class="input-container">
-                    <label for="appointment_date"><b>Appointment Date:</b></label>
-                    <input type="text" id="appointment_date" name="appointment_date" 
-                        value="<?= htmlspecialchars($appointmentDetails['AppointmentDate'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
-                </div>
-            
-                <div class="input-container">
-                    <label for="service"><b>Service:</b></label>
-                    <input type="text" id="service" name="service" 
-                        value="<?= htmlspecialchars($appointmentDetails['ServiceName'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
-                </div>
-            </div>
+            </div>            
             
             <br>
             <br>
@@ -351,13 +338,16 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
             <br>
 
             <h2>Chief Complaint</h2>
-            <div class="form-row">
+            <form action="../src/chief_complaint_process.php" method="POST" novalidate>
+                <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
+                <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
+                <div class="form-row">
                     <div class="input-container">
                         <label for="chief_complaint"><b>Primary Concern:<span class="required">*</span></b></label>
                         <textarea id="chief_complaint" name="chief_complaint" rows="3" maxlength="300"
                             placeholder="Describe the main reason for today's visit..."
                             required><?= htmlspecialchars($patientRecord['ChiefComplaint'] ?? '', ENT_QUOTES); ?></textarea>
-                        <small id="chief-complaint-char-count">0 / 300 characters</small>
+                        <small id="char-count">0 / 300 characters</small>
                     </div>
                 </div>
 
@@ -420,19 +410,14 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
 
                             <!-- "Other" Symptom Input -->
                             <label>
-                                <input type="checkbox" id="other_checkbox" name="symptoms[]" value="Other"
+                                <input type="checkbox" name="symptoms[]" value="Other"
                                     <?= in_array('Other', $storedSymptoms) ? 'checked' : ''; ?>
                                     onclick="toggleOtherSymptom()">
                                 Other
                             </label>
                             <input type="text" id="other_symptom" name="other_symptom" placeholder="Specify other symptoms"
                                 value="<?= htmlspecialchars($patientRecord['OtherSymptom'] ?? '', ENT_QUOTES); ?>"
-                                style="display: <?= (!empty($patientRecord['OtherSymptom'])) ? 'block' : 'none'; ?>; 
-                                width: 49%; 
-                                margin-top: -10px;  /* Moves the field up */
-                                position: relative;
-                                top: -5px;  /* Alternative fine-tuning */
-                                ">
+                                style="display: <?= (!empty($patientRecord['OtherSymptom'])) ? 'block' : 'none'; ?>; width: 113%;">
                         </div>
                     </div>
                 </div>
@@ -460,7 +445,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                                 $dietOptions = [
                                     "Dry Dog Food (Kibble)", "Wet Dog Food (Canned Food)", "Semi-Moist Dog Food",
                                     "Fresh or Homemade Diet", "Raw Diet (BARF - Biologically Appropriate Raw Food)",
-                                    "Grain-Free Diet", "Specialized Diets", "Treats and Snacks", "Other (Specify)"
+                                    "Grain-Free Diet", "Specialized Diets", "Treats and Snacks", "Other"
                                 ];
                                 $storedDiet = $patientRecord['Diet'] ?? ''; // ✅ Fetched from the patient record
                         
@@ -481,7 +466,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                             <select id="frequency" name="frequency" onchange="toggleUrineFrequencyInput()">
                                 <option value="">Select Urine Frequency</option>
                                 <?php
-                                $urineFrequencies = ['normal' => 'Normal', 'increased' => 'Increased', 'decreased' => 'Decreased', 'none' => 'No Urination', 'Other' => 'Other (Specify)'];
+                                $urineFrequencies = ['normal' => 'Normal', 'increased' => 'Increased', 'decreased' => 'Decreased', 'none' => 'No Urination', 'Other' => 'Other'];
                                 $storedFrequency = $patientRecord['UrineFrequency'] ?? ''; // ✅ Fetched from patient record
                         
                                 foreach ($urineFrequencies as $value => $label) :
@@ -506,7 +491,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                                     'dark_yellow' => 'Dark Yellow',
                                     'brown_reddish' => 'Brown/Reddish',
                                     'cloudy' => 'Cloudy',
-                                    'Other' => 'Other (Specify)'
+                                    'Other' => 'Other'
                                 ];
                                 $storedColor = $patientRecord['UrineColor'] ?? ''; // ✅ Using patient record data
                         
@@ -607,14 +592,19 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                     <div class="form-buttons">
                         <button type="submit" class="confirm-btn">Save Chief Complaint</button>
                     </div>
-
-                    <br>
-                    <br>
-                    <hr>
-                    <br>
-
-                    <h2>Medical History</h2>
-                    <div class="form-row">
+                </form>
+                
+            <br>
+            <br>
+            <hr>
+            <br>
+            
+            <h2>Medical History</h2>
+            <form action="../src/medical_history_process.php" method="POST">
+                <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
+                <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
+            
+                <div class="form-row">
                     <div class="input-container">
                         <label for="last_vaccination"><b>Last Vaccination Date:</b></label>
                         <input type="date" id="last_vaccination" name="last_vaccination" 
@@ -626,7 +616,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                         <select id="Vaccine" name="Vaccine" onchange="toggleVaccineInput(this)">
                             <option value="" <?= empty($medicalHistory['VaccinesGiven']) ? 'selected' : ''; ?>>Select a vaccine</option>
                             <?php 
-                            $vaccines = ['Rabies', 'Parvovirus', 'Distemper', 'Hepatitis', 'Bordetella', 'Leptospirosis', 'Other (Specify)'];
+                            $vaccines = ['Rabies', 'Parvovirus', 'Distemper', 'Hepatitis', 'Bordetella', 'Leptospirosis', 'Other'];
                             $selectedVaccine = $medicalHistory['VaccinesGiven'] ?? ''; 
                             foreach ($vaccines as $vaccine) {
                                 $selected = (strcasecmp($selectedVaccine, $vaccine) === 0) ? 'selected' : '';
@@ -652,7 +642,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                         <select id="Dewormer" name="Dewormer" onchange="toggleDewormerInput(this)">
                             <option value="" <?= empty($medicalHistory['DewormerUsed']) ? 'selected' : ''; ?>>Select a dewormer</option>
                             <?php
-                            $dewormers = ['Drontal', 'Panacur', 'Strongid', 'Cestex', 'Milbemax', 'Other (Specify)'];
+                            $dewormers = ['Drontal', 'Panacur', 'Strongid', 'Cestex', 'Milbemax', 'Other'];
                             $selectedDewormer = $medicalHistory['DewormerUsed'] ?? '';
                             foreach ($dewormers as $dewormer) {
                                 $selected = ($selectedDewormer === $dewormer) ? 'selected' : '';
@@ -754,14 +744,17 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                 <div class="form-buttons">
                     <button type="submit" class="confirm-btn">Save Medical History</button>
                 </div>
-
+            </form>
+            
             <br>
             <br>
             <hr>
             <br>
 
             <h2>Physical Examination</h2>
-
+            <form action="../src/physical_exam_process.php" method="POST">
+                <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
+                <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
             <h3 style="color: #156f77;">Vital Signs</h3>
             <div class="form-row">
                 <div class="input-container">
@@ -946,7 +939,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                     <label for="eyes"><b>Eyes:</b></label>
                     <?php 
                         $storedEyes = $physicalExam['Eyes'] ?? '';
-                        $eyeOptions = ["Normal", "Redness", "Discharge", "Cloudiness", "Other (Specify)"];
+                        $eyeOptions = ["Normal", "Redness", "Discharge", "Cloudiness", "Other"];
                         $isCustomEyes = !in_array($storedEyes, $eyeOptions) && $storedEyes !== '';
                     ?>
                     <select id="eyes" name="eyes" onchange="toggleInput('eyes', 'eyesInput')">
@@ -965,7 +958,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                     <label for="ears"><b>Ears:</b></label>
                     <?php 
                         $storedEars = $physicalExam['Ears'] ?? '';
-                        $earOptions = ["Normal", "Discharge", "Odor", "Swelling", "Other (Specify)"];
+                        $earOptions = ["Normal", "Discharge", "Odor", "Swelling", "Other"];
                         $isCustomEars = !in_array($storedEars, $earOptions) && $storedEars !== '';
                     ?>
                     <select id="ears" name="ears" onchange="toggleInput('ears', 'earsInput')">
@@ -1001,7 +994,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                     <label for="abdominal-palpation"><b>Abdominal Palpation:</b></label>
                     <?php 
                         $storedAbdominalPalpation = $physicalExam['AbdominalPalpation'] ?? '';
-                        $abdominalOptions = ["Normal", "Painful", "Firm", "Distended", "Other (Specify)"];
+                        $abdominalOptions = ["Normal", "Painful", "Firm", "Distended", "Other"];
                         $isCustomAbdominal = !in_array($storedAbdominalPalpation, $abdominalOptions) && $storedAbdominalPalpation !== '';
                     ?>
                     <select id="abdominal-palpation" name="abdominal-palpation" onchange="toggleInput('abdominal-palpation', 'abdominalInput')">
@@ -1023,7 +1016,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                     <label for="ln"><b>Lymph Nodes (LN):</b></label>
                     <?php 
                         $storedLN = $physicalExam['LN'] ?? '';
-                        $lnOptions = ["Normal", "Enlarged", "Painful", "Other (Specify)"];
+                        $lnOptions = ["Normal", "Enlarged", "Painful", "Other"];
                         $isCustomLN = !in_array($storedLN, $lnOptions) && $storedLN !== '';
                     ?>
                     <select id="ln" name="ln" onchange="toggleInput('ln', 'lnInput')">
@@ -1056,15 +1049,19 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
             <div class="form-buttons">
                 <button type="submit" class="confirm-btn">Save Physical Exam</button>
             </div>
+            </form>
 
             <br>
             <br>
             <hr>
             <br>
-
+                
             <h2>Laboratory Examination</h2>
+            <form action="../src/laboratory_test_process.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
+                <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
 
-            <h3 style="color: #156f77;">Blood Tests</h3>
+                <h3 style="color: #156f77;">Blood Tests</h3>
                 <div class="form-row">
                     <div class="form-group">
                         <?php
@@ -1085,7 +1082,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                             // Ensure uploaded files array is set
                             $uploadedFile = $uploadedFiles[$test] ?? null;
                         ?>
-                            <label style="display: flex; align-items: center; gap: 5px;">
+                            <label>
                                 <input type="checkbox" name="lab-tests[]" value="<?= $test ?>" <?= $isChecked ? 'checked' : ''; ?>
                                     onchange="toggleFileUpload(this, '<?= $fileInputId ?>', '<?= $customInputId ?>')">
                                 <?= $test ?>
@@ -1120,7 +1117,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                             $fileInputId = str_replace(" ", "-", strtolower($test)) . "-file";
                             $customInputId = str_replace(" ", "-", strtolower($test)) . "-detail";
                         ?>
-                            <label style="display: flex; align-items: center; gap: 5px;">
+                            <label>
                                 <input type="checkbox" name="lab-tests[]" value="<?= $test ?>" <?= $checked ?>
                                     onchange="toggleFileUpload(this, '<?= $fileInputId ?>', '<?= $customInputId ?>')">
                                 <?= $test ?>
@@ -1151,7 +1148,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                             $fileInputId = str_replace(" ", "-", strtolower($test)) . "-file";
                             $customInputId = str_replace(" ", "-", strtolower($test)) . "-detail";
                         ?>
-                            <label style="display: flex; align-items: center; gap: 5px;">
+                            <label>
                                 <input type="checkbox" name="lab-tests[]" value="<?= $test ?>" <?= $checked ?>
                                     onchange="toggleFileUpload(this, '<?= $fileInputId ?>', '<?= $customInputId ?>')">
                                 <?= $test ?>
@@ -1182,7 +1179,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                             $fileInputId = str_replace(" ", "-", strtolower($test)) . "-file";
                             $customInputId = str_replace(" ", "-", strtolower($test)) . "-detail";
                         ?>
-                            <label style="display: flex; align-items: center; gap: 5px;">
+                            <label>
                                 <input type="checkbox" name="lab-tests[]" value="<?= $test ?>" <?= $checked ?>
                                     onchange="toggleFileUpload(this, '<?= $fileInputId ?>', '<?= $customInputId ?>')">
                                 <?= $test ?>
@@ -1200,20 +1197,26 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                                     style="display: <?= in_array('Other', $storedTests) ? 'block' : 'none'; ?>;">
                             <?php endif; ?>
                         <?php } ?>
-                        <br>
-                        <div class="form-buttons">
-                            <button type="submit" class="confirm-btn">Save Laboratory Exam</button>
-                        </div>
                     </div>
                 </div>
 
+                <div class="form-buttons">
+                    <button type="submit" class="confirm-btn">Save Laboratory Exam</button>
+                </div>
+            </form>
+
+            <br>
             <hr>
             <br>
 
             <h2>Diagnosis</h2>
-            <?php
+            <form action="../src/process_diagnosis.php" method="POST">
+                <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? '') ?>">
+                <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? '') ?>">
+
+                <?php
                 $storedData = $_SESSION['diagnosis_data'] ?? [];
-            ?>
+                ?>
 
                 <div class="form-row">
                     <div class="input-container">
@@ -1254,6 +1257,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                 <div class="form-buttons">
                     <button type="submit" class="confirm-btn">Save Diagnosis</button>
                 </div>
+            </form>
 
             <br>
             <br>
@@ -1261,45 +1265,47 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
             <br>
 
             <h2>Medications Given</h2>
+            <form action="../src/process_medication.php" method="POST">
+                <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
+                <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
 
-            <div class="form-group">
-                <label><b>Select Medications Given:</b></label>
-                <div style="display: flex; flex-direction: column;">
-                    <?php
-                    $medications = [
-                        "Amoxicillin", "Cefalexin", "Doxycycline", "Metronidazole",
-                        "Carprofen", "Meloxicam", "Prednisone", "Vitamin B12",
-                        "Omega-3 Fatty Acids", "Calcium Supplements", "Other"
-                    ];
-                    
-                    foreach ($medications as $medication) :
-                        $checked = in_array($medication, $selectedMedications) ? 'checked' : '';
-                    ?>
-                        <label style="display: flex; align-items: center; gap: 5px;">
-                            <input type="checkbox" name="medications[]" value="<?= $medication ?>" <?= $checked; ?> onclick="toggleOtherMedication()">
-                            <?= $medication ?>
-                        </label>
-                    <?php endforeach; ?>
-
-                    <!-- "Other" Option with Custom Input -->
-                    <input type="text" id="other_medication" name="other_medication" placeholder="Specify other medication"
-                        value="<?= htmlspecialchars($patientRecord['OtherMedication'] ?? '', ENT_QUOTES); ?>"
-                        style="display: <?= (!empty($patientRecord['OtherMedication'])) ? 'block' : 'none'; ?>;">
+                <div id="medications-container">
+                    <div class="form-group">
+                        <label><b>Select Medications Given:</b></label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                            <?php
+                            $medications = [
+                                "Amoxicillin", "Cefalexin", "Doxycycline", "Metronidazole", 
+                                "Carprofen", "Meloxicam", "Prednisone", "Vitamin B12", 
+                                "Omega-3 Fatty Acids", "Calcium Supplements", "Other"
+                            ];
+                            
+                            foreach ($medications as $medication) :
+                                $checked = in_array($medication, $selectedMedications) ? 'checked' : '';
+                            ?>
+                                <label>
+                                    <input type="checkbox" name="medications[]" value="<?= $medication ?>" <?= $checked; ?>>
+                                    <?= $medication ?>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
                 <div class="form-buttons">
                     <button type="submit" class="confirm-btn">Save Medications</button>
                 </div>
-
+            </form>
             <br>
             <br>
             <hr>
             <br>
-
             <h2>Prescribe Medication</h2>
+            <form action="../src/process_prescribe_medication.php" method="POST">
+                <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
+                <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
 
-            <div id="medications-container">
+                <div id="medications-container">
                     <?php
                     // Load stored session data for user input retention
                     $storedMedications = $_SESSION['medication_data']['medications'] ?? [];
@@ -1389,27 +1395,27 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                                 <input type="text" name="custom-durations[]" placeholder="Specify duration" class="custom-duration"
                                     value="<?= htmlspecialchars($storedCustomDurations[$index] ?? '', ENT_QUOTES); ?>"
                                     style="display: <?= (($storedDurations[$index] ?? '') == 'Other') ? 'block' : 'none'; ?>;">
-                                </div>
+                            </div>
+
+                            <button type="button" class="delete-button" onclick="removeMedication(this)">X</button>
                         </div>
                     <?php endforeach; ?>
                 </div>
 
                 <div class="form-buttons">
                     <button type="button" id="add-medication">Add Medication</button>
-                </div>
-
-                <div class="form-buttons">
                     <button type="submit" class="confirm-btn">Save Prescription</button>
                 </div>
-
-            <br>
+            </form>
             <br>
             <hr>
             <br>
-
             <h2>Follow-Up Schedule</h2>
+            <form action="../src/process_followup.php" method="POST">
+                <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
+                <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? ''); ?>">
 
-            <div id="followup-container">
+                <div id="followup-container">
                     <?php foreach ($follow_up_dates as $index => $date): ?>
                         <div class="form-row followup-item">
                             <div class="input-container">
@@ -1431,18 +1437,15 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                 </div>
                 
                 <div class="form-buttons">
-                <button type="submit" class="confirm-btn">Add Follow-Up</button>
-                </div>
-                <div class="form-buttons">
+                    <button type="button" id="add-followup">Add Follow-Up</button>
                     <button type="submit" class="confirm-btn">Save Follow-Up</button>
                 </div>
-                <form action="../src/process_finish_consultation.php" method="POST">
-                    <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? '') ?>">
-                    <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? '') ?>">
-                    <button type="submit" class="confirm-btn" onclick="confirmFinishConsultation(event)">Finish Consultation</button>
-                </form>
-        </form>
-
+            </form>
+            <form action="../src/finish_consultation.php" method="POST">
+                <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? '') ?>">
+                <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? '') ?>">
+                <button type="submit" onclick="confirmFinishConsultation(event)">Finish Consultation</button>
+            </form>
             <script>
                 function toggleFileUpload(checkbox, fileInputId, customInputId = null) {
                     document.getElementById(fileInputId).style.display = checkbox.checked ? 'block' : 'none';
@@ -1465,105 +1468,6 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                     <?php endif; ?>
                 });
                 </script>
-
-            <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const medicationsContainer = document.getElementById('medications-container');
-                const addMedicationButton = document.getElementById('add-medication');
-
-                addMedicationButton?.addEventListener('click', function () {
-                    const medicationCount = medicationsContainer.children.length + 1;
-
-                    const medicationItem = document.createElement('div');
-                    medicationItem.classList.add('form-row', 'medication-item');
-                    medicationItem.innerHTML = `
-                        <div class="input-container">
-                            <label for="medication-${medicationCount}"><b>Medication:</b></label>
-                            <select id="medication-${medicationCount}" name="medications[]" onchange="toggleCustomInput(this, 'custom-medication-${medicationCount}')">
-                                <option value="">Select Medication</option>
-                                <optgroup label="Antibiotics">
-                                    <option value="Amoxicillin">Amoxicillin</option>
-                                    <option value="Cefalexin">Cefalexin</option>
-                                    <option value="Doxycycline">Doxycycline</option>
-                                    <option value="Metronidazole">Metronidazole</option>
-                                </optgroup>
-                                <optgroup label="Anti-Inflammatories">
-                                    <option value="Carprofen">Carprofen</option>
-                                    <option value="Meloxicam">Meloxicam</option>
-                                    <option value="Prednisone">Prednisone</option>
-                                </optgroup>
-                                <optgroup label="Vitamins & Supplements">
-                                    <option value="Vitamin B12">Vitamin B12</option>
-                                    <option value="Omega-3">Omega-3 Fatty Acids</option>
-                                    <option value="Calcium Supplements">Calcium Supplements</option>
-                                </optgroup>
-                                <optgroup label="Supportive Care">
-                                    <option value="Fluid Therapy">Fluid Therapy</option>
-                                    <option value="Oxygen Therapy">Oxygen Therapy</option>
-                                </optgroup>
-                                <option value="Other">Other (Specify)</option>
-                            </select>
-                            <input type="text" id="custom-medication-${medicationCount}" name="custom-medications[]" placeholder="Specify medication" style="display: none;">
-                        </div>
-
-                        <div class="input-container">
-                            <label for="dosage-${medicationCount}"><b>Dosage:</b></label>
-                            <select id="dosage-${medicationCount}" name="dosages[]" onchange="toggleCustomInput(this, 'custom-dosage-${medicationCount}')">
-                                <option value="">Select Dosage</option>
-                                <optgroup label="Liquid (mL)">
-                                    <option value="0.5 mL">0.5 mL</option>
-                                    <option value="1 mL">1 mL</option>
-                                    <option value="2 mL">2 mL</option>
-                                    <option value="5 mL">5 mL</option>
-                                </optgroup>
-                                <optgroup label="Tablet (mg)">
-                                    <option value="50 mg">50 mg</option>
-                                    <option value="100 mg">100 mg</option>
-                                    <option value="250 mg">250 mg</option>
-                                    <option value="500 mg">500 mg</option>
-                                </optgroup>
-                                <optgroup label="Injectable">
-                                    <option value="0.1 mL/kg">0.1 mL/kg</option>
-                                    <option value="0.2 mL/kg">0.2 mL/kg</option>
-                                </optgroup>
-                                <option value="Other">Other (Specify)</option>
-                            </select>
-                            <input type="text" id="custom-dosage-${medicationCount}" name="custom-dosages[]" placeholder="Specify dosage" style="display: none;">
-                        </div>
-
-                        <div class="input-container">
-                            <label for="duration-${medicationCount}"><b>Duration:</b></label>
-                            <select id="duration-${medicationCount}" name="durations[]" onchange="toggleCustomInput(this, 'custom-duration-${medicationCount}')">
-                                <option value="">Select Duration</option>
-                                <option value="1 Day">1 Day</option>
-                                <option value="3 Days">3 Days</option>
-                                <option value="5 Days">5 Days</option>
-                                <option value="7 Days">7 Days</option>
-                                <option value="10 Days">10 Days</option>
-                                <option value="14 Days">14 Days</option>
-                                <option value="Other">Other (Specify)</option>
-                            </select>
-                            <input type="text" id="custom-duration-${medicationCount}" name="custom-durations[]" placeholder="Specify duration" style="display: none;">
-                        </div>
-
-                        <button type="button" class="delete-button" onclick="removeMedication(this)">X</button>
-                    `;
-                    medicationsContainer.appendChild(medicationItem);
-                });
-            });
-
-            // Function to remove medication fields
-            function removeMedication(button) {
-                button.parentElement.remove();
-            }
-
-            // Function to toggle visibility of custom input fields when "Other" is selected
-            function toggleCustomInput(select, inputId) {
-                const customInput = document.getElementById(inputId);
-                customInput.style.display = select.value === "Other" ? "block" : "none";
-            }
-            </script>
-
             <script src="../assets/js/patient_records.js?v=1.0.3"></script>
 </body>
 </html>

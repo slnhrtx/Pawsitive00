@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
 let FullCalendarInstance = null;
 
-// Initialize FullCalendar
 function initializeCalendar(filteredStatus = "all") {
     const calendarEl = document.getElementById('calendar');
 
@@ -28,11 +27,10 @@ function initializeCalendar(filteredStatus = "all") {
     ? [...calendarEvents] // Clone the array to avoid modifying the original
     : calendarEvents.filter(event => event.status.toLowerCase() === filteredStatus.toLowerCase());
 
-    // Sort events by Date and Time before rendering
     filteredEvents.sort((a, b) => {
         let dateComparison = new Date(a.start) - new Date(b.start);
         if (dateComparison === 0) {
-            return a.time.localeCompare(b.time); // Compare time as strings
+            return a.time.localeCompare(b.time);
         }
         return dateComparison;
     });
@@ -41,19 +39,19 @@ function initializeCalendar(filteredStatus = "all") {
     console.log("Filtered Events: ", filteredEvents);
     
 FullCalendarInstance = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth', // Default view (Month)
+    initialView: 'dayGridMonth',
     headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay' // 👈 Added Week & Day Views
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
     },
     views: {
         dayGridMonth: { buttonText: 'Month' }, 
         timeGridWeek: { 
             buttonText: 'Week',
-            slotMinTime: "08:00:00", // 👈 Start displaying at 8 AM
-            slotMaxTime: "17:00:00",  // 👈 End displaying at 5 PM (adjust as needed)
-            slotDuration: "00:30:00", // Set 30-minute interval
+            slotMinTime: "08:00:00",
+            slotMaxTime: "17:00:00",
+            slotDuration: "00:30:00",
         },
         timeGridDay: { 
             buttonText: 'Day',
