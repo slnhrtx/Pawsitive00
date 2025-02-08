@@ -1,4 +1,4 @@
-<!-- <?php
+<?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -9,9 +9,9 @@ error_reporting(E_ALL);
 
 session_start();
 
-require '../config/dbh.inc.php';
+require '../../../config/dbh.inc.php';
 
-if (!isset($_SESSION['OwnerId'])) {
+if (!isset($_SESSION['LoggedIn'])) {
     header('Location: owner_login.php');
     exit();
 }
@@ -20,29 +20,31 @@ $owner_id = $_SESSION['OwnerId']; // Get the logged-in owner's ID
 $user_name = isset($_SESSION['FirstName']) ? $_SESSION['FirstName'] . ' ' . $_SESSION['LastName'] : 'Owner';
 
 try {
-    // Query to fetch pets linked to the logged-in owner
+    // Fetch pets linked to the owner with actual species and breed names
     $query = "SELECT 
-        pets.PetId, 
-        pets.Name AS pet_name, 
-        pets.SpeciesId, 
-        pets.Gender, 
-        pets.CalculatedAge, 
-        pets.Breed
-    FROM 
-        pets 
-    WHERE 
-        pets.OwnerId = :OwnerId";
+                p.PetId, 
+                p.Name AS PetName, 
+                s.SpeciesName AS PetType, 
+                p.Gender, 
+                p.CalculatedAge, 
+                b.BreedName AS Breed
+              FROM pets p
+              LEFT JOIN Species s ON p.SpeciesId = s.Id
+              LEFT JOIN Breeds b ON p.Breed = b.BreedId
+              WHERE p.OwnerId = :OwnerId";
 
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(':OwnerId', $owner_id, PDO::PARAM_INT);
     $stmt->execute();
     $pets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fetch pet types (species) for dropdown
+    $speciesStmt = $pdo->query("SELECT Id, SpeciesName FROM Species");
+    $petTypes = $speciesStmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Database Error: " . $e->getMessage());
 }
 ?>
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,22 +65,22 @@ try {
     <header>
         <nav>
              <div class="logo">
-                 <img src="/../assets/images/logo/LOGO 2 WHITE.png" alt="Pawsitive Logo">
+                 <img src="../../../assets/images/logo/LOGO 2 WHITE.png" alt="Pawsitive Logo">
              </div>
                 <ul class="nav-links">
-                    <li><a href="../index.html">Home</a></li>
-                    <li><a href="../book_an_appointment/pet_book_appointment.html">Appointment</a></li>
+                    <li><a href="../index.php">Home</a></li>
+                    <li><a href="../appointment/book_appointment.php">Appointment</a></li>
                     <li><a href="pet_add.html" class="active">Pet</a></li>
                     <li><a href="../record/pet_record.html">Record</a></li>
                     <li><a href="../record/record.php">Billing</a></li>
                 </ul>
             <div class="profile-dropdown">
-                <img src="/assets/images/Icons/User 1.png" alt="Profile Icon" class="profile-icon">
+                <img src="../../../assets/images/Icons/User 1.png" alt="Profile Icon" class="profile-icon">
                     <div class="dropdown-content">
-                      <a href="profile/index.php"><img src="/assets/images/Icons/Profile.png"alt="Profile Icon">Profile</a>
-                      <a href=""><img src="/assets/images/Icons/Change Password.png"alt="Change Password Icon">Change Password</a>
-                      <a href=""><img src="/assets/images/Icons/Settings 2.png"alt="Settings">Settings</a>
-                      <a href=""><img src="/assets/images/Icons/Sign out.png"alt="Sign Out">Sign Out</a>
+                      <a href="profile/index.php"><img src="../../../assets/images/Icons/Profile.png"alt="Profile Icon">Profile</a>
+                      <a href=""><img src="../../../assets/images/Icons/Change Password.png"alt="Change Password Icon">Change Password</a>
+                      <a href=""><img src="../../../assets/images/Icons/Settings 2.png"alt="Settings">Settings</a>
+                      <a href=""><img src="../../../assets/images/Icons/Sign out.png"alt="Sign Out">Sign Out</a>
                 </div>
             </div>
         </nav>
@@ -87,12 +89,10 @@ try {
     <main>
       <section class="hero" id="home">
         <div class="hero-text">
-          <h1>Add Pet</h1>
       </section>
 
       <div class="main-content">
         <div class="container">
-          <!-- Left Section: Pet List -->
           <div class="left-section">
             <h2>Your Pets</h2>
             <?php if (!empty($pets)): ?>
@@ -112,8 +112,8 @@ try {
                   <?php foreach ($pets as $pet): ?>
                   <tr>
                     <td><?= htmlspecialchars($pet['PetId']) ?></td>
-                    <td><?= htmlspecialchars($pet['pet_name']) ?></td>
-                    <td><?= htmlspecialchars($pet['SpeciesId']) ?></td>
+                    <td><?= htmlspecialchars($pet['PetName']) ?></td>
+                    <td><?= htmlspecialchars($pet['PetType']) ?></td>
                     <td><?= htmlspecialchars($pet['Gender']) ?></td>
                     <td><?= htmlspecialchars($pet['CalculatedAge'] ?? 'No Information Found') ?></td>
                     <td><?= htmlspecialchars($pet['Breed']) ?></td>

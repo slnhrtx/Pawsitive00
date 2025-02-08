@@ -288,7 +288,7 @@ function getDateRange($filter) {
                                             <img src="../assets/images/Icons/Profile User.png" alt="Profile Pic"
                                                 class="profile-img" width="10px">
                                             <div>
-                                                <strong><?= htmlspecialchars($pet['owner_name']) ?></strong><br>
+                                                <strong><?= htmlspecialchars($pet['OwnerName']) ?></strong><br>
                                                 <?= htmlspecialchars($pet['role'] ?? 'Authorized Representative') ?>
                                             </div>
                                         </div>

@@ -49,7 +49,7 @@ $email = '';
                         </ul>
                     </div>
                 <?php endif; ?>
-            <form action="../../src/owner_login.php" method="POST">
+            <form action="../src/owner_handler.php" method="POST">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                 <div class="form-group">
                     <label for="Email">Email:<span class="required-asterisk">*</span></label>

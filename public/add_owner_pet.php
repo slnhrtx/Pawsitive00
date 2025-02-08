@@ -52,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $last_name = sanitizeInput($_POST['LastName'] ?? '');
         $email = filter_var($_POST['Email'] ?? '', FILTER_SANITIZE_EMAIL);
         $phone_number = sanitizeInput($_POST['Phone'] ?? '');
+        $password = password_hash('Pawsitive123', PASSWORD_DEFAULT);
         $pet_name = sanitizeInput($_POST['Name'] ?? '');
         $species_id = filter_var($_POST['SpeciesId'] ?? 0, FILTER_VALIDATE_INT);
         $breed = sanitizeInput($_POST['Breed'] ?? '');
@@ -60,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $calculated_age = filter_var($_POST['CalculatedAge'] ?? 0, FILTER_VALIDATE_INT);
         $weight = filter_var($_POST['Weight'] ?? '', FILTER_VALIDATE_FLOAT);
         $last_visit = !empty($_POST['LastVisit']) ? sanitizeInput($_POST['LastVisit']) : null;
+        $verification_link = "https://www.pawsitive.com/verify?email=" . urlencode($email);
 
         if (empty($first_name)) {
             $errors['FirstName'] = "First name is required.";
@@ -149,8 +151,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $pdo->beginTransaction();
 
-        $sql = "INSERT INTO Owners (FirstName, LastName, Email, Phone) 
-                VALUES (:FirstName, :LastName, :Email, :Phone)";
+        $sql = "INSERT INTO Owners (FirstName, LastName, Email, Phone, Password) 
+                VALUES (:FirstName, :LastName, :Email, :Phone, :Password)";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
@@ -158,6 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ':LastName' => $last_name,
             ':Email' => $email,
             ':Phone' => $phone_number,
+            ':Password' => $password
         ]);
 
         $owner_id = $pdo->lastInsertId();
@@ -177,42 +180,67 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ':LastVisit' => $last_visit,
         ]);
 
-        $mail = new PHPMailer(true);
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'smtp.hostinger.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'no-reply@vetpawsitive.com';
-            $mail->Password = 'Pawsitive3.';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-
-            $mail->setFrom('no-reply@vetpawsitive.com', 'Pawsitive');
-            $mail->addReplyTo('support@vetpawsitive.com', 'Pawsitive Support');
-            $mail->addAddress($email);
-
-            $mail->isHTML(true);
-            $mail->Subject = "Welcome to Pawsitive";
-            $mail->Body = "
-                <p>Hello {$first_name},</p>
-                <p>We are pleased to inform you that your pet's information has been successfully registered in the Pawsitive system under Pet Adventure Clinic.</p>
-                <p>Your pet's record will be used for the management of health information, appointment scheduling, and other related services at Pet Adventure Clinic. Rest assured that all information provided will be securely stored and used only for the purposes of ensuring the best care for your pet.</p>
-                <p>If you have any questions, feel free to contact us at support@vetpawsitive.com.</p>
-            ";
-
-
-            $mail->send();
-        } catch (Exception $mailException) {
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
-            error_log("Mailer Error: {$mail->ErrorInfo}");
-            throw new Exception("Email could not be sent.");
-        }
-        logActivity($pdo, $userId, $userName, $role, 'register_owner.php', 'Added owner: ' . $first_name . ' ' . $last_name . ' and pet: ' . $pet_name);
         $pdo->commit();
 
-        $_SESSION['success'] = "Owner and pet registered successfully! An email has been sent.";
+        if ($_SERVER['HTTP_HOST'] === 'localhost') {
+            // Localhost email fallback
+            $subject = "Welcome to Pawsitive - Verify Your Account";
+            $message = "
+                Dear {$first_name},\n\n
+                Welcome to Pawsitive! Your login details:\n
+                Email: {$email}\n
+                Password: Pawsitive123 (Please change your password after logging in.)\n\n
+                Verify your account here: {$verification_link}\n\n
+                Best regards,\n
+                The Pawsitive Team
+            ";
+            $headers = "From: no-reply@pawsitive.com" . "\r\n" .
+                       "Reply-To: support@pawsitive.com" . "\r\n" .
+                       "Content-Type: text/plain; charset=UTF-8";
+
+            if (mail($email, $subject, $message, $headers)) {
+                $_SESSION['success'] = "User registered successfully! Email sent (Localhost).";
+            } else {
+                $_SESSION['success'] = "User registered, but email could not be sent (Localhost).";
+                error_log("Mail function failed on localhost.");
+            }
+        } else {
+            // Live Server Email - Use PHPMailer
+            $mail = new PHPMailer(true);
+            try {
+                $mail->isSMTP();
+                $mail->Host = 'smtp.hostinger.com';
+                $mail->SMTPAuth = true;
+                $mail->Username = 'no-reply@vetpawsitive.com';
+                $mail->Password = 'Pawsitive3.';
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 587;
+
+                $mail->setFrom('no-reply@vetpawsitive.com', 'Pawsitive');
+                $mail->addReplyTo('support@pawsitive.com', 'Pawsitive Support');
+                $mail->addAddress($email);
+
+                $mail->isHTML(true);
+                $mail->Subject = "Welcome to Pawsitive - Verify Your Account";
+                $mail->Body = "
+                    <p>Dear {$first_name},</p>
+                    <p>We are delighted to welcome you to Pawsitive, your trusted partner in managing your pet's health.</p>
+                    <p><b>Email:</b> {$email}</p>
+                    <p><b>Password:</b> Pawsitive123 (Please change your password after logging in.)</p>
+                    <p>Please verify your account by clicking the button below:</p>
+                    <p><a href='{$verification_link}' style='display:inline-block;padding:10px 20px;background-color:#28a745;color:#ffffff;text-decoration:none;border-radius:5px;'>Verify Account</a></p>
+                    <p>For any assistance, feel free to contact our support team.</p>
+                    <p>Best regards,<br><b>The Pawsitive Team</b></p>
+                ";
+
+                $mail->send();
+                $_SESSION['success'] = "User registered successfully! Email sent.";
+            } catch (Exception $mailException) {
+                error_log("Mailer Error: {$mail->ErrorInfo}");
+                $_SESSION['success'] = "User registered, but email could not be sent.";
+            }
+        }
+
         header('Location: record.php');
         exit();
     } catch (Exception $e) {
@@ -343,7 +371,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <?php if ($success): ?>
                 <div class="success-message">
-                    <i class="fas fa-check-circle"></i> <!-- Optional Font Awesome icon -->
+                    <i class="fas fa-check-circle"></i>
                     <?= htmlspecialchars($success) ?>
                 </div>
             <?php endif; ?>
@@ -573,7 +601,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     const speciesId = this.value;
 
                     if (speciesId) {
-                        fetch(`fetch_breeds.php?SpeciesId=${speciesId}`)
+                        fetch(`../src/fetch_breeds.php?SpeciesId=${speciesId}`)
                             .then(response => response.json())
                             .then(breeds => {
                                 const breedSelect = document.getElementById('Breed');
