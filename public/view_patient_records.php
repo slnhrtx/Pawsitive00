@@ -15,7 +15,7 @@ $pet_id = (int)$_GET['PetId'];
 
 $userId = $_SESSION['UserId'];
 $userName = isset($_SESSION['FirstName']) ? $_SESSION['FirstName'] . ' ' . $_SESSION['LastName'] : 'Staff';
-$role = $_SESSION['Role'] ?? 'Role';
+$role = $_SESSION['Role'] ?? 'Role'; 
 
 try {
     $stmt = $pdo->prepare("

@@ -638,13 +638,16 @@ header {
     align-items: center;
     text-align: center;
     margin: 20px 0;
+    max-width: 700px; /* Add the same width as the staff form */
+    margin-left: auto;  /* Center align the divider */
+    margin-right: auto; /* Center align the divider */
 }
 
 .divider::before,
 .divider::after {
     content: '';
     flex: 1;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #000000;
 }
 
 .divider:not(:empty)::before {
@@ -657,7 +660,7 @@ header {
 
 .divider span {
     font-weight: bold;
-    color: #333;
+    color: #000000;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
