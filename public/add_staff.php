@@ -211,19 +211,19 @@ try {
         </div>   
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
             <div class="form-buttons">
-                <button type="button" class="cancel-btn" onclick="window.location.href='staff_view.php'">Cancel</button>
+                <button type="button" class="cancel-btn" onclick="window.location.href='staff.php'">Cancel</button>
                 <button type="submit" class="confirm-btn">Register Staff</button>
             </div>
-    </form>
-        <br>
+        </form>
+
         <div class="divider">
             <span>OR</span>
         </div>
-        <br>
+
+        <form class="staff-form" action="invite_staff2.php" method="POST" enctype="multipart/form-data">
         <h2>Bulk Invite via Excel</h2>
         <br>
-        <form action="invite_staff2.php" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
+        <div class="form-group">
                 <div class="form-row">
                     <div class="input-container">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
@@ -231,15 +231,16 @@ try {
                         <label for="excel_file">Upload Excel File:</label>
                         <input type="file" name="excel_file" id="excel_file" accept=".xlsx" required>
                         
-                        <button type="submit" class="confirm-btn upload-excel-btn">Upload Excel</button>
-                        
                         <p style="margin-top: 10px;">
                             Download the <a href="../src/staff_invite_template.php" class="template-link">Excel Template</a> for bulk upload.
                         </p>
                     </div>
                 </div>
+                <div class="form-buttons">
+                    <button type="button" class="cancel-btn" onclick="window.location.href='staff.php'">Cancel</button>
+                    <button type="submit" class="confirm-btn">Upload Excel</button>
+                </div>
             </div>
         </form>
-    </div>
 </body>
 </html>

@@ -17,7 +17,8 @@
 body {
     display: flex;
     min-height: 100vh;
-    background-color: #ffffff;
+    background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), 
+                url('../images/Icons/bg.png') !important;
 }
 
 .sidebar {
@@ -154,9 +155,13 @@ nav ul li:hover, .sidebar-bottom button:hover, .schedule-item button:hover {
 }
 
 .main-content {
+    background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), 
+                url('../images/Icons/bg.png') !important;
+    background-size: cover; /* Adjust as needed */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    background-position: center; /* Center the background image */
     flex: 1;
     padding: 20px;
-    background-color: #ffffff;
     margin-left: 250px; /* Adds space to the left for the sidebar */
     min-height: 100vh; /* Ensures the main content covers the full height */
 }
@@ -330,6 +335,15 @@ header {
     transition: background-color 0.3s ease;
 }
 
+.confirm-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
 .form-group.terms a {
     color: #007bff;
     text-decoration: none;
@@ -453,22 +467,28 @@ header {
 }
 
 .delete-button {
-    background-color:#dd3244;
+    background-color: #dd3244;
     color: white;
     border: none;
-    padding: 10px 20px;
-    margin-top: 10px;
+    font-size: 16px;
     border-radius: 5px;
     cursor: pointer;
-    cursor: pointer;
-    text-align: right;
-    display: block;
-    margin-left: auto; /* This will push the button to the right */
+    text-align: center;
+
+    /* Match the height of the select fields */
+    margin-top: 36px;
+    height: 42px;
+    width: 42px; /* Adjust to match the width of your select fields */
+    
+    /* Ensure vertical alignment */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .delete-button:hover {
-    background-color: #a62633; /* Custom hover color */
-    color: white; /* Ensure text color is white for contrast */
+    background-color: #a62633;
+    color: white;
 }
 
 .btn {

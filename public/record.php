@@ -16,90 +16,173 @@ $userName = $_SESSION['FirstName'] . ' ' . $_SESSION['LastName'];
 $role = $_SESSION['Role'] ?? 'Role';
 $email = $_SESSION['Email'];
 
-$currentPage = max(0, (int) ($_GET['page'] ?? 0));
+$currentPage = isset($_GET['page']) ? max(0, (int)$_GET['page']) : 0;
 $recordsPerPage = 10;
 $offset = $currentPage * $recordsPerPage;
 
-$whereClauses = ["Pets.IsArchived = :archived"];
-$params = [':archived' => $_GET['archived'] ?? 0];
+$where_clause = [];
+$params = [];
 
+// Handle search
 if (!empty($_GET['search'])) {
     $search = '%' . $_GET['search'] . '%';
-    $whereClauses[] = "(Pets.Name LIKE :search OR Pets.PetCode LIKE :search OR Owners.FirstName LIKE :search OR Owners.LastName LIKE :search)";
-    $params[':search'] = $search;
+
+    $where_clause[] = "(
+        (Pets.Name LIKE ?)
+        OR (Pets.PetCode LIKE ?)
+        OR (Owners.FirstName LIKE ?)
+        OR (Owners.LastName LIKE ?)
+        OR (Species.SpeciesName LIKE ?)
+        OR (Services.ServiceName LIKE ?)
+    )";
+
+    $params = array_fill(0, 6, $search);
 }
 
-if (!empty($_GET['filter'])) {
-    $dateRange = getDateRange($_GET['filter']);
-    if ($dateRange) {
-        $whereClauses[] = "Appointments.AppointmentDate BETWEEN :startDate AND :endDate";
-        $params[':startDate'] = $dateRange['start'];
-        $params[':endDate'] = $dateRange['end'];
+// Handle Sorting (Pet Name or Service)
+$orderBy = 'Pets.Name'; // Default sorting by Pet Name
+if (isset($_GET['filter'])) {
+    if ($_GET['filter'] === 'pet_service') {
+        $orderBy = 'Services.ServiceName'; // Sort by Service
     }
 }
 
-$order = ($_GET['order'] ?? 'ASC') === 'desc' ? 'DESC' : 'ASC';
-$whereSql = 'WHERE ' . implode(' AND ', $whereClauses);
+// Sort Order
+$order = 'ASC';
+if (isset($_GET['order']) && $_GET['order'] === 'desc') {
+    $order = 'DESC';
+}
 
+if (isset($_GET['archived']) && $_GET['archived'] === '1') {
+    $where_clause[] = "Pets.IsArchived = 1";
+} else {
+    $where_clause[] = "Pets.IsArchived = 0";
+}
+
+$where_sql = !empty($where_clause) ? 'WHERE ' . implode(' AND ', $where_clause) : '';
+
+// Apply stricter joins and avoid unnecessary GROUP BY
 $query = "
     SELECT 
         Owners.OwnerId,
-        CONCAT(Owners.FirstName, ' ', Owners.LastName) AS OwnerName,
+        CONCAT(Owners.FirstName, ' ', Owners.LastName) AS owner_name,
         Owners.Email,
         Owners.Phone,
         Pets.PetId,
         Pets.Name AS PetName,
         Pets.PetCode,
         Species.SpeciesName AS PetType,
-        Services.ServiceName,
+        Services.ServiceName AS service,
         Appointments.AppointmentTime,
         Appointments.AppointmentDate
     FROM Pets
-    JOIN Owners ON Pets.OwnerId = Owners.OwnerId
-    JOIN Species ON Pets.SpeciesId = Species.Id
-    LEFT JOIN Appointments ON Appointments.PetId = Pets.PetId
+    INNER JOIN Owners ON Pets.OwnerId = Owners.OwnerId
+    LEFT JOIN Species ON Pets.SpeciesId = Species.Id
+    LEFT JOIN Appointments ON Pets.PetId = Appointments.PetId
     LEFT JOIN Services ON Appointments.ServiceId = Services.ServiceId
-    $whereSql
-    ORDER BY Appointments.AppointmentDate $order
-    LIMIT :offset, :limit
+    $where_sql
+    AND Pets.IsConfined = 0
+    ORDER BY $orderBy $order
+    LIMIT ?, ?
 ";
 
-$params[':offset'] = $offset;
-$params[':limit'] = $recordsPerPage;
+$params[] = $offset;
+$params[] = $recordsPerPage;
 
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $pets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$countQuery = "SELECT COUNT(*) FROM Pets JOIN Owners ON Pets.OwnerId = Owners.OwnerId $whereSql";
+if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
+    ob_start(); // Start output buffering
+    if (count($pets) > 0) {
+        foreach ($pets as $pet): ?>
+            <tr class="pet-row" 
+                <?php if (empty($_GET['search'])): ?> 
+                    onclick="togglePetDetails(this)" 
+                <?php endif; ?>>
+                <td>
+                    <div class="hover-container">
+                        <?= htmlspecialchars($pet['PetCode'] ?? 'No information found') ?>
+                        <i class="fas fa-info-circle"></i>
+                        <div class="hover-card">
+                            <div class="profile-info">
+                                <img src="../assets/images/Icons/Profile User.png" alt="Profile Pic" class="profile-img" width="10px">
+                                <div>
+                                    <strong><?= htmlspecialchars($pet['owner_name']) ?></strong><br>
+                                    <?= htmlspecialchars($pet['role'] ?? 'Authorized Representative') ?>
+                                </div>
+                            </div>
+                            <hr>
+                            <div>
+                                <strong>Email:</strong><br>
+                                <?= htmlspecialchars($pet['Email']) ?>
+                            </div>
+                            <br>
+                            <div>
+                                <strong>Phone Number:</strong><br>
+                                <?= htmlspecialchars($pet['Phone']) ?>
+                            </div>
+                            <hr>
+                            <!-- Add Pet Button -->
+                            <div style="text-align: center; margin-top: 10px;">
+                                <a href="add_pet.php?OwnerId=<?= htmlspecialchars($pet['OwnerId']) ?>" 
+                                class="add-pet-button">
+                                + Add Pet
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <?php if (hasPermission($pdo, 'Manage Pets')): ?>
+                        <div class="three-dot-menu" style="display: inline-block;">
+                            <button class="three-dot-btns" onclick="toggleDropdown(event, this)">⋮</button>
+                            <div class="dropdown-menus" style="display: none;">
+                                <a href="#" onclick="confirmConfine('<?= htmlspecialchars($pet['PetId']) ?>')">Confine Pet</a>
+                                <a href="add_vaccination.php?pet_id=<?= htmlspecialchars($pet['PetId']) ?>">Add Vaccination</a>
+                                <a href="#" onclick="confirmArchive('<?= htmlspecialchars($pet['PetId']) ?>'); return false;">Archive Pet</a>
+                                <a href="#" onclick="confirmDelete('<?= htmlspecialchars($pet['PetId']) ?>'); return false;">Delete</a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    <a href="pet_profile.php?pet_id=<?= htmlspecialchars($pet['PetId'] ?? 'Unknown') ?>" class="pet-profile-link">
+                        <?= htmlspecialchars($pet['PetName'] ?? 'No Name') ?>
+                    </a>
+                </td>
+                <td><?= htmlspecialchars($pet['PetType'] ?? 'No information found') ?></td>
+                <td><?= htmlspecialchars($pet['service'] ?? 'No information found') ?></td>
+                <td><?= htmlspecialchars($pet['AppointmentTime'] ?? '00:00') ?></td>
+                <td><?= htmlspecialchars($pet['AppointmentDate'] ?? 'MM/DD') ?></td>
+            </tr>
+
+        <?php endforeach;
+    } else {
+        // Return a message when no pets are found
+        echo '<tr><td colspan="6">No pets found.</td></tr>';
+    }
+    echo ob_get_clean(); // Output the buffered HTML
+    exit;
+}
+
+$countQuery = "
+    SELECT COUNT(*) 
+    FROM Pets
+    LEFT JOIN Owners ON Pets.OwnerId = Owners.OwnerId
+    LEFT JOIN Species ON Pets.SpeciesId = Species.Id
+    LEFT JOIN Services ON Pets.PetId = Services.ServiceId
+    LEFT JOIN Appointments ON Pets.PetId = Appointments.PetId
+    $where_sql
+";
+
 $countStmt = $pdo->prepare($countQuery);
-$countStmt->execute(array_diff_key($params, [':offset' => '', ':limit' => '']));
+$countStmt->execute(array_slice($params, 0, -2)); // Exclude LIMIT params
 $totalRecords = $countStmt->fetchColumn();
 $totalPages = ceil($totalRecords / $recordsPerPage);
-
-function getDateRange($filter) {
-    switch ($filter) {
-        case 'today':
-            $date = date('Y-m-d');
-            return ['start' => $date, 'end' => $date];
-        case 'lastWeek':
-            return [
-                'start' => date('Y-m-d', strtotime('-7 days')),
-                'end' => date('Y-m-d')
-            ];
-        case 'lastMonth':
-            return [
-                'start' => date('Y-m-01', strtotime('first day of last month')),
-                'end' => date('Y-m-t', strtotime('last day of last month'))
-            ];
-        default:
-            return null;
-    }
-}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -227,7 +310,12 @@ function getDateRange($filter) {
             <h1>Record</h1>
             <div class="actions">
                 <form method="GET" action="record.php" class="filter-container">
-                    <input type="text" id="searchInput" name="search" placeholder="Search record..."
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        name="search" 
+                        placeholder="Search record..."
+                        autocomplete="off" 
                         value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
 
                     <div class="dropdown-filter">
@@ -236,10 +324,10 @@ function getDateRange($filter) {
                         </button>
                         <div class="dropdown-content">
                             <label>
-                                <input type="radio" name="filter" value="lastWeek" <?= isset($_GET['filter']) && $_GET['filter'] === 'lastWeek' ? 'checked' : ''; ?>> Last Week
+                                <input type="radio" name="filter" value="pet_name" <?= isset($_GET['filter']) && $_GET['filter'] === 'pet_name' ? 'checked' : '' ?>> Pet Name
                             </label>
                             <label>
-                                <input type="radio" name="filter" value="lastMonth" <?= isset($_GET['filter']) && $_GET['filter'] === 'lastMonth' ? 'checked' : ''; ?>> Last Month
+                                <input type="radio" name="filter" value="pet_service" <?= isset($_GET['filter']) && $_GET['filter'] === 'pet_service' ? 'checked' : '' ?>> Services
                             </label>
                             <hr>
                             <label>
@@ -250,8 +338,7 @@ function getDateRange($filter) {
                             </label>
                             <hr>
                             <button type="submit" class="apply-btn">Apply Filter</button>
-                            <button type="button" class="clear-btn" onclick="location.href='record.php'">Clear
-                                Filter</button>
+                            <button type="button" class="clear-btn" onclick="location.href='record.php'">Clear Filter</button>
                         </div>
                     </div>
                 </form>
@@ -400,7 +487,6 @@ function getDateRange($filter) {
                 }
             });
         </script>
-        <script src="../assets/js/pagination.js?v=<?= time(); ?>"></script>
         <script src="../assets/js/record.js?v=<?= time(); ?>"></script>
         <script>
             function confirmConfine(petId) {
@@ -441,92 +527,256 @@ function getDateRange($filter) {
         </script>
 
         <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const infoIcons = document.querySelectorAll('.fas.fa-info-circle'); // All "i" icons
-                const hoverCards = document.querySelectorAll('.hover-card'); // All hover cards
+        document.addEventListener("DOMContentLoaded", () => {
+            const infoIcons = document.querySelectorAll('.fas.fa-info-circle'); // All "i" icons
+            const hoverCards = document.querySelectorAll('.hover-card'); // All hover cards
 
-                // Track the open state
-                let activeCard = null;
+            // Track the open state
+            let activeCard = null;
 
-                // Function to show the hover card
-                const showHoverCard = (card) => {
-                    card.style.display = 'block';
-                };
+            // Function to show the hover card
+            const showHoverCard = (card) => {
+                card.style.display = 'block';
+            };
 
-                // Function to hide the hover card
-                const hideHoverCard = (card) => {
-                    card.style.display = 'none';
-                };
+            // Function to hide the hover card
+            const hideHoverCard = (card) => {
+                card.style.display = 'none';
+            };
 
-                // Add hover and click listeners
-                infoIcons.forEach((icon, index) => {
-                    const hoverCard = hoverCards[index];
+            // Add hover and click listeners
+            infoIcons.forEach((icon, index) => {
+                const hoverCard = hoverCards[index];
 
-                    // Show the hover card on hover
-                    icon.addEventListener('mouseenter', () => {
-                        showHoverCard(hoverCard);
-                    });
-
-                    // Keep the hover card visible on hover
-                    hoverCard.addEventListener('mouseenter', () => {
-                        showHoverCard(hoverCard);
-                    });
-
-                    // Hide the hover card when not hovering
-                    icon.addEventListener('mouseleave', () => {
-                        if (activeCard !== hoverCard) {
-                            hideHoverCard(hoverCard);
-                        }
-                    });
-
-                    hoverCard.addEventListener('mouseleave', () => {
-                        if (activeCard !== hoverCard) {
-                            hideHoverCard(hoverCard);
-                        }
-                    });
-
-                    // Toggle the hover card visibility on click
-                    icon.addEventListener('click', (event) => {
-                        event.stopPropagation(); // Prevent bubbling up
-                        if (activeCard === hoverCard) {
-                            activeCard = null; // Deselect active card
-                            hideHoverCard(hoverCard);
-                        } else {
-                            if (activeCard) hideHoverCard(activeCard); // Close any open card
-                            activeCard = hoverCard; // Set the new active card
-                            showHoverCard(hoverCard);
-                        }
-                    });
+                // Show the hover card on hover
+                icon.addEventListener('mouseenter', () => {
+                    showHoverCard(hoverCard);
                 });
 
-                // Close hover cards when clicking outside
-                document.addEventListener('click', (event) => {
-                    if (activeCard && !activeCard.contains(event.target) && !event.target.classList.contains('fa-info-circle')) {
-                        hideHoverCard(activeCard);
-                        activeCard = null; // Reset active card
+                // Keep the hover card visible on hover
+                hoverCard.addEventListener('mouseenter', () => {
+                    showHoverCard(hoverCard);
+                });
+
+                // Hide the hover card when not hovering
+                icon.addEventListener('mouseleave', () => {
+                    if (activeCard !== hoverCard) {
+                        hideHoverCard(hoverCard);
                     }
+                });
+
+                hoverCard.addEventListener('mouseleave', () => {
+                    if (activeCard !== hoverCard) {
+                        hideHoverCard(hoverCard);
+                    }
+                });
+
+                // Toggle the hover card visibility on click
+                icon.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent bubbling up
+                    if (activeCard === hoverCard) {
+                        activeCard = null; // Deselect active card
+                        hideHoverCard(hoverCard);
+                    } else {
+                        if (activeCard) hideHoverCard(activeCard); // Close any open card
+                        activeCard = hoverCard; // Set the new active card
+                        showHoverCard(hoverCard);
+                    }
+                });
+            });
+
+            // Close hover cards when clicking outside
+            document.addEventListener('click', (event) => {
+                if (activeCard && !activeCard.contains(event.target) && !event.target.classList.contains('fa-info-circle')) {
+                    hideHoverCard(activeCard);
+                    activeCard = null; // Reset active card
+                }
+            });
+        });
+        </script>
+        <script>
+        function confirmArchive(petId) {
+            Swal.fire({
+                title: 'Confirm Archive',
+                text: 'Are you sure you want to archive this pet? This action can be undone later.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6', // Blue for confirmation
+                cancelButtonColor: '#d33', // Red for cancel
+                confirmButtonText: 'Yes, Archive',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirect to the archive_pet.php script with Pet ID
+                    window.location.href = `../src/archive_pet.php?pet_id=${petId}`;
+                }
+            });
+        }
+        </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const searchInput = document.getElementById("searchInput");
+
+                searchInput.addEventListener("keyup", function () {
+                    let searchQuery = searchInput.value.trim();
+                    let xhr = new XMLHttpRequest();
+
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                            document.getElementById("staffList").innerHTML = xhr.responseText;
+                        }
+                    };
+
+                    xhr.open("GET", `record.php?search=${encodeURIComponent(searchQuery)}&ajax=1`, true);
+                    xhr.send();
+                });
+            });
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const searchInput = document.getElementById("searchInput");
+                const staffList = document.getElementById("staffList");
+
+                function bindDropdownEvents() {
+                    document.querySelectorAll(".three-dot-btns").forEach(button => {
+                        button.addEventListener("click", function (event) {
+                            event.stopPropagation();
+                            const dropdown = this.nextElementSibling;
+
+                            // Close other open dropdowns
+                            document.querySelectorAll(".dropdown-menus").forEach(menu => {
+                                if (menu !== dropdown) menu.style.display = "none";
+                            });
+
+                            // Toggle current dropdown
+                            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+                        });
+                    });
+
+                    // Close dropdown when clicking outside
+                    document.addEventListener("click", function () {
+                        document.querySelectorAll(".dropdown-menus").forEach(menu => {
+                            menu.style.display = "none";
+                        });
+                    });
+
+                    // Prevent closing when clicking inside dropdown
+                    document.querySelectorAll(".dropdown-menus").forEach(menu => {
+                        menu.addEventListener("click", function (event) {
+                            event.stopPropagation();
+                        });
+                    });
+                }
+
+                // Initial binding when page loads
+                bindDropdownEvents();
+
+                // Handle AJAX search and rebind events
+                searchInput.addEventListener("keyup", function () {
+                    const searchQuery = searchInput.value.trim();
+                    const xhr = new XMLHttpRequest();
+
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                            staffList.innerHTML = xhr.responseText.trim() || '<tr><td colspan="6">No pets found.</td></tr>';
+                            bindDropdownEvents();  // Rebind events after AJAX updates
+                        }
+                    };
+
+                    xhr.open("GET", `record.php?search=${encodeURIComponent(searchQuery)}&ajax=1`, true);
+                    xhr.send();
                 });
             });
         </script>
         <script>
-            function confirmArchive(petId) {
-                Swal.fire({
-                    title: 'Confirm Archive',
-                    text: 'Are you sure you want to archive this pet? This action can be undone later.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6', // Blue for confirmation
-                    cancelButtonColor: '#d33', // Red for cancel
-                    confirmButtonText: 'Yes, Archive',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Redirect to the archive_pet.php script with Pet ID
-                        window.location.href = `../src/archive_pet.php?pet_id=${petId}`;
+        document.addEventListener("DOMContentLoaded", () => {
+            const infoIcons = document.querySelectorAll('.fas.fa-info-circle'); 
+            const hoverCards = document.querySelectorAll('.hover-card'); 
+
+            let activeCard = null;
+
+            const showHoverCard = (card) => {
+                card.style.display = 'block';
+            };
+
+            const hideHoverCard = (card) => {
+                card.style.display = 'none';
+            };
+
+            infoIcons.forEach((icon, index) => {
+                const hoverCard = hoverCards[index];
+
+                icon.addEventListener('mouseenter', () => {
+                    showHoverCard(hoverCard);
+                });
+
+                hoverCard.addEventListener('mouseenter', () => {
+                    showHoverCard(hoverCard);
+                });
+
+                icon.addEventListener('mouseleave', () => {
+                    if (activeCard !== hoverCard) hideHoverCard(hoverCard);
+                });
+
+                hoverCard.addEventListener('mouseleave', () => {
+                    if (activeCard !== hoverCard) hideHoverCard(hoverCard);
+                });
+
+                icon.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    if (activeCard === hoverCard) {
+                        activeCard = null;
+                        hideHoverCard(hoverCard);
+                    } else {
+                        if (activeCard) hideHoverCard(activeCard);
+                        activeCard = hoverCard;
+                        showHoverCard(hoverCard);
                     }
                 });
+            });
+
+            document.addEventListener('click', (event) => {
+                if (activeCard && !activeCard.contains(event.target) && !event.target.classList.contains('fa-info-circle')) {
+                    hideHoverCard(activeCard);
+                    activeCard = null;
+                }
+            });
+        });
+        
+        document.addEventListener("DOMContentLoaded", function () {
+            function toggleDropdown(event, button) {
+                event.stopPropagation(); // Prevent the click from closing immediately
+                let dropdown = button.nextElementSibling; // Get the corresponding dropdown
+
+                // Close all other open dropdowns
+                document.querySelectorAll(".dropdown-menus").forEach(menu => {
+                    if (menu !== dropdown) menu.style.display = "none";
+                });
+
+                // Toggle the current dropdown
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
             }
+
+            // Attach event listeners to all three-dot buttons
+            document.querySelectorAll(".three-dot-btns").forEach(button => {
+                button.addEventListener("click", function (event) {
+                    toggleDropdown(event, this);
+                });
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener("click", function () {
+                document.querySelectorAll(".dropdown-menus").forEach(menu => {
+                    menu.style.display = "none";
+                });
+            });
+
+            // Prevent dropdown from closing when clicking inside
+            document.querySelectorAll(".dropdown-menus").forEach(menu => {
+                menu.addEventListener("click", function (event) {
+                    event.stopPropagation();
+                });
+            });
+        });
         </script>
 </body>
-
 </html>

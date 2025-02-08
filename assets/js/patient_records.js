@@ -58,18 +58,51 @@ document.addEventListener('DOMContentLoaded', function () {
     function toggleOtherSpecify(selectId, inputId) {
         let select = document.getElementById(selectId);
         let input = document.getElementById(inputId);
+
         if (select) {
-            select.addEventListener('change', function () {
-                input.style.display = (this.value === 'Other' || this.value === 'Other (Specify)') ? 'block' : 'none';
-                if (input.style.display === 'none') input.value = '';
+            select.addEventListener("change", function () {
+                input.style.display = (this.value === "Other" || this.value === "Other (Specify)") ? "block" : "none";
+                if (input.style.display === "none") input.value = "";
             });
         }
     }
 
-    toggleOtherSpecify('diet', 'custom-diet');
-    toggleOtherSpecify('frequency', 'custom-frequency');
-    toggleOtherSpecify('color', 'custom-color');
-    toggleOtherSpecify('duration', 'custom-duration');
+    // Function for toggling "Other" checkbox inputs
+    function toggleOtherCheckbox(checkboxId, inputId) {
+        let checkbox = document.getElementById(checkboxId);
+        let input = document.getElementById(inputId);
+
+        if (checkbox && input) {
+            checkbox.addEventListener("change", function () {
+                input.style.display = this.checked ? "block" : "none";
+                if (!this.checked) {
+                    input.value = "";
+                }
+            });
+        }
+    }
+
+    // Apply the function for the observed symptoms "Other" checkbox
+    toggleOtherCheckbox("other_checkbox", "other_symptom");
+
+    // Apply the function for other selects
+    toggleOtherSpecify("diet", "custom-diet");
+    toggleOtherSpecify("frequency", "custom-frequency");
+    toggleOtherSpecify("color", "custom-color");
+    toggleOtherSpecify("duration", "custom-duration");
+    toggleOtherSpecify("Vaccine", "VaccineInput");
+    toggleOtherSpecify("Dewormer", "DewormerInput");
+    toggleOtherSpecify("pulse", "pulseInput");
+    toggleOtherSpecify("heart-rate", "heartRateInput");
+    toggleOtherSpecify("respiratory-rate", "respiratoryInput");
+    toggleOtherSpecify("heart-sound", "heartSoundInput");
+    toggleOtherSpecify("lung-sound", "lungSoundInput");
+    toggleOtherSpecify("mucous-membrane", "mucousMembraneInput");
+    toggleOtherSpecify("capillary-refill-time", "crtInput");
+    toggleOtherSpecify("eyes", "eyesInput");
+    toggleOtherSpecify("ears", "earsInput");
+    toggleOtherSpecify("abdominal-palpation", "abdominalInput");
+    toggleOtherSpecify("ln", "lnInput");
 
     // =========================
     // Medication Management
@@ -138,3 +171,5 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+

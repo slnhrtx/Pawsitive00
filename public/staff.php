@@ -3,76 +3,97 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require __DIR__ . '/../config/dbh.inc.php';
-require __DIR__ . '/../src/helpers/auth_helpers.php';
-require __DIR__ . '/../src/helpers/session_helpers.php';
+session_start();
+ob_start();
+
+require '../config/dbh.inc.php';
 require __DIR__ . '/../src/helpers/permissions.php';
 
-checkAuthentication($pdo);
-enhanceSessionSecurity();
+if (!isset($_SESSION['LoggedIn'])) {
+    header('Location: staff_login.php');
+    exit;
+}
+
 $userId = $_SESSION['UserId'];
 $userName = isset($_SESSION['FirstName']) ? $_SESSION['FirstName'] . ' ' . $_SESSION['LastName'] : 'Staff';
 $role = $_SESSION['Role'] ?? 'Role';
 
-$recordsPerPage = 10;  // Number of records per page
-$currentPage = isset($_GET['page']) ? max(0, (int)$_GET['page']) : 0;
-$offset = ($currentPage - 1) * $recordsPerPage;
-
 $filterQuery = isset($_GET['filter']) ? $_GET['filter'] : '';
-$orderQuery = isset($_GET['order']) ? strtoupper($_GET['order']) : 'ASC';
+$orderQuery = isset($_GET['order']) ? strtoupper($_GET['order']) : '';  // No default order
 
 $where_clause = [];
 $params = [];
 
+// ✅ Search Logic
 if (!empty($_GET['search'])) {
     $search = '%' . $_GET['search'] . '%';
     $where_clause[] = "(Users.FirstName LIKE ? 
                         OR Users.LastName LIKE ? 
-                        OR Users.StaffCode LIKE ?
-                        OR Roles.RoleName LIKE ?)"; 
-    $params[] = $search;
-    $params[] = $search;
-    $params[] = $search;
-    $params[] = $search; 
+                        OR Roles.RoleName LIKE ?)";
+    $params = array_fill(0, 3, $search);
 }
 
+// ✅ Filter by Name or Role
+$orderBy = 'Users.FirstName'; // Default to Name
+if ($filterQuery === 'role') {
+    $orderBy = 'Roles.RoleName'; // Sort by Role
+}
+
+$currentPage = isset($_GET['page']) ? max(0, (int)$_GET['page']) : 0;
+$recordsPerPage = 10;
+$offset = $currentPage * $recordsPerPage;
+
+// ✅ SQL Query
 $where_sql = !empty($where_clause) ? 'WHERE ' . implode(' AND ', $where_clause) : '';
 
 $countQuery = "
-SELECT COUNT(*) AS total
-FROM Users 
-LEFT JOIN UserRoles ON Users.UserId = UserRoles.UserId
-LEFT JOIN Roles ON UserRoles.RoleId = Roles.RoleId
-" . $where_sql;
-
-try {
-    $stmt = $pdo->prepare($countQuery);
-    $stmt->execute($params);
-    $totalRecords = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-    $totalPages = ceil($totalRecords / $recordsPerPage);  // Calculate total pages
-} catch (PDOException $e) {
-    echo "Error counting staff: " . $e->getMessage();
-    $totalPages = 0;
-}
-
-$query = "
-    SELECT Users.StaffCode,
-           CONCAT(Users.FirstName, ' ', Users.LastName) AS name, 
-           Users.Email,
-           Users.EmploymentType,
-           Users.PhoneNumber,
-           Users.EmergencyContactNumber,
-           Users.EmergencyContactName,
-           Roles.RoleName AS role, 
-           Users.Status, 
-           Users.CreatedAt, 
-           Users.UpdatedAt
-    FROM Users 
+    SELECT COUNT(*) AS total
+    FROM Users
     LEFT JOIN UserRoles ON Users.UserId = UserRoles.UserId
     LEFT JOIN Roles ON UserRoles.RoleId = Roles.RoleId
     $where_sql
 ";
 
+try {
+    $stmt = $pdo->prepare($countQuery);
+    $stmt->execute($params);
+    $totalRecords = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+    $totalPages = ceil($totalRecords / $recordsPerPage); // ✅ Calculates total pages
+} catch (PDOException $e) {
+    echo "Error counting staff: " . $e->getMessage();
+    $totalPages = 1; // ✅ Fallback to at least 1 page if an error occurs
+}
+
+$query = "
+    SELECT Users.StaffCode,
+           CONCAT(Users.FirstName, ' ', Users.LastName) AS name,
+           Users.Email,
+           Users.EmploymentType,
+           Users.PhoneNumber,
+           Roles.RoleName AS role,
+           Users.Status,
+           Users.UpdatedAt -- ✅ Add this line
+    FROM Users
+    LEFT JOIN UserRoles ON Users.UserId = UserRoles.UserId
+    LEFT JOIN Roles ON UserRoles.RoleId = Roles.RoleId
+    $where_sql
+";
+
+if ($orderQuery) {
+    $query .= " ORDER BY $orderBy $orderQuery";
+} else {
+    $query .= " ORDER BY RAND()"; // Random order when no filter is applied
+}
+$query .= " LIMIT ?, ?";
+
+// ✅ Pagination
+$params[] = $offset;
+$params[] = $recordsPerPage;
+
+// Execute Query
+$stmt = $pdo->prepare($query);
+$stmt->execute($params);
+$staff = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 try {
     $stmt = $pdo->prepare($query);
@@ -177,7 +198,7 @@ try {
                     <img src="../assets/images/Icons/Chart 1.png" alt="Overview Icon">Overview</a></li>
                 <li><a href="record.php">
                     <img src="../assets/images/Icons/Record 1.png" alt="Record Icon">Record</a></li>
-                <li class="active"><a href="staff.php">
+                <li class="active"><a href="staff_view.php">
                     <img src="../assets/images/Icons/Staff 3.png" alt="Schedule Icon">Staff</a></li>
                 <li><a href="appointment.php">
                     <img src="../assets/images/Icons/Schedule 1.png" alt="Schedule Icon">Schedule</a></li>
@@ -189,7 +210,7 @@ try {
             <button onclick="window.location.href='settings.php';">
                 <img src="../assets/images/Icons/Settings 1.png" alt="Settings Icon">Settings
             </button>
-            <button onclick="window.location.href='logout.php';">
+            <button onclick="window.location.href='../logout.php';">
                 <img src="../assets/images/Icons/Logout 1.png" alt="Logout Icon">Log out
             </button>
         </div>
@@ -226,26 +247,28 @@ try {
                             <i class="fa fa-filter"></i> Filter
                         </button>
                         <div class="dropdown-content">
-                            <label>
-                                <input type="radio" name="filter" value="name" onclick="applyFilters()" <?= $filterQuery == 'name' ? 'checked' : '' ?>> Name
-                            </label>
-                            <label>
-                                <input type="radio" name="filter" value="role" onclick="applyFilters()" <?= $filterQuery == 'role' ? 'checked' : '' ?>> Role
-                            </label>
-                            <hr>
-                            <label>
-                                <input type="radio" name="order" value="asc" onclick="applyFilters()" <?= $orderQuery == 'ASC' ? 'checked' : '' ?>> Ascending
-                            </label>
-                            <label>
-                                <input type="radio" name="order" value="desc" onclick="applyFilters()" <?= $orderQuery == 'DESC' ? 'checked' : '' ?>> Descending
-                            </label>
-                            <hr>
-                                <button type="submit" class="apply-btn">Apply Filter</button>
-                                <button type="submit" class="clear-btn" onclick="window.location.href='staff.php'">Clear Filter</button>
+                        <label>
+                            <input type="radio" name="filter" value="name" <?= $filterQuery == 'name' ? 'checked' : '' ?>> Name
+                        </label>
+                        <label>
+                            <input type="radio" name="filter" value="role" <?= $filterQuery == 'role' ? 'checked' : '' ?>> Role
+                        </label>
+                        <hr>
+                        <label>
+                            <input type="radio" name="order" value="ASC" <?= $orderQuery == 'ASC' ? 'checked' : '' ?>> Ascending
+                        </label>
+                        <label>
+                            <input type="radio" name="order" value="DESC" <?= $orderQuery == 'DESC' ? 'checked' : '' ?>> Descending
+                        </label>
+                        <hr>
+                            <button type="submit" class="apply-btn">Apply Filter</button>
+                            <button type="button" class="clear-btn" onclick="window.location.href='staff_view.php'">Clear Filter</button>
                         </div>
                     </div>
                 </div>
-                <button class="add-btn" onclick="location.href='add_staff.php'">+ Add Staff</button>
+                <?php if (hasPermission($pdo, 'Create Staff')): ?>
+                    <button class="add-btn" onclick="location.href='add_staff.php'">+ Add Staff</button>
+                <?php endif; ?>
             </div>
         </div>
         <table class="staff-table">
@@ -262,8 +285,10 @@ try {
                 <?php if (!empty($staff)): ?>
                     <?php foreach ($staff as $staff_member): ?>
                         <tr class="staff-row">
+                            <!-- ✅ Staff Code Column -->
                             <td><?= htmlspecialchars($staff_member['StaffCode'] ?? 'N/A') ?></td>
 
+                            <!-- ✅ Name with Hover Details -->
                             <td>
                                 <div class="hover-container">
                                     <?= htmlspecialchars($staff_member['name']) ?>
@@ -279,7 +304,7 @@ try {
                                         <hr>
                                         <div>
                                             <strong>Updated At:</strong><br>
-                                            <?= htmlspecialchars($staff_member['UpdatedAt']) ?>
+                                            <?= htmlspecialchars($staff_member['UpdatedAt'] ?? 'No update yet') ?>
                                         </div>
                                         <br>
                                         <div>
@@ -292,21 +317,34 @@ try {
                                             <?= htmlspecialchars($staff_member['PhoneNumber'] ?? 'No information found') ?>
                                         </div>
                                         <br>
+                                        <div>
+                                            <strong>Emergency Contact Name:</strong><br>
+                                            <?= htmlspecialchars($staff_member['EmergencyContactName'] ?? 'No information found') ?>
+                                        </div>
+                                        <br>
+                                        <div>
+                                            <strong>Emergency Contact Number:</strong><br>
+                                            <?= htmlspecialchars($staff_member['EmergencyContactNumber'] ?? 'No information found') ?>
+                                        </div>
                                     </div>
                                 </div>
                             </td>
 
+                            <!-- ✅ Role -->
                             <td><?= htmlspecialchars($staff_member['role'] ?? 'No Role Assigned') ?></td>
 
+                            <!-- ✅ Employment Type -->
                             <td><?= htmlspecialchars($staff_member['EmploymentType']) ?></td>
 
-                            <td>
-                                <button class="action-btn edit-btn" onclick="editStaff('<?= $staff_member['Email']; ?>')">Edit</button>
-                                <button class="action-btn delete-btn" onclick="deleteStaff('<?= $staff_member['Email']; ?>')">Delete</button>
-                                <button class="action-btn toggle-btn" onclick="toggleStatus('<?= $staff_member['Email']; ?>')">
-                                    <?= $staff_member['Status'] === 'active' ? 'Deactivate' : 'Activate'; ?>
-                                </button>
-                            </td>
+                            <?php if (hasPermission($pdo, 'Manage Staff')): ?>
+                                <td>
+                                    <button class="action-btn edit-btn" onclick="editStaff('<?= $staff_member['Email']; ?>')">Edit</button>
+                                    <button class="action-btn delete-btn" onclick="deleteStaff('<?= $staff_member['Email']; ?>')">Delete</button>
+                                    <button class="action-btn toggle-btn" onclick="toggleStatus('<?= $staff_member['Email']; ?>')">
+                                        <?= $staff_member['Status'] == 'active' ? 'Deactivate' : 'Activate'; ?>
+                                    </button>
+                                </td>
+                            <?php endif; ?>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -371,12 +409,12 @@ try {
                             
                             <div class="swal2-row">
                                 <label>First:</label>
-                                <input type="text" id="swalFirstName" class="swal2-input" value="${staff.FirstName}" readonly>
+                                <input type="text" id="swalFirstName" class="swal2-input" value="${staff.FirstName}" required>
                             </div>
                             
                             <div class="swal2-row">
                                 <label>Last:</label>
-                                <input type="text" id="swalLastName" class="swal2-input" value="${staff.LastName}" readonly>
+                                <input type="text" id="swalLastName" class="swal2-input" value="${staff.LastName}" required>
                             </div>
                             
                             <div class="swal2-row">
@@ -455,62 +493,60 @@ try {
                 text: "This action cannot be undone!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Yes, Delete!',
-                cancelButtonText: 'Cancel'
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'swal2-delete-btn',
+                    cancelButton: 'swal2-cancel-btn'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`delete_staff.php?email=${encodeURIComponent(email)}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.status === 'success') {
-                                Swal.fire({
-                                    title: 'Deleted!',
-                                    text: data.message,
-                                    icon: 'success',
-                                    confirmButtonColor: '#3085d6'
-                                }).then(() => {
-                                    location.reload(); // Refresh to update the staff list
-                                });
-                            } else {
-                                Swal.fire('Error', data.message, 'error');
-                            }
-                        })
-                        .catch(() => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', 'delete_staff.php?email=' + encodeURIComponent(email), true);
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            Swal.fire('Deleted!', 'The staff member has been removed.', 'success').then(() => {
+                                location.reload();
+                            });
+                        } else {
                             Swal.fire('Error', 'Unable to delete the staff member.', 'error');
-                        });
+                        }
+                    };
+                    xhr.send();
                 }
             });
         }
 
         // Function to toggle staff status (active/inactive)
-        function toggleStatus(email) {
+        function toggleStatus(email, currentStatus) {
+            let actionText = currentStatus === 'active' ? 'deactivate' : 'activate';
+            let actionVerb = currentStatus === 'active' ? 'Deactivate' : 'Activate';
+
             Swal.fire({
-                title: 'Confirm Action',
-                text: 'Are you sure you want to change the status of this staff member?',
+                title: `Confirm ${actionVerb}`,
+                text: `Are you sure you want to ${actionText} this staff member?`,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, Change Status',
-                cancelButtonText: 'Cancel'
+                confirmButtonText: `Yes, ${actionVerb}`,
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'swal2-toggle-btn',
+                    cancelButton: 'swal2-cancel-btn'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`../src/toggle_status.php?email=${encodeURIComponent(email)}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.status === 'success') {
-                                Swal.fire('Success', data.message, 'success').then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire('Error', data.message, 'error');
-                            }
-                        })
-                        .catch(() => {
-                            Swal.fire('Error', 'An unexpected error occurred.', 'error');
-                        });
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', 'toggle_status.php?email=' + encodeURIComponent(email), true);
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            Swal.fire('Updated!', `Staff member has been ${actionText}d.`, 'success').then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Error', `Failed to ${actionText} staff member.`, 'error');
+                        }
+                    };
+                    xhr.send();
                 }
             });
         }
@@ -592,6 +628,21 @@ try {
                 activeCard = null; // Reset active card
             }
         });
+    });
+    </script>
+    
+    <script>
+            document.querySelector('.apply-btn').addEventListener('click', function () {
+        const filter = document.querySelector('input[name="filter"]:checked')?.value || '';
+        const order = document.querySelector('input[name="order"]:checked')?.value || '';
+        const searchQuery = document.getElementById('searchInput').value.trim();
+
+        let url = `staff_view.php?`;
+        if (filter) url += `filter=${filter}&`;
+        if (order) url += `order=${order}&`;
+        if (searchQuery) url += `search=${encodeURIComponent(searchQuery)}`;
+
+        window.location.href = url;
     });
     </script>
 </body>
