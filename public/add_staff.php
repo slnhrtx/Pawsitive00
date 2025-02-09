@@ -223,24 +223,24 @@ try {
         <form class="staff-form" action="invite_staff2.php" method="POST" enctype="multipart/form-data">
         <h2>Bulk Invite via Excel</h2>
         <br>
-        <div class="form-group">
+            <div class="form-group">
                 <div class="form-row">
                     <div class="input-container">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
-                        
+                            
                         <label for="excel_file">Upload Excel File:</label>
                         <input type="file" name="excel_file" id="excel_file" accept=".xlsx" required>
-                        
+                            
                         <p style="margin-top: 10px;">
                             Download the <a href="../src/staff_invite_template.php" class="template-link">Excel Template</a> for bulk upload.
                         </p>
                     </div>
                 </div>
+            </div>
                 <div class="form-buttons">
                     <button type="button" class="cancel-btn" onclick="window.location.href='staff.php'">Cancel</button>
                     <button type="submit" class="confirm-btn">Upload Excel</button>
                 </div>
-            </div>
         </form>
 </body>
 </html>

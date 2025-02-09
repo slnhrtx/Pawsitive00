@@ -80,7 +80,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pawsitive</title>
-    <link rel="icon" type="image/x-icon" href="/../assets/images/logo/LOGO.png">
+    <link rel="icon" type="image/x-icon" href="../../../assets/images/logo/LOGO.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -88,8 +88,9 @@ try {
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
         rel="stylesheet">
-
-    <link rel="stylesheet" href="pet_book_appointment.css">
+        
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="book_appointment.css">
     <script>
         const bookedTimesByDate = <?= json_encode($bookedTimesByDate); ?>;
     </script>
@@ -104,8 +105,8 @@ try {
             <ul class="nav-links">
                 <li><a href="../index.php">Home</a></li>
                 <li><a href="book_appointment.php" class="active">Appointment</a></li>
-                <li><a href="../pet/pet_add.php">Pet</a></li>
-                <li><a href="../record/pet_record.html">Record</a></li>
+                <li><a href="../pet/pet_add.php">Pets</a></li>
+                <li><a href="../record/pet_record.php">Record</a></li>
                 <li><a href="../record/record.php">Billing</a></li>
             </ul>
             <div class="profile-dropdown">
@@ -123,8 +124,10 @@ try {
     </header>
 
     <main>
-        <section class="hero" id="home">
+    <section class="hero">
             <div class="hero-text">
+                <h1>Appointments</h1>
+            </div>
         </section>
 
         <div class="main-content">
@@ -171,7 +174,7 @@ try {
                         <div class="form-row">
                             <div class="input-container">
                                 <label for="AppointmentDate">Date:</label>
-                                <input type="date" id="AppointmentDate" name="AppointmentDate" required>
+                                <input type="date" id="AppointmentDate" name="AppointmentDate" min="" required>
                             </div>
 
                             <div class="input-container">
@@ -188,40 +191,6 @@ try {
                         </div>
                     </form>
                 </div>
-
-                <section id="appointments-section" class="appointments-section">
-                    <h2 class="section-headline">Your Booked Appointments</h2>
-                    <div class="appointments-container">
-                        <?php if (!empty($appointments)): ?>
-                            <table class="appointments-table">
-                                <thead>
-                                    <tr>
-                                        <th>Pet Name</th>
-                                        <th>Service</th>
-                                        <th>Time</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($appointments as $appointment): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($appointment['PetName']); ?></td>
-                                            <td><?= htmlspecialchars($appointment['Service']); ?></td>
-                                            <td><?= htmlspecialchars($appointment['Time']); ?></td>
-                                            <td>
-                                                <span class="status <?= strtolower($appointment['Status']); ?>">
-                                                    <?= htmlspecialchars($appointment['Status']); ?>
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        <?php else: ?>
-                            <p class="no-appointments-text">No appointments found.</p>
-                        <?php endif; ?>
-                    </div>
-                </section>
     </main>
 
     <div class="calendar-container">
@@ -232,6 +201,52 @@ try {
         </div>
         <div id="calendar"></div>
     </div>
+
+    <main>
+        <div class="main-content">
+            <div class="container">
+                <!-- Right Section: Add Pet Form -->
+                <div class="right-section">
+                    <!-- <h2>Add a New Pet</h2> -->
+                    <form class="staff-form" action="add_pet.php" method="POST">
+                        <section id="appointments-section" class="appointments-section">
+                            <h2 class="section-headline">Your Booked Appointments</h2>
+                            <div class="appointments-container">
+                                <?php if (!empty($appointments)): ?>
+                                    <table class="appointments-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Pet Name</th>
+                                                <th>Service</th>
+                                                <th>Time</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($appointments as $appointment): ?>
+                                                <tr>
+                                                    <td><?= htmlspecialchars($appointment['PetName']); ?></td>
+                                                    <td><?= htmlspecialchars($appointment['Service']); ?></td>
+                                                    <td><?= htmlspecialchars($appointment['Time']); ?></td>
+                                                    <td>
+                                                        <span class="status <?= strtolower($appointment['Status']); ?>">
+                                                            <?= htmlspecialchars($appointment['Status']); ?>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                <?php else: ?>
+                                    <p class="no-appointments-text">No appointments found.</p>
+                                <?php endif; ?>
+                            </div>
+                        </section>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -283,82 +298,132 @@ try {
     </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const calendarElement = document.getElementById('calendar');
-            const currentMonthYearElement = document.getElementById('currentMonthYear');
-            const prevMonthBtn = document.getElementById('prevMonth');
-            const nextMonthBtn = document.getElementById('nextMonth');
+    document.addEventListener('DOMContentLoaded', function () {
+        const calendarElement = document.getElementById('calendar');
+        const currentMonthYearElement = document.getElementById('currentMonthYear');
+        const prevMonthBtn = document.getElementById('prevMonth');
+        const nextMonthBtn = document.getElementById('nextMonth');
+        const dateInput = document.getElementById('AppointmentDate');
+        
+        let today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
 
-            let today = new Date();
-            let currentMonth = today.getMonth();
-            let currentYear = today.getFullYear();
+        function generateCalendar(month, year) {
+            calendarElement.innerHTML = '';
 
-            function generateCalendar(month, year) {
-                calendarElement.innerHTML = '';
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-                const firstDay = new Date(year, month, 1).getDay();
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const monthNames = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+            currentMonthYearElement.textContent = `${monthNames[month]} ${year}`;
 
-                const monthNames = [
-                    "January", "February", "March", "April", "May", "June",
-                    "July", "August", "September", "October", "November", "December"
-                ];
-                currentMonthYearElement.textContent = `${monthNames[month]} ${year}`;
+            // Days of the week labels
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            daysOfWeek.forEach(day => {
+                const dayLabel = document.createElement('div');
+                dayLabel.textContent = day;
+                dayLabel.style.fontWeight = 'bold';
+                calendarElement.appendChild(dayLabel);
+            });
 
-                const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                daysOfWeek.forEach(day => {
-                    const dayLabel = document.createElement('div');
-                    dayLabel.textContent = day;
-                    dayLabel.style.fontWeight = 'bold';
-                    calendarElement.appendChild(dayLabel);
-                });
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                calendarElement.appendChild(emptyCell);
+            }
 
-                for (let i = 0; i < firstDay; i++) {
-                    const emptyCell = document.createElement('div');
-                    calendarElement.appendChild(emptyCell);
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('calendar-day');
+                dayElement.textContent = day;
+
+                // Highlight today's date
+                if (
+                    day === today.getDate() &&
+                    month === today.getMonth() &&
+                    year === today.getFullYear()
+                ) {
+                    dayElement.classList.add('today');
                 }
 
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const dayElement = document.createElement('div');
-                    dayElement.classList.add('calendar-day');
-                    dayElement.textContent = day;
+                // Set click event for selecting date
+                dayElement.addEventListener('click', function () {
+                    let selectedDate = new Date(year, month, day);
+                    let formattedDate = selectedDate.toISOString().split('T')[0];
 
-                    // Highlight today's date
-                    if (
-                        day === today.getDate() &&
-                        month === today.getMonth() &&
-                        year === today.getFullYear()
-                    ) {
-                        dayElement.classList.add('today');
+                    if (selectedDate < today) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'It is no longer possible to make an appointment with a past date.',
+                        });
+                        return;
                     }
 
-                    calendarElement.appendChild(dayElement);
-                }
+                    dateInput.value = formattedDate; // Update the date input field
+                });
+
+                calendarElement.appendChild(dayElement);
             }
+        }
 
-            function goToNextMonth() {
-                currentMonth++;
-                if (currentMonth > 11) {
-                    currentMonth = 0;
-                    currentYear++;
-                }
-                generateCalendar(currentMonth, currentYear);
+        function goToNextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
             }
-
-            function goToPrevMonth() {
-                currentMonth--;
-                if (currentMonth < 0) {
-                    currentMonth = 11;
-                    currentYear--;
-                }
-                generateCalendar(currentMonth, currentYear);
-            }
-
-            prevMonthBtn.addEventListener('click', goToPrevMonth);
-            nextMonthBtn.addEventListener('click', goToNextMonth);
-
             generateCalendar(currentMonth, currentYear);
-        });
+        }
+
+        function goToPrevMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            generateCalendar(currentMonth, currentYear);
+        }
+
+        prevMonthBtn.addEventListener('click', goToPrevMonth);
+        nextMonthBtn.addEventListener('click', goToNextMonth);
+
+        generateCalendar(currentMonth, currentYear);
+    });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const dateInput = document.getElementById('AppointmentDate');
+
+        if (dateInput) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Ensure time is set to start of the day
+            const formattedDate = today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+            dateInput.setAttribute('min', formattedDate); // Prevent selecting past dates
+
+            // Prevent user from manually inputting past dates
+            dateInput.addEventListener('change', function () {
+                const selectedDate = new Date(this.value);
+                selectedDate.setHours(0, 0, 0, 0);
+
+                if (selectedDate < today) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Date',
+                        text: 'You cannot select a past date!',
+                    });
+
+                    this.value = ''; // Reset to empty if invalid
+                }
+            });
+        }
+    });
+
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>

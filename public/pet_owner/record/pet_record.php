@@ -67,11 +67,14 @@ if (!empty($pets)) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pawsitive - Pet Records</title>
+    <title>Pawsitive</title>
+    <link rel="icon" type="image/x-icon" href="../../../assets/images/logo/LOGO.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
         rel="stylesheet">
@@ -86,9 +89,9 @@ if (!empty($pets)) {
             </div>
             <ul class="nav-links">
                 <li><a href="../index.php">Home</a></li>
-                <li><a href="../book_an_appointment/pet_book_appointment.html">Appointment</a></li>
-                <li><a href="../pet/pet_add.html">Pet</a></li>
-                <li><a href="pet_record.html" class="active">Record</a></li>
+                <li><a href="../appointment/book_appointment.php">Appointment</a></li>
+                <li><a href="../pet/pet_add.php">Pets</a></li>
+                <li><a href="pet_record.php" class="active">Record</a></li>
                 <li><a href="../record/record.php">Billing</a></li>
             </ul>
         </nav>
@@ -106,8 +109,9 @@ if (!empty($pets)) {
                 <div class="pet-photo">
                     <img src="../../../assets/images/Icons/Profile User.png" alt="Pet Photo">
                 </div>
+
                 <div class="pet-name">
-                    <select id="pet-dropdown">
+                    <select class="pet-name-dropdown">
                         <?php foreach ($pets as $pet): ?>
                             <option value="<?= $pet['PetId'] ?>"><?= htmlspecialchars($pet['PetName']) ?></option>
                         <?php endforeach; ?>

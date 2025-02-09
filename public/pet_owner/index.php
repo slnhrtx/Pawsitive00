@@ -68,18 +68,60 @@ try {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pawsitive</title>
+    <link rel="icon" type="image/x-icon" href="../../assets/images/logo/LOGO.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="pet_owner.css">
+    
+    <style>
+        .appointments-section {
+            width: 100%;
+            max-width: 800px; /* Adjust based on your preference */
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+            background-color: #f5f5f5;
+        }
+        
+        .appointments-container {
+            max-height: 400px;
+            overflow-y: auto; /* Scrollable table */
+        }
+
+        .appointments-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .appointments-table th, .appointments-table td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid #afadad;
+        }
+
+        .appointments-table th {
+            background-color: var(--color-2);
+            color: #333;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .status.pending { background-color: #FFB200; color: #fff; } 
+        .status.completed { background-color: #00A86B; color: #fff; } 
+        .status.confirmed { background-color: #4C5FD5; color: #fff; } 
+        .status.cancelled { background-color: #D72638; color: #fff; } 
+    </style>
 </head>
 
 <body>
@@ -91,7 +133,7 @@ try {
         <ul class="nav-links">
             <li><a href="#home" class="active">Home</a></li>
             <li><a href="appointment/book_appointment.php">Appointment</a></li>
-            <li><a href="pet/pet_add.php">Pet</a></li>
+            <li><a href="pet/pet_add.php">Pets</a></li>
             <li><a href="./record/pet_record.php">Record</a></li>
             <li><a href="../record/record.php">Billing</a></li>
         </ul>
@@ -109,15 +151,15 @@ try {
     </section>
 
     <!-- Pets Section -->
+    <h2 class="section-headline">Your Pets</h2>
     <section id="pets-section" class="pets-section">
-        <h2 class="section-headline">Your Pets</h2>
         <div class="pets-container">
             <?php if (!empty($pets)): ?>
                 <?php foreach ($pets as $pet): ?>
                     <div class="pet-card">
                       <div class="pet-avatar">
                           <label for="upload-<?= $pet['PetId'] ?>">
-                              <img id="preview-<?= $pet['PetId'] ?>" src="../../../assets/images/Icons/Profile User.png" alt="Pet Avatar">
+                              <img id="preview-<?= $pet['PetId'] ?>" src="../../assets/images/Icons/Profile User.png" alt="Pet Avatar">
                           </label>
                           <input type="file" id="upload-<?= $pet['PetId'] ?>" class="file-input" data-pet-id="<?= $pet['PetId'] ?>" accept="image/*" hidden>
                       </div>
@@ -128,7 +170,17 @@ try {
                             <div class="detail"><span class="label">Age</span><span class="value"><?= htmlspecialchars($pet['Age']); ?></span></div>
                             <div class="detail"><span class="label">Breed</span><span class="value"><?= htmlspecialchars($pet['Breed']); ?></span></div>
                         </div>
+                        <div class="three-dot-menu">
+                            <button class="menu-button">...</button>
+                            <div class="menu-dropdown">
+                            <ul>
+                                <li><a href="#">Edit</a></li>
+                                <li><a href="#">View Record</a></li>
+                                <li><a href="#" style="color: red;">Delete</a></li>
+                            </ul>
+                        </div>
                     </div>
+                </div>
                 <?php endforeach; ?>
             <?php else: ?>
                 <p class="no-pets-text">No pets found.</p>
@@ -136,9 +188,10 @@ try {
         </div>
     </section>
 
+    <br>
     <!-- New Appointments Section -->
+    <h2 class="section-headline">Your Appointments</h2>
     <section id="appointments-section" class="appointments-section">
-        <h2 class="section-headline">Your Appointments</h2>
         <div class="appointments-container">
             <?php if (!empty($appointments)): ?>
                 <table class="appointments-table">
@@ -172,6 +225,8 @@ try {
     </section>
 </main>
 
+<br>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("current-date").textContent = new Date().toLocaleDateString('en-US', {
@@ -180,44 +235,6 @@ try {
     });
 </script>
 
-<style>
-    .appointments-section {
-        margin: 40px auto;
-        text-align: center;
-    }
-    
-    .appointments-container {
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    .appointments-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    .appointments-table th, .appointments-table td {
-        border: 1px solid #ddd;
-        padding: 10px;
-        text-align: left;
-    }
-
-    .appointments-table th {
-        background-color: #28a745;
-        color: white;
-    }
-
-    .status {
-        padding: 5px 10px;
-        border-radius: 5px;
-        font-weight: bold;
-    }
-
-    .status.pending { background-color: #ffc107; color: #fff; }
-    .status.completed { background-color: #28a745; color: #fff; }
-    .status.cancelled { background-color: #dc3545; color: #fff; }
-</style>
 <script>
     document.querySelectorAll('.file-input').forEach(input => {
     input.addEventListener('change', function () {
@@ -254,6 +271,25 @@ try {
     });
 });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const profileIcon = document.querySelector('.profile-icon');
+      const dropdownContent = document.querySelector('.dropdown-content');
+
+      profileIcon.addEventListener('click', function() {
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+      });
+
+      window.addEventListener('click', function(event) {
+        if (!event.target.matches('.profile-icon')) {
+          if (dropdownContent.style.display === 'block') {
+            dropdownContent.style.display = 'none';
+          }
+        }
+      });
+    });
+  </script>
 
 </body>
 </html>

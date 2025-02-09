@@ -735,4 +735,51 @@ footer {
   text-decoration: underline; /* Add underline on hover */
 }
 
+.main-content .container {
+  display: flex;
+  justify-content: center; /* Center the form */
+  padding: 20px;
+}
 
+  /* Left Section: Pet List */
+  .left-section {
+    width: 100%;
+    max-width: 1000px; /* Adjust based on your preference */
+    background-color: #fff; /* Match background of the form */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .left-section h2 {
+    font-size: 24px;
+    color: var(--color-1);
+    margin-bottom: 15px;
+  }
+  
+  .table-container {
+    max-height: 400px;
+    overflow-y: auto; /* Scrollable table */
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  table th,
+  table td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  table th {
+    background-color: var(--color-2);
+    color: #333;
+  }
+  
+  table tbody tr:hover {
+    background-color: var(--color-3);
+    transition: background-color 0.2s ease;
+  }
