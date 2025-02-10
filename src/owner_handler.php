@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } else {
             $_SESSION['errors'] = ["Invalid email or password."];
-            header("Location: ../public/pet_owner/owner_login.php");
+            header("Location: ../public/owner_login.php");
             exit();
         }
     } catch (PDOException $e) {

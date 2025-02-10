@@ -118,7 +118,7 @@ try {
         }
 
         .status.pending { background-color: #FFB200; color: #fff; } 
-        .status.completed { background-color: #00A86B; color: #fff; } 
+        .status.done { background-color: #00A86B; color: #fff; } 
         .status.confirmed { background-color: #4C5FD5; color: #fff; } 
         .status.cancelled { background-color: #D72638; color: #fff; } 
     </style>

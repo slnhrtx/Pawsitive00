@@ -50,7 +50,7 @@ $unpaidInvoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="../assets/css/vet_record.css">
 </head>
-    <!--<div class="sidebar">
+    <div class="sidebar">
         <div class="logo">
             <img src="../assets/images/logo/LOGO 2 WHITE.png" alt="Pawsitive Logo">
         </div>
@@ -79,7 +79,7 @@ $unpaidInvoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <img src="../assets/images/Icons/Logout 1.png" alt="Logout Icon">Log out
             </button>
         </div>
-    </div>-->
+    </div>
 <h2>Unpaid Invoices</h2>
 
 <table class="staff-table">

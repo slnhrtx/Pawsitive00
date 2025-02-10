@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     applyDropdownAndLinksFunctionality(); // Initialize dropdown and links
-    attachSearchAndFilterListeners(); // Attach search and filter listeners
+    //attachSearchAndFilterListeners(); // Attach search and filter listeners
     attachGeneralEventListeners(); // General listeners for confirmation dialogs, etc.
 });
 
@@ -85,7 +85,7 @@ function attachSearchAndFilterListeners() {
     }
 
     searchInput.addEventListener("input", debounce(fetchResults, 300));
-    speciesFilter.addEventListener("change", fetchResults);
+    //speciesFilter.addEventListener("change", fetchResults);
     serviceFilter.addEventListener("change", fetchResults);
 }
 

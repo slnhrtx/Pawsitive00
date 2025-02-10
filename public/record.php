@@ -39,11 +39,10 @@ if (!empty($_GET['search'])) {
     $params = array_fill(0, 6, $search);
 }
 
-// Handle Sorting (Pet Name or Service)
-$orderBy = 'Pets.Name'; // Default sorting by Pet Name
+$orderBy = 'Pets.Name';
 if (isset($_GET['filter'])) {
     if ($_GET['filter'] === 'pet_service') {
-        $orderBy = 'Services.ServiceName'; // Sort by Service
+        $orderBy = 'Services.ServiceName';
     }
 }
 
@@ -158,10 +157,9 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
 
         <?php endforeach;
     } else {
-        // Return a message when no pets are found
         echo '<tr><td colspan="6">No pets found.</td></tr>';
     }
-    echo ob_get_clean(); // Output the buffered HTML
+    echo ob_get_clean();
     exit;
 }
 
@@ -176,7 +174,7 @@ $countQuery = "
 ";
 
 $countStmt = $pdo->prepare($countQuery);
-$countStmt->execute(array_slice($params, 0, -2)); // Exclude LIMIT params
+$countStmt->execute(array_slice($params, 0, -2));
 $totalRecords = $countStmt->fetchColumn();
 $totalPages = ceil($totalRecords / $recordsPerPage);
 ?>
@@ -375,7 +373,7 @@ $totalPages = ceil($totalRecords / $recordsPerPage);
                                             <img src="../assets/images/Icons/Profile User.png" alt="Profile Pic"
                                                 class="profile-img" width="10px">
                                             <div>
-                                                <strong><?= htmlspecialchars($pet['OwnerName']) ?></strong><br>
+                                                <strong><?= htmlspecialchars($pet['owner_name']) ?></strong><br>
                                                 <?= htmlspecialchars($pet['role'] ?? 'Authorized Representative') ?>
                                             </div>
                                         </div>
