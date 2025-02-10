@@ -299,9 +299,9 @@ try {
                 <table>
                     <thead>
                         <tr>
-                            <th>Service Name</th>
                             <th>Appointment Date</th>
                             <th>Appointment Time</th>
+                            <th>Service Name</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -309,9 +309,9 @@ try {
                         <?php if (!empty($previous_appointments)): ?>
                             <?php foreach ($previous_appointments as $appointment): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($appointment['ServiceName']) ?></td>
                                     <td><?= htmlspecialchars($appointment['AppointmentDate']) ?></td>
                                     <td><?= htmlspecialchars($appointment['AppointmentTime']) ?></td>
+                                    <td><?= htmlspecialchars($appointment['ServiceName']) ?></td>
                                     <td>
                                         <a href="view_patient_records.php?AppointmentId=<?= urlencode($appointment['AppointmentId']) ?>&PetId=<?= urlencode($pet_id) ?>"
                                             class="btn">View Details</a>

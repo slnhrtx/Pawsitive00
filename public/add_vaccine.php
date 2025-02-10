@@ -2,8 +2,14 @@
 ini_set("display_errors", 1);
 ini_set("display_startup_errors", 1);
 error_reporting(E_ALL);
-session_start();
-require '../config/dbh.inc.php';
+
+require __DIR__ . '/../config/dbh.inc.php';
+require __DIR__ . '/../src/helpers/auth_helpers.php';
+require __DIR__ . '/../src/helpers/session_helpers.php';
+require __DIR__ . '/../src/helpers/permissions.php';
+
+checkAuthentication($pdo);
+enhanceSessionSecurity();
 
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -122,6 +128,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $update_stmt->execute([$formData['weight'], $formData['pet_id']]);
             }
 
+            $invoiceStmt = $pdo->prepare("
+                INSERT INTO Invoices (AppointmentId, PetId, InvoiceNumber, InvoiceDate, TotalAmount, Status) 
+                VALUES (?, ?, ?, NOW(), ?, 'Pending')
+            ");
+            $invoiceNumber = 'INV-' . time(); // Generate a unique invoice number
+            $vaccineCost = 50.00; // Adjust cost as needed
+
+            $invoiceStmt->execute([
+                $_GET['appointment_id'] ?? null, // Ensure appointment_id is provided
+                $formData['pet_id'],
+                $invoiceNumber,
+                $vaccineCost
+            ]);
+
             $_SESSION['success'] = "Vaccination record added successfully!";
             header("Location: pet_profile.php?pet_id=" . $formData['pet_id']);
             exit();
@@ -132,7 +152,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
         $_SESSION['errors'] = $errors;
         $_SESSION['formData'] = $formData;
-        header("Location: add_vaccination.php?pet_id=" . $formData['pet_id']);
+        header("Location: add_vaccine.php?pet_id=" . $formData['pet_id']);
         exit();
     }
 }
@@ -236,7 +256,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </div>
     <div class="main-content">
     <h2>Add Vaccination</h2>
-    <form class="staff-form" action="add_vaccination.php?pet_id=<?= htmlspecialchars($pet['PetId']) ?>" method="POST" novalidate>
+    <form class="staff-form" action="add_vaccine.php?pet_id=<?= htmlspecialchars($pet['PetId']) ?>" method="POST" novalidate>
         <input type="hidden" name="pet_id" value="<?= htmlspecialchars($pet['PetId'] ?? '', ENT_QUOTES); ?>">
         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
         <h2>Vaccine Details</h2>
@@ -319,7 +339,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </div>
         <div class="form-buttons">
-            <button type="button" class="confirm-btn" onclick="confirmSubmission()">Save Vaccine</button>
+            <button type="submit" class="confirm-btn" onclick="confirmSubmission()">Save Vaccine</button>
         </div>
     </form>
     </div>
@@ -328,6 +348,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </script>
     <script>
         function confirmSubmission() {
+            console.log("Confirm button clicked.");  // Debugging log
+
             Swal.fire({
                 title: 'Confirm Submission',
                 text: "Are you sure you want to save this vaccination record?",
@@ -339,6 +361,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    console.log("Submitting form...");  // Debugging log
                     document.querySelector('.staff-form').submit();
                 }
             });
@@ -354,5 +377,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             });
         <?php endif; ?>
     </script>
+    <script>
+    <?php if (isset($_SESSION['success'])): ?>
+        Swal.fire({
+            title: 'Success!',
+            text: '<?= $_SESSION['success'] ?>',
+            icon: 'success',
+            confirmButtonText: 'View Invoice'
+        }).then(() => {
+            window.location.href = 'invoice_billing_form.php';
+        });
+        <?php unset($_SESSION['success']); // Clear success message ?>
+    <?php endif; ?>
+</script>
 </body>
 </html>

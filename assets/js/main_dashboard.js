@@ -16,7 +16,7 @@ async function exportAllDataPDF() {
     });
 
     try {
-        const url = '../public/export_dashboard_pdf.php';
+        const url = '../src/export_dashboard_pdf.php';
         const response = await fetch(url, { method: 'POST' });
 
         if (!response.ok) throw new Error(`Server error: ${response.status}`);
@@ -116,12 +116,13 @@ function promptVitalsVaccine(appointmentId, petId) {
         `,
         confirmButtonText: 'Update & Start',
         preConfirm: () => {
-            const weight = document.getElementById('weight').value;
-            if (!weight || weight <= 0) {
-                Swal.showValidationMessage('Weight must be a positive number.');
+            const weight = document.getElementById('weight').value.trim();
+            if (!weight || isNaN(weight) || weight <= 0 || !/^\d*\.?\d+$/.test(weight)) {
+                Swal.showValidationMessage('Weight must be a positive number without letters or symbols.');
                 return false;
             }
-            return { weight };
+            
+            return { weight: parseFloat(weight) }; 
         }
     }).then((result) => {
         if (result.isConfirmed) {
@@ -140,11 +141,13 @@ function updateWeightAndStartConsultation(appointmentId, petId, weight) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Server Response:', data); // Debugging
         if (data.success) {
             Swal.fire('Success', 'Weight updated. Redirecting...', 'success');
-            setTimeout(() => window.location.href = `add_vaccination.php?appointment_id=${appointmentId}&pet_id=${petId}`, 2000);
+            setTimeout(() => window.location.href = `add_vaccine.php?appointment_id=${appointmentId}&pet_id=${petId}`, 2000);
         } else {
-            Swal.fire('Error', 'Update failed.', 'error');
+            Swal.fire('Error', data.message || 'Update failed.', 'error');
         }
-    });
+    })
+    .catch(error => console.error('Fetch Error:', error));
 }
