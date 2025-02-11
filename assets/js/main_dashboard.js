@@ -118,22 +118,44 @@ function updateVitalsAndStartConsultation(appointmentId, petId, weight, temperat
         console.log('Server Response:', data);
 
         if (data.success) {
-            // ✅ Store that vitals are already recorded
             sessionStorage.setItem(`vitals_${appointmentId}_${petId}`, 'recorded');
-
-            Swal.fire('Success', 'Vitals updated. Redirecting...', 'success');
-            setTimeout(() => window.location.href = `patient_records.php?appointment_id=${appointmentId}&pet_id=${petId}`, 2000);
+            handleVitalsSuccess(appointmentId, petId);
         } else {
-            if (data.alreadyRecorded) {
-                sessionStorage.setItem(`vitals_${appointmentId}_${petId}`, 'recorded');
-                Swal.fire('Info', data.message, 'info');
-                setTimeout(() => window.location.href = `patient_records.php?appointment_id=${appointmentId}&pet_id=${petId}`, 2000);
-            } else {
-                Swal.fire('Error', data.message || 'Update failed.', 'error');
-            }
+            Swal.fire('Error', data.message || 'Update failed.', 'error');
         }
     })
     .catch(error => console.error('Fetch Error:', error));
+}
+
+function handleVitalsSuccess(appointmentId, petId) {
+    fetch('../src/get_user_role.php')
+        .then(response => response.json())
+        .then(data => {
+            const role = data.role;
+
+            if (role === 'Super Admin' || role === 'Admin' || role === 'Veterinarian') {
+                Swal.fire({
+                    title: 'Vitals Updated!',
+                    text: 'Redirecting to patient record...',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = `patient_record.php?appointment_id=${appointmentId}&pet_id=${petId}`;
+                });
+            } else {
+                Swal.fire({
+                    title: 'Vitals Updated!',
+                    text: 'Pet vitals recorded successfully.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching user role:', error);
+        });
 }
 
 function promptVitalsVaccine(appointmentId, petId) {

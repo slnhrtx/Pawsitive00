@@ -6,7 +6,7 @@
  * @param string $loginRedirect Path to redirect unauthenticated users.
  * @param string $onboardingRedirect Path for users with incomplete onboarding.
  */
-function checkAuthentication(PDO $pdo, string $loginRedirect = '../../public/staff_login.php', string $onboardingRedirect = 'onboarding.php'): void
+function checkAuthentication(PDO $pdo, string $loginRedirect = '../../public/staff_login.php'): void
 {
     if (session_status() !== PHP_SESSION_ACTIVE) {
         session_start();
@@ -18,17 +18,18 @@ function checkAuthentication(PDO $pdo, string $loginRedirect = '../../public/sta
     }
 
     try {
-        $stmt = $pdo->prepare("SELECT OnboardingComplete FROM Users WHERE UserId = :UserId LIMIT 1");
+        $stmt = $pdo->prepare("SELECT 1 FROM Users WHERE UserId = :UserId LIMIT 1");
         $stmt->execute([':UserId' => $_SESSION['UserId']]);
-        $userStatus = $stmt->fetch(PDO::FETCH_ASSOC);
+        $userExists = $stmt->fetchColumn();
 
-        if (!$userStatus || (int) $userStatus['OnboardingComplete'] !== 1) {
-            header("Location: $onboardingRedirect");
+        if (!$userExists) {
+            session_destroy();
+            header("Location: $loginRedirect");
             exit();
         }
     } catch (PDOException $e) {
         error_log("Database error in checkAuthentication: " . $e->getMessage());
-        header('Location: ../../public/error_page.php'); // Redirect to a user-friendly error page
+        header('Location: ../../public/error_page.php');
         exit();
     }
 }

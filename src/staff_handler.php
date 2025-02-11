@@ -67,11 +67,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmtPermissions->execute([':RoleId' => $user['RoleId']]);
                     $_SESSION['Permissions'] = array_map('strtolower', $stmtPermissions->fetchAll(PDO::FETCH_COLUMN));
 
-                    if ($_SESSION['OnboardingComplete'] != 1) {
-                        $redirectUrl = ($_SESSION['RoleId'] == 1)
-                            ? "../public/onboarding_role_creation.php"
-                            : "../public/onboarding_new_password.php";
-                        header("Location: $redirectUrl");
+                    if (empty($_SESSION['OnboardingComplete']) || $_SESSION['OnboardingComplete'] != 1) {
+                        if ($_SESSION['Role'] === 'Super Admin') {
+                            header("Location: ../public/onboarding_role_creation.php");
+                        } else {
+                            header("Location: ../public/onboarding_new_password.php");
+                        }
                         exit();
                     }
 
