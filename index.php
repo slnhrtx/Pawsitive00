@@ -163,5 +163,4 @@ function openLoginModal() {
 </script>
 
 </body>
-
 </html>
