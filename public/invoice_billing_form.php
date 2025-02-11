@@ -50,36 +50,36 @@ $unpaidInvoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="../assets/css/vet_record.css">
 </head>
-    <div class="sidebar">
-        <div class="logo">
-            <img src="../assets/images/logo/LOGO 2 WHITE.png" alt="Pawsitive Logo">
-        </div>
-        <nav>
-            <h3>Hello, <?= htmlspecialchars($userName) ?></h3>
-            <h4><?= htmlspecialchars($role) ?></h4>
-            <br>
-            <ul class="nav-links">
-                <li><a href="main_dashboard.php">
-                        <img src="../assets/images/Icons/Chart 1.png" alt="Overview Icon">Overview</a></li>
-                <li class="active"><a href="record.php">
-                        <img src="../assets/images/Icons/Record 3.png" alt="Record Icon">Record</a></li>
-                <li><a href="staff.php">
-                        <img src="../assets/images/Icons/Staff 1.png" alt="Contacts Icon">Staff</a></li>
-                <li><a href="appointment.php">
-                        <img src="../assets/images/Icons/Schedule 1.png" alt="Schedule Icon">Schedule</a></li>
-                <li><a href="invoice_billing_form.php">
-                        <img src="../assets/images/Icons/Billing 1.png" alt="Schedule Icon">Invoice and Billing</a></s>
-            </ul>
-        </nav>
-        <div class="sidebar-bottom">
-            <button onclick="window.location.href='settings.php';">
-                <img src="../assets/images/Icons/Settings 1.png" alt="Settings Icon">Settings
-            </button>
-            <button onclick="window.location.href='logout.php';">
-                <img src="../assets/images/Icons/Logout 1.png" alt="Logout Icon">Log out
-            </button>
-        </div>
+<div class="sidebar">
+    <div class="logo">
+        <img src="../assets/images/logo/LOGO 2 WHITE.png" alt="Pawsitive Logo">
     </div>
+    <nav>
+        <h3>Hello, <?= htmlspecialchars($userName) ?></h3>
+        <h4><?= htmlspecialchars($role) ?></h4>
+        <br>
+        <ul class="nav-links">
+            <li><a href="main_dashboard.php">
+                    <img src="../assets/images/Icons/Chart 1.png" alt="Overview Icon">Overview</a></li>
+            <li class="active"><a href="record.php">
+                    <img src="../assets/images/Icons/Record 3.png" alt="Record Icon">Record</a></li>
+            <li><a href="staff.php">
+                    <img src="../assets/images/Icons/Staff 1.png" alt="Contacts Icon">Staff</a></li>
+            <li><a href="appointment.php">
+                    <img src="../assets/images/Icons/Schedule 1.png" alt="Schedule Icon">Schedule</a></li>
+            <li><a href="invoice_billing_form.php">
+                    <img src="../assets/images/Icons/Billing 1.png" alt="Schedule Icon">Invoice and Billing</a></s>
+        </ul>
+    </nav>
+    <div class="sidebar-bottom">
+        <button onclick="window.location.href='settings.php';">
+            <img src="../assets/images/Icons/Settings 1.png" alt="Settings Icon">Settings
+        </button>
+        <button onclick="window.location.href='logout.php';">
+            <img src="../assets/images/Icons/Logout 1.png" alt="Logout Icon">Log out
+        </button>
+    </div>
+</div>
 <h2>Unpaid Invoices</h2>
 
 <table class="staff-table">
@@ -116,54 +116,56 @@ $unpaidInvoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </tr>
             <?php endforeach; ?>
         <?php else: ?>
-            <tr><td colspan="10">No unpaid invoices found.</td></tr>
+            <tr>
+                <td colspan="10">No unpaid invoices found.</td>
+            </tr>
         <?php endif; ?>
     </tbody>
 </table>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".mark-paid-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            const invoiceId = this.dataset.id;
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".mark-paid-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                const invoiceId = this.dataset.id;
 
-            Swal.fire({
-                title: 'Confirm Payment',
-                text: "Are you sure you want to mark this invoice as paid?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, mark as Paid!',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch('mark_invoice_paid.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ invoice_id: invoiceId })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire({
-                                title: 'Success!',
-                                text: 'Invoice marked as Paid.',
-                                icon: 'success',
-                                timer: 2000,
-                                showConfirmButton: false
-                            }).then(() => location.reload());
-                        } else {
-                            Swal.fire('Error!', data.message, 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Fetch error:', error);
-                        Swal.fire('Error!', 'Something went wrong.', 'error');
-                    });
-                }
+                Swal.fire({
+                    title: 'Confirm Payment',
+                    text: "Are you sure you want to mark this invoice as paid?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, mark as Paid!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('../src/mark_invoice_paid.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ invoice_id: invoiceId })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire({
+                                        title: 'Success!',
+                                        text: 'Invoice marked as Paid.',
+                                        icon: 'success',
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    }).then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error!', data.message, 'error');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Fetch error:', error);
+                                Swal.fire('Error!', 'Something went wrong.', 'error');
+                            });
+                    }
+                });
             });
         });
     });
-});
 </script>

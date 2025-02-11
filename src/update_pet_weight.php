@@ -30,11 +30,10 @@ try {
     $stmt = $pdo->prepare("UPDATE Pets SET Weight = :weight WHERE PetId = :pet_id");
     $stmt->execute([':weight' => $weight, ':pet_id' => $petId]);
 
-    if ($stmt->rowCount() > 0) {
-        echo json_encode(['success' => true, 'message' => 'Weight updated successfully.']);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'No changes made or pet not found.']);
-    }
+    $stmtWeight = $pdo->prepare("INSERT INTO PetWeights (PetId, Weight, RecordedAt) VALUES (:pet_id, :weight, NOW())");
+    $stmtWeight->execute([':pet_id' => $petId, ':weight' => $weight]);
+
+    echo json_encode(['success' => true, 'message' => 'Weight recorded successfully.']);
 } catch (PDOException $e) {
     error_log('Database Error: ' . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Database error occurred.']);
