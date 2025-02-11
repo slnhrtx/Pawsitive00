@@ -301,6 +301,35 @@ try {
         });
     });
 </script>
+<script>
+        document.getElementById('SpeciesId').addEventListener('change', function () {
+            const speciesId = this.value; // Get the selected species ID
+
+            if (speciesId) {
+                fetch(`fetch_breeds.php?SpeciesId=${speciesId}`)
+                    .then(response => response.json())
+                    .then(breeds => {
+                        const breedSelect = document.getElementById('Breed');
+                        breedSelect.innerHTML = '<option value="">Select breed</option>'; // Reset breed options
+
+                        // Populate breed dropdown
+                        breeds.forEach(breed => {
+                            const option = document.createElement('option');
+                            option.value = breed.Id;
+                            option.textContent = breed.Name;
+                            breedSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching breeds:', error);
+                        alert("Unable to fetch breeds. Please try again later.");
+                    });
+            } else {
+                const breedSelect = document.getElementById('Breed');
+                breedSelect.innerHTML = '<option value="">Select breed</option>'; // Reset breed options
+            }
+        });
+    </script>
 
 <script src="add_pet.js"></script>
 

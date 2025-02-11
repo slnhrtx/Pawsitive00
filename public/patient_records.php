@@ -337,7 +337,6 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
 
 
 
-
         <form class="staff-form" action="../src/chief_complaint_process.php" method="POST" novalidate>
         <h2>Chief Complaint</h2>
             <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? ''); ?>">
@@ -348,7 +347,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                         <textarea id="chief_complaint" name="chief_complaint" rows="3" maxlength="300"
                             placeholder="Describe the main reason for today's visit..."
                             required><?= htmlspecialchars($patientRecord['ChiefComplaint'] ?? '', ENT_QUOTES); ?></textarea>
-                        <small id="chief-complaint-char-count">0 / 300 characters</small>
+                        <small id="char-count">0 / 300 characters</small>
                     </div>
                 </div>
 
@@ -1230,7 +1229,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
             
                     <div class="input-container">
                         <label for="prognosis"><b>Prognosis:</b></label>
-                        <select id="prognosis" name="prognosis" required>
+                        <select id="prognosis" name="prognosis">
                             <option value="">Select Prognosis</option>
                             <?php
                             $prognosisOptions = ['Excellent', 'Good', 'Fair', 'Poor', 'Questionable', 'Grave'];
@@ -1430,7 +1429,7 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
                                 <input type="date" id="follow-up-date-<?= $index + 1 ?>" 
                                     name="follow_up_dates[]" 
                                     value="<?= htmlspecialchars($date, ENT_QUOTES); ?>" 
-                                    required>
+                                    >
                             </div>
                             <div class="input-container">
                                 <label for="follow-up-notes-<?= $index + 1 ?>"><b>Notes:</b></label>
@@ -1452,14 +1451,18 @@ $follow_up_notes = $_SESSION['form_data']['follow_up_notes'];
             
         </form>
 
-            <form class="staff-form" action="../src/process_finish_consultation.php" method="POST">
+            <form class="staff-form" action="../src/finish_consultation.php" method="POST">
                 <input type="hidden" name="appointment_id" value="<?= htmlspecialchars($_GET['appointment_id'] ?? '') ?>">
                 <input type="hidden" name="pet_id" value="<?= htmlspecialchars($_GET['pet_id'] ?? '') ?>">
                     <div class="form-buttons">
                         <button type="submit" class="confirm-btn" style="font-size: 18px;" onclick="confirmFinishConsultation(event)">Finish Consultation</button>
                     </div>
             </form>
-
+<script>
+    document.querySelector("form").addEventListener("submit", function (event) {
+    console.log("Form submitted!");
+});
+</script>
         <script>
                 function toggleFileUpload(checkbox, fileInputId, customInputId = null) {
                     document.getElementById(fileInputId).style.display = checkbox.checked ? 'block' : 'none';

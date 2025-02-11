@@ -118,7 +118,7 @@ try {
         }
 
         .status.pending { background-color: #FFB200; color: #fff; } 
-        .status.completed { background-color: #00A86B; color: #fff; } 
+        .status.done { background-color: #00A86B; color: #fff; } 
         .status.confirmed { background-color: #4C5FD5; color: #fff; } 
         .status.cancelled { background-color: #D72638; color: #fff; } 
     </style>
@@ -135,7 +135,7 @@ try {
             <li><a href="appointment/book_appointment.php">Appointment</a></li>
             <li><a href="pet/pet_add.php">Pets</a></li>
             <li><a href="./record/pet_record.php">Record</a></li>
-            <li><a href="../record/record.php">Billing</a></li>
+            <li><a href="invoice/invoice.php">Billing</a></li>
         </ul>
     </nav>
 </header>

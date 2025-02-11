@@ -16,7 +16,7 @@ async function exportAllDataPDF() {
     });
 
     try {
-        const url = '../public/export_dashboard_pdf.php';
+        const url = '../src/export_dashboard_pdf.php';
         const response = await fetch(url, { method: 'POST' });
 
         if (!response.ok) throw new Error(`Server error: ${response.status}`);
@@ -42,6 +42,44 @@ async function exportAllDataPDF() {
 window.exportAllDataPDF = exportAllDataPDF;
 
 function promptVitalsUpdate(appointmentId, petId) {
+    // ✅ Check sessionStorage before prompting the user
+    if (sessionStorage.getItem(`vitals_${appointmentId}_${petId}`) === 'recorded') {
+        console.log('Skipping vitals prompt: already recorded.');
+
+        Swal.fire({
+            title: 'Weight Already Recorded!',
+            text: 'Redirecting to patient records...',
+            icon: 'info',
+            timer: 2000,
+            showConfirmButton: false
+        }).then(() => {
+            window.location.href = `patient_records.php?appointment_id=${appointmentId}&pet_id=${petId}`;
+        });
+
+        return;
+    }
+
+    // ✅ Fetch from the server if vitals exist
+    fetch(`../src/check_vitals_status.php?appointment_id=${appointmentId}&pet_id=${petId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.alreadyRecorded) {
+                // ✅ If already recorded, store in sessionStorage and skip the prompt
+                sessionStorage.setItem(`vitals_${appointmentId}_${petId}`, 'recorded');
+                console.log('Skipping vitals prompt from database check.');
+                window.location.href = `patient_records.php?appointment_id=${appointmentId}&pet_id=${petId}`;
+            } else {
+                // ✅ Show the prompt only if vitals are NOT recorded
+                showVitalsPrompt(appointmentId, petId);
+            }
+        })
+        .catch(error => {
+            console.error('Error checking vitals:', error);
+            showVitalsPrompt(appointmentId, petId);
+        });
+}
+
+function showVitalsPrompt(appointmentId, petId) {
     Swal.fire({
         title: 'Update Pet Vitals',
         html: `
@@ -56,31 +94,10 @@ function promptVitalsUpdate(appointmentId, petId) {
         preConfirm: () => {
             const weight = document.getElementById('weight').value;
             const temperature = document.getElementById('temperature').value;
-            if (!weight || !temperature) {
-                Swal.showValidationMessage('All fields are required.');
+            if (!weight || !temperature || weight <= 0) {
+                Swal.showValidationMessage('All fields are required and must be valid.');
                 return false;
             }
-            if (weight <= 0) {
-                Swal.showValidationMessage('Weight must be a positive number.');
-                return false;
-            }
-            if (temperature < 30 || temperature > 45) {
-                return Swal.fire({
-                    title: 'Warning',
-                    text: 'The recorded temperature is outside the normal range (30°C - 45°C). Do you want to proceed?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, Proceed',
-                    cancelButtonText: 'Cancel'
-                }).then((confirmation) => {
-                    if (confirmation.isConfirmed) {
-                        return { weight, temperature };
-                    } else {
-                        return false;
-                    }
-                });
-            }
-            
             return { weight, temperature };
         }
     }).then((result) => {
@@ -98,16 +115,95 @@ function updateVitalsAndStartConsultation(appointmentId, petId, weight, temperat
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Server Response:', data);
+
         if (data.success) {
-            Swal.fire('Success', 'Vitals updated. Redirecting...', 'success');
-            setTimeout(() => window.location.href = `patient_records.php?appointment_id=${appointmentId}&pet_id=${petId}`, 2000);
+            sessionStorage.setItem(`vitals_${appointmentId}_${petId}`, 'recorded');
+            handleVitalsSuccess(appointmentId, petId);
         } else {
-            Swal.fire('Error', 'Update failed.', 'error');
+            Swal.fire('Error', data.message || 'Update failed.', 'error');
         }
-    });
+    })
+    .catch(error => console.error('Fetch Error:', error));
+}
+
+function handleVitalsSuccess(appointmentId, petId) {
+    fetch('../src/get_user_role.php')
+        .then(response => response.json())
+        .then(data => {
+            const role = data.role;
+
+            if (role === 'Super Admin' || role === 'Admin' || role === 'Veterinarian') {
+                Swal.fire({
+                    title: 'Vitals Updated!',
+                    text: 'Redirecting to patient record...',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = `patient_record.php?appointment_id=${appointmentId}&pet_id=${petId}`;
+                });
+            } else {
+                Swal.fire({
+                    title: 'Vitals Updated!',
+                    text: 'Pet vitals recorded successfully.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching user role:', error);
+        });
 }
 
 function promptVitalsVaccine(appointmentId, petId) {
+    // ✅ Check sessionStorage before prompting the user
+    if (sessionStorage.getItem(`vaccine_vitals_${appointmentId}_${petId}`) === 'recorded') {
+        console.log('Skipping weight prompt: already recorded.');
+        Swal.fire({
+            title: "Pet's weight is already updated!",
+            text: "Redirecting to vaccination records...",
+            icon: "info",
+            timer: 2000,
+            showConfirmButton: false
+        }).then(() => {
+            window.location.href = `add_vaccine.php?appointment_id=${appointmentId}&pet_id=${petId}`;
+        });
+        return;
+    }
+
+    // ✅ Fetch from the server if weight was already recorded
+    fetch(`../src/check_vaccine_status.php?appointment_id=${appointmentId}&pet_id=${petId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.alreadyRecorded) {
+                // ✅ If already recorded, store in sessionStorage and skip the prompt
+                sessionStorage.setItem(`vaccine_vitals_${appointmentId}_${petId}`, 'recorded');
+                console.log('Skipping weight prompt from database check.');
+
+                Swal.fire({
+                    title: "Pet's weight is already updated!",
+                    text: "Redirecting to vaccination records...",
+                    icon: "info",
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = `add_vaccine.php?appointment_id=${appointmentId}&pet_id=${petId}`;
+                });
+            } else {
+                // ✅ Show the prompt only if weight is NOT recorded
+                showVaccinePrompt(appointmentId, petId);
+            }
+        })
+        .catch(error => {
+            console.error('Error checking weight:', error);
+            showVaccinePrompt(appointmentId, petId);
+        });
+}
+
+function showVaccinePrompt(appointmentId, petId) {
     Swal.fire({
         title: 'Update Pet Weight',
         html: `
@@ -116,23 +212,24 @@ function promptVitalsVaccine(appointmentId, petId) {
         `,
         confirmButtonText: 'Update & Start',
         preConfirm: () => {
-            const weight = document.getElementById('weight').value;
-            if (!weight || weight <= 0) {
-                Swal.showValidationMessage('Weight must be a positive number.');
+            const weight = document.getElementById('weight').value.trim();
+            if (!weight || isNaN(weight) || weight <= 0 || !/^\d*\.?\d+$/.test(weight)) {
+                Swal.showValidationMessage('Weight must be a positive number without letters or symbols.');
                 return false;
             }
-            return { weight };
+            
+            return { weight: parseFloat(weight) }; 
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            updateWeightAndStartConsultation(appointmentId, petId, result.value.weight);
+            updateWeightAndStartVaccination(appointmentId, petId, result.value.weight);
         }
     });
 }
 
 window.promptVitalsVaccine = promptVitalsVaccine;
 
-function updateWeightAndStartConsultation(appointmentId, petId, weight) {
+function updateWeightAndStartVaccination(appointmentId, petId, weight) {
     fetch('../src/update_pet_weight.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -140,11 +237,37 @@ function updateWeightAndStartConsultation(appointmentId, petId, weight) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Server Response:', data);
+
         if (data.success) {
-            Swal.fire('Success', 'Weight updated. Redirecting...', 'success');
-            setTimeout(() => window.location.href = `add_vaccination.php?appointment_id=${appointmentId}&pet_id=${petId}`, 2000);
+            // ✅ Store that weight is already recorded
+            sessionStorage.setItem(`vaccine_vitals_${appointmentId}_${petId}`, 'recorded');
+
+            Swal.fire({
+                title: "Weight updated!",
+                text: "Redirecting to vaccination records...",
+                icon: "success",
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = `add_vaccine.php?appointment_id=${appointmentId}&pet_id=${petId}`;
+            });
         } else {
-            Swal.fire('Error', 'Update failed.', 'error');
+            if (data.alreadyRecorded) {
+                sessionStorage.setItem(`vaccine_vitals_${appointmentId}_${petId}`, 'recorded');
+                Swal.fire({
+                    title: "Pet's weight is already updated!",
+                    text: "Redirecting to vaccination records...",
+                    icon: "info",
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = `add_vaccine.php?appointment_id=${appointmentId}&pet_id=${petId}`;
+                });
+            } else {
+                Swal.fire('Error', data.message || 'Update failed.', 'error');
+            }
         }
-    });
+    })
+    .catch(error => console.error('Fetch Error:', error));
 }

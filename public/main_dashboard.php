@@ -380,7 +380,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <?php if ($appointment['Status'] === 'Done'): ?>
                                             <?php if (hasPermission($pdo, 'Process Payments')): ?>
                                                 <button class="status-button"
-                                                    onclick="window.location.href='invoice_billing_form.php?appointment_id=<?= htmlspecialchars($appointment['AppointmentId']); ?>'">
+                                                    onclick="generateInvoice(<?= htmlspecialchars($appointment['AppointmentId']); ?>, <?= htmlspecialchars($appointment['PetId']); ?>)">
                                                     Invoice and Billing
                                                 </button>
                                             <?php else: ?>
@@ -617,9 +617,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
     });
     </script>
-    <script>
+<script>
+function generateInvoice(appointmentId, petId) {
+    if (!appointmentId || !petId) {
+        console.error("❌ Missing appointment or pet ID.");
+        return;
+    }
 
-    </script>
+    Swal.fire({
+        title: "Generate Invoice?",
+        text: "Are you sure you want to generate an invoice for this appointment?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Generate",
+        cancelButtonText: "Cancel"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('../src/generate_invoice.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ appointment_id: appointmentId, pet_id: petId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire("Success", "Invoice generated successfully!", "success")
+                    .then(() => {
+                        window.location.href = 'invoice_billing_form.php';
+                    });
+                } else {
+                    Swal.fire("Error", data.message, "error");
+                }
+            })
+            .catch(error => console.error("❌ Error:", error));
+        }
+    });
+}
+</script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
