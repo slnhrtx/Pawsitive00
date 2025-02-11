@@ -7,11 +7,12 @@ require '../../../config/dbh.inc.php';
 require '../../../src/helpers/session_helpers.php';
 require '../../../src/helpers/auth_helpers.php';
 
-checkAuthentication($pdo);
+session_start();
+//checkAuthentication($pdo);
 
-$userId = $_SESSION['UserId'];
+$ownerId = $_SESSION['OwnerId'];
 $ownerEmail = $_SESSION['Email'];
-$ownerName = $_SESSION['FirstName'] . ' ' . $_SESSION['LastName'];
+$ownerName = $_SESSION['OwnerName'];
 
 // ✅ Fetch invoices linked to the owner's pets
 $stmt = $pdo->prepare("
