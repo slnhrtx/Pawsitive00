@@ -135,7 +135,7 @@ try {
             <li><a href="appointment/book_appointment.php">Appointment</a></li>
             <li><a href="pet/pet_add.php">Pets</a></li>
             <li><a href="./record/pet_record.php">Record</a></li>
-            <li><a href="../record/record.php">Billing</a></li>
+            <li><a href="invoice/invoice.php">Billing</a></li>
         </ul>
     </nav>
 </header>

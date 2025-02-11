@@ -71,17 +71,30 @@ $query = "
         Pets.Name AS PetName,
         Pets.PetCode,
         Species.SpeciesName AS PetType,
-        Services.ServiceName AS service,
-        Appointments.AppointmentTime,
-        Appointments.AppointmentDate
+        (SELECT Services.ServiceName 
+            FROM Appointments 
+            LEFT JOIN Services ON Appointments.ServiceId = Services.ServiceId
+            WHERE Appointments.PetId = Pets.PetId
+            ORDER BY Appointments.AppointmentDate DESC, Appointments.AppointmentTime DESC 
+            LIMIT 1
+        ) AS LatestService,
+        (SELECT Appointments.AppointmentTime 
+            FROM Appointments 
+            WHERE Appointments.PetId = Pets.PetId
+            ORDER BY Appointments.AppointmentDate DESC, Appointments.AppointmentTime DESC 
+            LIMIT 1
+        ) AS LatestTime,
+        (SELECT Appointments.AppointmentDate 
+            FROM Appointments 
+            WHERE Appointments.PetId = Pets.PetId
+            ORDER BY Appointments.AppointmentDate DESC, Appointments.AppointmentTime DESC 
+            LIMIT 1
+        ) AS LatestDate
     FROM Pets
     INNER JOIN Owners ON Pets.OwnerId = Owners.OwnerId
     LEFT JOIN Species ON Pets.SpeciesId = Species.Id
-    LEFT JOIN Appointments ON Pets.PetId = Appointments.PetId
-    LEFT JOIN Services ON Appointments.ServiceId = Services.ServiceId
-    $where_sql
-    AND Pets.IsConfined = 0
-    ORDER BY $orderBy $order
+    WHERE Pets.IsArchived = 0
+    ORDER BY LatestDate DESC
     LIMIT ?, ?
 ";
 
@@ -417,9 +430,9 @@ $totalPages = ceil($totalRecords / $recordsPerPage);
                                 </a>
                             </td>
                             <td><?= htmlspecialchars($pet['PetType'] ?? 'No information found') ?></td>
-                            <td><?= htmlspecialchars($pet['service'] ?? 'No information found') ?></td>
-                            <td><?= htmlspecialchars($pet['AppointmentTime'] ?? '00:00') ?></td>
-                            <td><?= htmlspecialchars($pet['AppointmentDate'] ?? 'MM/DD') ?></td>
+                            <td><?= htmlspecialchars($pet['LatestService'] ?? 'No information found') ?></td>
+                            <td><?= htmlspecialchars($pet['LatestTime'] ?? '00:00') ?></td>
+                            <td><?= htmlspecialchars($pet['LatestDate'] ?? 'MM/DD') ?></td>
                         </tr>
                         <tr class="dropdown-row" style="display: none;">
                             <td colspan="6">
