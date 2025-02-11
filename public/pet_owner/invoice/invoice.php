@@ -14,7 +14,6 @@ $ownerId = $_SESSION['OwnerId'];
 $ownerEmail = $_SESSION['Email'];
 $ownerName = $_SESSION['OwnerName'];
 
-// ✅ Fetch invoices linked to the owner's pets
 $stmt = $pdo->prepare("
     SELECT i.InvoiceId, i.InvoiceNumber, i.InvoiceDate, i.TotalAmount, i.Status, i.PaidAt,
            a.AppointmentDate, p.Name AS PetName, s.ServiceName
